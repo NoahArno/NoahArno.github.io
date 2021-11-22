@@ -1,0 +1,120 @@
+# 1、Springboot整合
+
+1、添加依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+```
+
+2、配置文件中配置
+
+spring.rabbitmq.host=192.168.118.128
+
+spring.rabbitmq.virtual-host=/
+
+3、添加注解@EnableRabbimq
+
+4、配置消息可靠性传递
+
+<img src="IMG/image-20211108210534292.png" alt="image-20211108210534292" style="zoom:67%;" />
+
+```yaml
+spring: 
+  rabbitmq:
+    host: 192.168.118.128
+    virtual-host: /
+    publisher-returns: true #开启发送端消息抵达队列的确认
+    template:
+      mandatory: true #只要抵达队列，以异步发送优先回调我们这个returnconfirm
+    listener:
+      simple:
+        acknowledge-mode: manual #手动ack消息
+    publisher-confirm-type: correlated #开启发送端确认，也就是消息确认抵达到reabbitmq服务器
+```
+
+5、使用代码演示消息可靠传递，并且使用JSON序列化机制进行消息的转换
+
+```java
+@Configuration
+public class MyRabbitConfig {
+
+    //    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Primary
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        this.rabbitTemplate = rabbitTemplate;
+        rabbitTemplate.setMessageConverter(messageConverter());
+        initRabbitTemplate();
+        return rabbitTemplate;
+    }
+
+    /* 使用JSON序列化机制，进行消息的转换 */
+    @Bean
+    public MessageConverter messageConverter(){
+        return new Jackson2JsonMessageConverter();
+    }
+
+    /**
+     * 定制RabbitTemplate
+     * 1、服务器收到消息就回调
+     *      1、spring.rabbitmq.publisher-confirms=true
+     *      2、设置确认回调ConfirmCallback
+     * 2、消息正确抵达队列进行回调
+     *      1、 spring.rabbitmq.publisher-returns=true
+     *          spring.rabbitmq.template.mandatory=true
+     *      2、设置确认回调ReturnCallback
+     *
+     * 3、消费端确认（保证每个消息被正确消费，此时才可以broker删除这个消息）。
+     *      spring.rabbitmq.listener.simple.acknowledge-mode=manual 手动签收
+     *      1、默认是自动确认的，只要消息接收到，客户端会自动确认，服务端就会移除这个消息
+     *          问题：
+     *              我们收到很多消息，自动回复给服务器ack，只有一个消息处理成功，宕机了。就会发生消息丢失；
+     *              消费者手动确认模式。只要我们没有明确告诉MQ，货物被签收。没有Ack，
+     *                  消息就一直是unacked状态。即使Consumer宕机。消息不会丢失，会重新变为Ready，下一次有新的Consumer连接进来就发给他
+     *          2如何去签收:
+     *          channel.basicAck(deliveryTag,false);签收；业务成功完成就应该签收
+     *          channel.basicNack(deliveryTag,false,true);拒签；业务失败就拒签收
+     */
+    //    @PostConstruct //MyRabbitConfig对象创建完成以后，执行这个方法
+    public void initRabbitTemplate(){
+        //设置一个确认回调
+        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
+            /**
+             *只要消息抵达MQ服务器，那么ACK聚等于true
+             * @param correlationData 当前消息的唯一关联数据，每一个消息发送的时候可以给一个唯一id
+             * @param ack   消息是否成功收到
+             * @param cause 失败的原因
+             *只要MQ代理收到消息，那么confirm就会自动回调
+             */
+            @Override
+            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+                //服务器收到消息
+                System.out.println("confirm...correlationData["+correlationData+"]==>ack["+ack+"]==>cause["+cause+"]");
+            }
+        });
+        //设置抵达队列的确认回调
+        rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
+            /**
+             * 只要消息没有投递给指定的队列，就触发这个returnedMessage失败回调方法
+             * @param message 哪个消息投递失败了，消息的具体内容
+             * @param replyCode 回复的状态码
+             * @param replyText 回复的文本内容
+             * @param exchange 当前这个消息发给哪个交换机
+             * @param routingKey 当前这个消息发送的时候，指定的哪个路由键
+             */
+            @Override
+            public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+                //只要服务器收到消息，发送错误了就相当于修改数据库当前消息的错误状态，改为错误了，没有收到消息，就定期重新发送消息
+                System.out.println("Fail Message["+message+"]==>replyCode["+replyCode+"]==>replyText["+replyText+"]==>exchange["+exchange+"]==>routingKey["+routingKey+"]");
+            }
+        });
+    }
+}
+```
+
