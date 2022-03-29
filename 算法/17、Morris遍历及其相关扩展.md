@@ -12,7 +12,7 @@
 
 举例说明：
 
-<img src="IMG/17、Morris遍历及其相关扩展.assets/image-20211006105426558.png" alt="image-20211006105426558" style="zoom:50%;" />
+![IMG/17、Morris遍历及其相关扩展.assets/image-20211006105426558.png](IMG/17、Morris遍历及其相关扩展.assets/image-20211006105426558.png)
 
 
 

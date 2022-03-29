@@ -352,7 +352,7 @@ system>const>eq_ref>ref>range>index>ALL
 
 ![image-20210917185102269](IMG/MySQL高级.assets/image-20210917185102269.png)
 
-<img src="IMG/MySQL高级.assets/image-20210917185158473.png" alt="image-20210917185158473" style="zoom:67%;" />
+![IMG/MySQL高级.assets/image-20210917185158473.png](IMG/MySQL高级.assets/image-20210917185158473.png)
 
 ## 2.5 索引优化
 
@@ -414,7 +414,7 @@ system>const>eq_ref>ref>range>index>ALL
 
 2、最佳左前缀法则：如果索引了多列，要遵守最左前缀法则。指的是查询从索引的最左前列开始并且**不跳过索引中的列**
 
-<img src="IMG/MySQL高级.assets/image-20210917193104745.png" alt="image-20210917193104745" style="zoom:67%;" />
+![IMG/MySQL高级.assets/image-20210917193104745.png](IMG/MySQL高级.assets/image-20210917193104745.png)
 
 
 
@@ -426,7 +426,7 @@ system>const>eq_ref>ref>range>index>ALL
 
 4、存储引擎不能使用索引中范围条件右边的列
 
-<img src="IMG/MySQL高级.assets/image-20210917193420571.png" alt="image-20210917193420571" style="zoom: 80%;" />
+![IMG/MySQL高级.assets/image-20210917193420571.png]()
 
 5、尽量使用覆盖索引（只访问索引的查询（索引列和查询列一致）），减少select *
 
@@ -520,7 +520,7 @@ order by满足两种情况，会使用index排序：
 
 - 增大max_length_for_sort_data参数的设置
 - 增大sort_buffer_size参数的设置
-- <img src="IMG/MySQL高级.assets/image-20210917203308947.png" alt="image-20210917203308947" style="zoom:67%;" />
+- ![IMG/MySQL高级.assets/image-20210917203308947.png](IMG/MySQL高级.assets/image-20210917203308947.png)
 
 ### 2.6.3 group by关键字优化
 

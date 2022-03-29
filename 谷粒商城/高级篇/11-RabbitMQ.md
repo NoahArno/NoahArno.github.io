@@ -19,7 +19,7 @@ spring.rabbitmq.virtual-host=/
 
 4、配置消息可靠性传递
 
-<img src="IMG/image-20211108210534292.png" alt="image-20211108210534292" style="zoom:67%;" />
+![IMG/image-20211108210534292.png](IMG/image-20211108210534292.png)
 
 ```yaml
 spring: 

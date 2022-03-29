@@ -1811,7 +1811,7 @@ Tomcat-Servlet：
 
 也就是说Spring中有两套路径，Spring流程和Tomcat处理，如下图所示，因此如果请求路径是/my，就会优先交由tomcat处理，不会经过spring的DispatcherServlet
 
-<img src="IMG/SpringBoot2.assets/1606284869220-8b63d54b-39c4-40f6-b226-f5f095ef9304.png" alt="img" style="zoom: 50%;" />
+![IMG/SpringBoot2.assets/1606284869220-8b63d54b-39c4-40f6-b226-f5f095ef9304.png](IMG/SpringBoot2.assets/1606284869220-8b63d54b-39c4-40f6-b226-f5f095ef9304.png)
 
 
 
