@@ -227,7 +227,7 @@ innodb_log_file_size=200M
 
 ![IMG/第14章_MySQL事务日志.asserts/image24.jpeg](IMG/第14章_MySQL事务日志.assets/image24.jpeg)
 
-### 2、Undo日志
+## 2、Undo日志
 
 redo log是事务持久性的保证，undo log是事务原子性的保证。**在事务中 更新数据 的 前置操作 其实是要 先写入一个 undo log 。**
 
