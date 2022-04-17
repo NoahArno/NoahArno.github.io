@@ -1830,17 +1830,342 @@ protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable O
 
 ## 2.10 Bean的初始化流程（GetBean的详细逻辑）
 
+我们以**finishBeanFactoryInitialization刷新步骤中的beanFactory.preInstantiateSingletons()，初始化所有的非懒加载的单实例Bean;**为起点，进行初始化流程分析：
 
+```java
+@Override
+public void preInstantiateSingletons() throws BeansException {
+    if (logger.isTraceEnabled()) {
+        logger.trace("Pre-instantiating singletons in " + this);
+    }
 
+    // Iterate over a copy to allow for init methods which in turn register new bean definitions.
+    // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+    List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
+    // 创建出所有的单实例Bean；Trigger initialization of all non-lazy singleton beans...
+    for (String beanName : beanNames) {
+        RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName); //开始解析文件的时候每一个bean标签被解析封装成一个BeanDefinition
+        if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+            if (isFactoryBean(beanName)) { //如果是FactoryBean则执行下面逻辑
+                Object bean = getBean(FACTORY_BEAN_PREFIX + beanName); //得到HelloFactory
+                if (bean instanceof FactoryBean) {
+                    FactoryBean<?> factory = (FactoryBean<?>) bean;
+                    boolean isEagerInit;
+                    if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
+                        isEagerInit = AccessController.doPrivileged(
+                            (PrivilegedAction<Boolean>) ((SmartFactoryBean<?>) factory)::isEagerInit,
+                            getAccessControlContext());
+                    }
+                    else {
+                        isEagerInit = (factory instanceof SmartFactoryBean &&
+                                       ((SmartFactoryBean<?>) factory).isEagerInit());
+                    }
+                    if (isEagerInit) {
+                        getBean(beanName);
+                    }
+                }
+            }
+            else { //不是FactoryBean则执行这个,普通的单实例非懒加载bean的创建
+                getBean(beanName); //
+            }
+        }
+    }
+
+    // 触发 post-initialization 逻辑；
+    for (String beanName : beanNames) {
+        Object singletonInstance = getSingleton(beanName);
+        // 如果当前的bean实现了SmartInitializingSingleton接口，就执行下面步骤
+        if (singletonInstance instanceof SmartInitializingSingleton) {
+            StartupStep smartInitialize = this.getApplicationStartup().start("spring.beans.smart-initialize")
+                .tag("beanName", beanName);
+            SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+            if (System.getSecurityManager() != null) {
+                AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                    smartSingleton.afterSingletonsInstantiated();
+                    return null;
+                }, getAccessControlContext());
+            }
+            else {
+                smartSingleton.afterSingletonsInstantiated();
+            }
+            smartInitialize.end();
+        }
+    }
+```
+
+还是之前熟悉的流程，Spring会遍历所有容器中所有的BeanName进行创建获取，**在所有的bean创建完成之后，Spring会再次遍历所有的beanName，然后取出它们已经创建好的实例，如果该实例实现了SmartInitializingSingleton接口，就执行它们的afterSingletonsInstantiated( )方法。**
+
+让我们将目光重新聚焦到一开始，也就是Spring遍历所有容器中所有的BeanName进行挨个创建，如上述代码所示，Spring会在获取到该beanName对应的RootBeanDefinition之后，会去判断当前Bean满不满足：单实例、非抽象、非懒加载，如果满足就会判断当前bean是否是工厂Bean。
+
+**如果是工厂bean：**
+
+1. 工厂Bean在Spring容器中一开始保存的是工厂本身。
+2. 第一次获取Hello组件（HelloFactory能产生的对象）的时候，即getBean方法会在底层所有组件挨个遍历找到哪个组件的类型是Hello
+3. 找到HelloFactory发现它是工厂，类型就被决定为Hello
+4. 调用工厂方法（getObject）创建Hello对象
+5. 如果是普通的单实例，就会保存在singletonObject里面。
+6. 如果是工厂产生的bean则缓存在factoryBeanCache，下一次直接从这里拿，所有工厂Bean默认还是单实例。
+
+**如果是普通bean，就会调用getBean(beanName)方法，它实际上调用的是doGetBean方法：**
+
+```java
+protected <T> T doGetBean(
+    String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
+    throws BeansException {
+
+    String beanName = transformedBeanName(name); //转换Bean名字
+    Object beanInstance;
+
+    // 先检查单实例bean的缓存 第一次查找的时候都是没有的
+    Object sharedInstance = getSingleton(beanName); 
+    if (sharedInstance != null && args == null) {
+        ......
+        beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+    }
+    else { //默认第一次获取组件都会进入else环节
+		......
+        // 拿到整个beanFactory的父工厂；看父工厂有没有，从父工厂先尝试获取组件； 
+        BeanFactory parentBeanFactory = getParentBeanFactory();
+        if (parentBeanFactory != null && !containsBeanDefinition(beanName)) { //以下开始从父工厂获取组件
+            ......
+        }
+        if (!typeCheckOnly) {
+            markBeanAsCreated(beanName); //标记当前beanName的bean已经被创建
+        }
+        StartupStep beanCreation = this.applicationStartup.start("spring.beans.instantiate")
+            .tag("beanName", name);
+        try {
+            if (requiredType != null) {
+                beanCreation.tag("beanType", requiredType::toString);
+            }
+            RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+            checkMergedBeanDefinition(mbd, beanName, args);
+
+            //看当前Bean有没有依赖其他Bean Guarantee initialization of beans that the current bean depends on.
+            String[] dependsOn = mbd.getDependsOn();
+            if (dependsOn != null) {
+                for (String dep : dependsOn) {
+                    if (isDependent(beanName, dep)) {
+                        throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                                                        "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+                    }
+                    registerDependentBean(dep, beanName);
+                    try {
+                        getBean(dep); //依赖了其他bean，就先获取其他的哪些bean
+                    }
+                    ......
+                }
+            }
+
+            // 创建bean的实例；Create bean instance.
+            if (mbd.isSingleton()) {
+                // ⭐真正的核心方法
+                sharedInstance = getSingleton(beanName, () -> {
+                    try {
+                        return createBean(beanName, mbd, args);  //创建bean对象的实例
+                    }
+                    catch (BeansException ex) {
+                        destroySingleton(beanName);
+                        throw ex;
+                    }
+                }); //看当前bean是否是FactoryBean
+                beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
+            }
+            // 该bean是多实例的
+            else if (mbd.isPrototype()) {
+                ......
+            } else {
+                ......
+            }
+        }
+        ......
+    }
+    //转Object为Bean的T类型
+    return adaptBeanInstance(name, beanInstance, requiredType);
+}
+```
+
+如上述代码所示，它会先看有没有父工厂，并且父工厂有没有这个组件，然后看当前bean有没有依赖于其它的bean，如果有了就去依次创建它所依赖的组件，否则就进入接下来的创建过程，即**执行getSingleton方法**。
+
+在这个方法中，它会先锁住整个单例池，然后会再次从一级缓存singletonObjects中尝试获取到该beanName所属于的Bean，如果拿到了就直接返回该对象，如果没拿到就继续去创建。
+
+在创建之前，Spring会将该beanName添加到**singletonsCurrentlyInCreation**中，即会把当前正在创建的beanName给保存起来。在创建之后，会将beanName从该容器中删除。**并且如果当前beanName是第一次创建，还会将该bean添加到singletonObjects中，然后将其从singletonFactories和earlySingletonObjects中移除**
+
+```java
+protected void addSingleton(String beanName, Object singletonObject) {
+    synchronized (this.singletonObjects) {
+        this.singletonObjects.put(beanName, singletonObject);
+        this.singletonFactories.remove(beanName);
+        this.earlySingletonObjects.remove(beanName);
+        this.registeredSingletons.add(beanName);
+    }
+}
+```
+
+而在bean创建过程中，它会调用lambda表达式，`singletonObject = singletonFactory.getObject();`去真正的创建对象。
+
+接下来的流程其实就是参考上一个小节：Spring中各种后置增强器的执行顺序和流程（即Bean的生命周期）。在这个过程中，会有各种各样的Bean的后置增强器在bean的创建过程中进行干预和增强。
+
+![bean初始化流程](IMG/Spring源码分析.assets/bean初始化流程.jpg)
 
 ## 2.11 注解版容器刷新12大步
 
+### 0. 容器刷新的前置操作
 
+考虑到以后用SpringBoot，都是使用注解用的多，因此本次分析流程主要分析注解版容器的刷新流程。
+
+我们的启动类如下：
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext =
+        new AnnotationConfigApplicationContext(MainConfig.class);
+}
+```
+
+它调用的其实是：
+
+```java
+public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+    this();
+    register(componentClasses);
+    refresh(); //容器完整刷新（创建出所有组件，组织好所有功能）
+}
+```
+
+然后我们在分析容器的刷新流程之前，先看看它前面的两个步骤是干嘛的，首先来看this()：
+
+```java
+public AnnotationConfigApplicationContext() {
+    StartupStep createAnnotatedBeanDefReader = this.getApplicationStartup().start("spring.context.annotated-bean-reader.create");
+    this.reader = new AnnotatedBeanDefinitionReader(this);
+    createAnnotatedBeanDefReader.end();
+    this.scanner = new ClassPathBeanDefinitionScanner(this);
+}
+```
+
+- reader用来读取beanDefinition，而创建的AnnotatedBeanDefinitionReader，后续就是为了加载底层功能组件的后置处理器。
+- scanner用来扫描需要导入的所有bean信息，该方法里面其实就是准备了环境变量等一些信息。
+
+其中在创建reader的过程内部，它先是注册一个注解配置的处理器，即`AnnotationConfigApplicationContext`。然后创建一个`ConditionEvaluator`，它在@Conditional执行过程中起到作用。接着就会**给工厂中注册一些核心组件，比如：**ConfigurationClassPostProcessor【处理配置类】、**AutowiredAnnotationBeanPostProcessor【自动装配功能后置处理器】**、CommonAnnotationBeanPostProcessor【普通JSR250注解处理，支持@PostConstruct、@PreDestroy、@Resource相关注解】、EventListenerMethodProcessor【事件方法的后置处理器】、DefaultEventListenerFactory【事件工厂】
+
+**注意的是，当前仅仅只是将这些组件添加到DefaultListableBeanFactory的beanDefinitionNames和beanDefinitionMap中，并没有进行初始化**
+
+![image-20220417201226445](IMG/Spring源码分析.assets/image-20220417201226445.png)
+
+![image-20220417201612260](IMG/Spring源码分析.assets/image-20220417201612260.png)
+
+**在执行完this之后，接下来就得执行register(mainConfig)。**
+
+在这个方法中，我们之前在this里面注册好的reader就排上用场了，它会遍历注册当前所有的主配置类，即new AnnotationConfigApplicationContext中传入的参数。它会先创建当前主配置类的BeanDefinitioni信息，然后调用`AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);`来完善主配置类的BeanDefinition，即解析@Lazy、@Primary、@DependsOn、@Description等相关注解。紧接着就是将主配置类的定义信息给注册进容器中去。
+
+![image-20220417202219613](IMG/Spring源码分析.assets/image-20220417202219613.png)
+
+### 1. prepareRefresh：准备上下文环境
+
+它其实并没有做什么，它里面先执行了一个`initPropertySources();`但是这个方法里面其实什么都没有实现，这是模板模式的体现，它会交给其它的子容器自行实现，自行在此处加载一些自己感兴趣的信息。
+
+然后就是执行`getEnvironment().validateRequiredProperties();`，准备一些环境变量信息。
+
+后续就是存储子容器早期运行的一些监听器，比如earlyApplicationListeners，然后还会初始化earlyApplicationEvents。
+
+### 2. obtainFreshBeanFactory()：创建工厂
+
+```java
+protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+    refreshBeanFactory(); //刷新整个BeanFactory,注解模式下就是准备工厂，创建工厂，设置工厂id；xml模式下会解析xml
+    return getBeanFactory(); // 调用this.beanFactory获取
+}
+```
+
+### 3. prepareBeanFactory(beanFactory)：给工厂里面设置好必要的工具
+
+该方法给容器中注册了环境信息作为单实例Bean方便后续自动装配；放了一些后置处理器处理（监听、xxAware功能）
+
+比如给容器中添加一个后置处理器：`ApplicationContextAwareProcessor`，这个就是2.6章节中，用来处理Aware接口的后置处理器。
+
+![image-20220417210033156](IMG/Spring源码分析.assets/image-20220417210033156.png)
+
+### 4. postProcessBeanFactory(beanFactory);
+
+同样也是留给子类的模板方法，允许子类继续对工厂执行一些处理。
+
+### 5. 【大核心】invokeBeanFactoryPostProcessors(beanFactory);
+
+执行所有的BeanFactory后置增强器，利用后置增强器对工厂进行修改或增强，**配置类会在这里进行解析**
+
+上述章节对该方法以及进行过解析了，这里不再赘述。
+
+![image-20220417210727525](IMG/Spring源码分析.assets/image-20220417210727525.png)
+
+### 6. 【核心】registerBeanPostProcessors：注册所有的Bean的后置处理器
+
+它会将所有的BeanPostProcessor给保存到容器中，上述有章节也讲过，这里再说一句的是：
+
+```java
+// 重新注册一下这个后置处理器 Re-register post-processor for detecting inner beans as ApplicationListeners,
+// 把他放到后置处理器的最后一位； moving it to the end of the processor chain (for picking up proxies etc).
+beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));
+```
+
+### 7. initMessageSource()：初始化国际化功能
+
+1. 看容器中是否有MessageSource的定义信息
+2. 如果没有就注册一个默认的
+3. 把国际化组件（MessageSource）放到单例池中
+
+### 8. initApplicationEventMulticaster：初始化事件多播功能（事件派发）
+
+1. 看容器中是否有applicationEventMulticaster的定义信息，按照id去找
+2. 如果没有就注册一个默认的
+3. 把事件多播器组件（ApplicationEventMulticaster）放到单例池中
+
+### 9. onRefresh（）
+
+留给子类继续增强处理逻辑
+
+### 10. registerListeners：注册监听器
+
+1. 获取容器中定义的所有ApplicationListener
+2. 把这些ApplicationListener保存起来
+
+### 11. 【大核心】finishBeanFactoryInitialization：完成工厂初始化
+
+参考Bean的初始化流程，所有的BeanPostProcessor开始工作，进行单个组件的功能增强，也会去执行所有后初始化操作。
+
+### 12. finishRefresh：最后的一些清理、事件发送等
+
+### 13. 完整流程图展示
+
+![image-20220417193438277](IMG/Spring源码分析.assets/image-20220417193438277.png)
 
 # 第三章 循环依赖
 
+首先得知道的是，在Spring中，解决循环依赖问题，需要三级缓存。分别为：
 
+```java
+// 第一级缓存，也叫单例池，存放已经经历了完整生命周期的Bean对象
+private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+
+// 第三级缓存，存放可以生成Bean的工厂
+private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+
+// 第二级缓存，存放早期暴露出来的Bean对象，Bean的生命周期未结束（属性还未填充完成）
+private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+```
+
+1. 先想要对A进行实例化，调用getSingleton(beanName)依次从一级、二级、三级缓存中进行查询，但是都没有，返回null
+2. 调用getSingleton(beanName)的重载方法，该方法将该A的beanName添加到singletonsCurrentlyInCreation集合中之后，调用createBean方法中的doCreateBean方法， 先利用默认的无参构造器创建出A的实例，但是此时A并没有被初始化。**然后将其先添加到【三级缓存】中。注意的是，这里其实不是将A给放到三级缓存中，而是将一个工厂方法给传进去，到时候获取对象的时候，可以直接通过工厂方法返回早期暴露出来的Bean引用**。
+3. 接着调用populateBean，想对A进行属性填充，此时`AutowiredAnnotationBeanPostProcessor`感知到A需要自动装配B，于是开始调用getBean来获取B。
+4. 和上述流程一样，一开始getSingleton(beanName)依次查找之后发现容器中并没有B，然后就将B的beanName添加到singletonsCurrentlyInCreation集合中，接着就会创建B，将其添加到【三级缓存】中。此时又发现B依赖于A，就又调用getBean方法来获取A。
+5. 它同样会去容器中查找A，从一级到二级到三级，发现三级中存在A的工厂方法，并且调用这个工厂来获取到A早期暴露出来的引用，然后将A给添加到二级缓存中，并且从三级缓存中删除A。
+6. 这样B就获取到了A的依赖，于是B就顺利的完成了赋值和初始化，然后会将B从singletonsCurrentlyInCreation集合中删除。并且将B给添加到【一级缓存】中，并且删掉二级和三级缓存中的B（如果存在的话）。
+7. 随后继续完成A的属性填充工作，将B给填充进去之后，A也完成了创建，随后继续执行，将A放到【一级缓存】中，并且删掉二级和三级缓存中的B（如果存在的话）。
+
+![循环依赖](IMG/Spring源码分析.assets/image-20210924154224430.png)
+
+![循环依赖](IMG/Spring源码分析.assets/循环依赖.jpg)
 
 # 第四章 AOP源码分析
 
