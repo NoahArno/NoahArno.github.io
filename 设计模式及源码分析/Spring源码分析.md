@@ -1026,9 +1026,826 @@ private void invokeAwareInterfaces(Object bean) {
 
 ## 2.7 BeanPostProcessor（后置处理器）
 
-spring底层通过后置增强机制，完成很多功能
+**spring底层通过后置增强机制，增强很多功能**。就比如上述的给Person中注入ApplicationContext，其实是通过实现ApplicationContextAware接口来实现的，而这个接口会使用到ApplicationContextAwareProcessor类，注意的是这个Processer类其实就是实现了BeanPostProcessor接口，也就是后置处理器。
 
-## 2.8 @Autowire将Cat装配
+## 2.8 @Autowire将Cat装配的具体流程再次体验BeanPostProcessor的作用
 
-InjectedElement，装饰模式，通过分析所有方法或者属性找到标注@Autowired等注解的，然后封装为InjectedElement
+那么自动装配是怎么完成的呢？
 
+```java
+class Person {
+    private Cat cat;
+
+    @Autowired
+    public void setCat(Cat cat) {
+        this.cat = cat; // TODO 2.8的断点
+    }
+}
+```
+
+在2.6 xxxAware章节中，只是简单的介绍了beanFactory.preInstantiateSingletons()中的getBean方法，对于它之前的一些判断直接略过了，因此这里再看该方法中的判断过程的详细流程：
+
+在`DefaultListableBeanFactory类中的beanFactory.preInstantiateSingletons()//Instantiate all remaining (non-lazy-init) singletons`方法中：
+
+```java
+@Override
+public void preInstantiateSingletons() throws BeansException {
+	......
+    List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
+
+    // Trigger initialization of all non-lazy singleton beans...
+    // 
+    for (String beanName : beanNames) {
+        RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+        if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+            if (isFactoryBean(beanName)) {
+                Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+                if (bean instanceof FactoryBean) {
+                    ...
+                }
+            }
+            else {
+                // 核心方法，获取Bean
+                getBean(beanName);
+            }
+        }
+    }
+	......
+}
+```
+
+在这个方法中，它会去遍历beanDefinitionNames中的每一个beanName，然后判断该beanName所属的RootBeanDefinition是否是抽象的，是否是单例的，是否懒加载的，如果这个beanName不是抽象的，是单例的，不是懒加载的，就再判断该beanName是不是一个FactoryBean，**如果都不是的话，就会去执行核心的getBean方法。**
+
+通过这个方法，可以再次进行扩展：**我们其实有两种bean，一个是普通bean，一个是工厂bean。**
+
+对于普通bean来说，比如Person，注册的组件对象就是Person对象，类型就是Person。而对于FactoryBean来说，就是实现了FactoryBean接口的组件，比如**class HelloFactory implement FactoryBean**，而FactoryBean注册的不是HelloFactory，而是HelloFactory这个工厂调用了getObject（）返回的对象，类型就是getObjectType方法返回的类型。**MyBatis和Spring的整合就是利用了这个FactoryBean**。
+
+接下来我们就针对于非抽象、单例、非懒加载的普通bean的实例化再去详细看看：
+
+和以前的流程大致一样，调用getBean方法，然后调用doGet方法，接着就通过getSingleton中传入一个lambda表达式，去执行createBean方法。createBean方法中其实真正执行的是方法doCreateBean(beanName, mbdToUse, args)，传入beanName，RootBeanDefinition，和一些args。
+
+在doCreateBean方法中：
+
+```java
+// Initialize the bean instance.
+// 实例化bean之后，要给它的属性进行赋值，即进行初始化
+Object exposedObject = bean;
+try {
+    populateBean(beanName, mbd, instanceWrapper); // 重点：给创建好的对象赋值
+    exposedObject = initializeBean(beanName, exposedObject, mbd);
+}
+```
+
+![image-20220413195915559](IMG/Spring源码分析.assets/image-20220413195915559.png)
+
+然后在populateBean方法中，它回拿到BeanPostProcessorCache中的instantiationAware，然后在这之前其实该bean已经实例化完成， 但是在初始化该bean之前，后置处理器会拦截那些加了注解的属性，进行自动注入，至于哪些注解，就看下面的解释：
+
+```java
+for (InstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().instantiationAware) {
+    // 这里的bp其实是AutowiredAnnotationBeanPostProcessor，它也是个后置处理器
+    /*
+    pvs：封装好的PropertyValues，这次的测试中，它的processedProperties就是“cat”
+    bw.getWrappedInstance()：也就是Person对象
+    beanName：person
+    */
+    PropertyValues pvsToUse = bp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
+    if (pvsToUse == null) {
+        if (filteredPds == null) {
+            filteredPds = filterPropertyDescriptorsForDependencyCheck(bw, mbd.allowCaching);
+        }
+        pvsToUse = bp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);
+        if (pvsToUse == null) {
+            return;
+        }
+    }
+    pvs = pvsToUse;
+}
+```
+
+注：可以看到，使用@Autowired、@Value、或者如果引入了包JSR-330，包括@Inject注解，就可以进行自动装配
+
+```java
+public AutowiredAnnotationBeanPostProcessor() {
+    this.autowiredAnnotationTypes.add(Autowired.class);
+    this.autowiredAnnotationTypes.add(Value.class);
+    try {
+        this.autowiredAnnotationTypes.add((Class<? extends Annotation>)
+                                          ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+        logger.trace("JSR-330 'javax.inject.Inject' annotation found and supported for autowiring");
+    }
+    catch (ClassNotFoundException ex) {
+        // JSR-330 API not available - simply skip.
+    }
+}
+```
+
+接着就会去处理bp.postProcessProperties方法：
+
+```java
+@Override
+public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+    // 找到所有的自动装配的元数据信息
+    /*
+    至于怎么寻找，它会通过反射的方式先找所有属性中标注了@Autowired、@Value、@Inject的注解，
+    然后找到所有方法，看有没有相应的注解。
+    然后它会将所有找到的东西进行封装成一个List<InjectionMetadata.InjectedElement> elements，
+    接着将这个elements给返回：return InjectionMetadata.forElements(elements, clazz);
+    */
+    InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
+    try {
+        // 这个方法重点！
+        metadata.inject(bean, beanName, pvs);
+    }
+    catch (BeanCreationException ex) {
+        throw ex;
+    }
+    catch (Throwable ex) {
+        throw new BeanCreationException(beanName, "Injection of autowired dependencies failed", ex);
+    }
+    return pvs;
+}
+```
+
+注意看这个inject方法：
+
+```java
+public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+    Collection<InjectedElement> checkedElements = this.checkedElements;
+    Collection<InjectedElement> elementsToIterate =
+        (checkedElements != null ? checkedElements : this.injectedElements);
+    if (!elementsToIterate.isEmpty()) {
+        for (InjectedElement element : elementsToIterate) {
+            element.inject(target, beanName, pvs);
+        }
+    }
+}
+```
+
+![image-20220413202307212](IMG/Spring源码分析.assets/image-20220413202307212.png)
+
+InjectedElement，装饰模式，通过分析所有方法或者属性找到标注@Autowired等注解的，然后封装为InjectedElement。
+
+上述方法会将找到的标注了@Autowired等注解的属性和方法包装成的InjectedElement，执行该element的inject方法，来到AutowiredAnnotationBeanPostProcessor，然后利用反射进行赋值。`method.invoke(bean, arguments);`这里的arguments其实就是Cat对象。
+
+## 2.9 Spring中各种后置增强器的执行顺序和流程（即Bean的生命周期）
+
+### 0. 调试环境的搭建
+
+首先值得注意的是，在Spring中有三种增强器：
+
+- **BeanPostProcessor：**后置增强普通的Bean组件，每一个子接口的增强器在何时运行，在于改变，比如@Autowired就能改变Bean的属性的赋值
+- **BeanFactoryPostProcessor：**后置增强BeanFactory。它只提供了一个接口：`void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;`试想一下，它将整个factory都传过来了，这不就想怎么增强就怎么增强
+- **InitializingBean：**Bean组件初始化以后对组件进行后续设置。它也只提供一个接口`void afterPropertiesSet() throws Exception;`在于额外处理，因为它的接口中并没有传入相关的参数。
+
+![image-20220415214707327](IMG/Spring源码分析.assets/image-20220415214707327.png)
+
+![image-20220415214211929](IMG/Spring源码分析.assets/image-20220415214211929.png)
+
+接下来我们就来分析这三种接口的执行流程以及在哪执行，首先得准备测试环境，**我们给每个构造器、重写的各种方法都打上断点，进行分析**：
+
+![image-20220415214843490](IMG/Spring源码分析.assets/image-20220415214843490.png)
+
+```java
+// 让其为原型模式 每次获取的都是复制品，如果不搞的话，就是默认为单例模式
+//@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+//@Component
+public class Cat implements InitializingBean {
+
+    Cat() {
+        System.out.println("cat被创建了");
+    }
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    @Value("${JAVA_HOME}") // 自动赋值功能
+    public void setName(String name) {
+        System.out.println("cat ... setName正在调用：" + name);
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat{" +
+            "name='" + name + '\'' +
+            '}';
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("MyInitializingBean...afterPropertiesSet");
+    }
+}
+```
+
+```java
+/**
+ * Bean组件的 PostProcessor；
+ */
+@Component
+public class MyBeanPostProcessor implements BeanPostProcessor {
+    public MyBeanPostProcessor(){
+        System.out.println("MyBeanPostProcessor...");
+    }
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("MyBeanPostProcessor...postProcessAfterInitialization..."+bean+"==>"+beanName);
+        return bean;
+    }
+    // 下面的方法还可以对该bean进行干预
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("MyBeanPostProcessor...postProcessBeforeInitialization..."+bean+"==>"+beanName);
+        return bean; // new Object();
+    }
+}
+```
+
+```java
+@Component
+public class MyInstantiationAwareBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
+   public MyInstantiationAwareBeanPostProcessor(){
+      System.out.println("MyInstantiationAwareBeanPostProcessor...");
+   } //初始化之前进行后置处理，Spring留给我们给这个组件创建对象的回调。
+   public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+      System.out.println("MyInstantiationAwareBeanPostProcessor...postProcessBeforeInstantiation=>"+beanClass+"--"+beanName); //if(class.isAssFrom(Cat.class)){return new Dog()}
+      return null; //如果我们自己创建了对象返回。Spring则不会帮我们创建对象，用我们自己创建的对象？ 我们创建的这个对象，Spring会保存单实例？还是每次getBean都调到我们这里创建一个新的？
+   }
+   public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+      System.out.println("MyInstantiationAwareBeanPostProcessor...postProcessAfterInstantiation=>"+bean+"--"+beanName); //提前改变一些Spring不管的bean里面的属性
+      return true; //返回false则bean的赋值全部结束
+   }  //下面的方法作用？比如：解析自定义注解进行属性值注入；pvs 封装了所有的属性信息。
+   public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName)
+         throws BeansException { //@GuiguValue();redis
+      System.out.println("MyInstantiationAwareBeanPostProcessor...postProcessProperties=>"+bean+"--"+beanName);
+      return null;
+   }
+}
+```
+
+```java
+@Component
+public class MyMergedBeanDefinitionPostProcessor implements MergedBeanDefinitionPostProcessor {
+    public MyMergedBeanDefinitionPostProcessor(){
+        System.out.println("MyMergedBeanDefinitionPostProcessor...");
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("MyMergedBeanDefinitionPostProcessor...postProcessBeforeInitialization...=>"+bean+"--"+beanName);
+        return bean; //null
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("MyMergedBeanDefinitionPostProcessor...postProcessAfterInitialization..=>"+bean+"--"+beanName);
+        return null;
+    }
+
+    @Override
+    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+        System.out.println("MyMergedBeanDefinitionPostProcessor...postProcessMergedBeanDefinition..=>"+beanName+"--"+beanType+"---"+beanDefinition);
+    }
+
+    @Override
+    public void resetBeanDefinition(String beanName) {
+        System.out.println("MyMergedBeanDefinitionPostProcessor...resetBeanDefinition.."+beanName);
+    }
+}
+
+```
+
+```java
+@Component   //bean进行代理增强期间进行使用
+public class MySmartInstantiationAwareBeanPostProcessor implements SmartInstantiationAwareBeanPostProcessor {
+
+    public MySmartInstantiationAwareBeanPostProcessor(){
+        System.out.println("MySmartInstantiationAwareBeanPostProcessor...");
+    }  //预测bean的类型，最后一次改变组件类型。
+    public Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
+        System.out.println("MySmartInstantiationAwareBeanPostProcessor...predictBeanType=>"+beanClass+"--"+beanName);
+        return null;
+    } // TODO 看看下面这个方法，如果多个SmartBP类同时执行了这个方法，会咋样
+    //返回我们要使用的构造器候选列表
+    public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName)
+
+        throws BeansException {
+        System.out.println("MySmartInstantiationAwareBeanPostProcessor...determineCandidateConstructors=>"+beanClass+"--"+beanName);
+        //返回一个我们指定的构造器
+        return null;
+    }
+    //返回早期的bean引用，定义三级缓存中的bean信息
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        System.out.println("MySmartInstantiationAwareBeanPostProcessor...getEarlyBeanReference=>"+bean+"--"+beanName);
+
+        return bean; //
+    }
+}
+```
+
+```java
+// 如果想要指定后置处理器的顺序，需要实现接口PriorityOrdered，然后数字越小，优先级越高
+@Component
+public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
+    public MyBeanDefinitionRegistryPostProcessor(){
+        System.out.println("MyBeanDefinitionRegistryPostProcessor");
+    }
+    @Override  //紧接着执行
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        System.out.println("MyBeanDefinitionRegistryPostProcessor....postProcessBeanFactory...");
+    }
+
+    @Override  //先执行的
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        System.out.println("MyBeanDefinitionRegistryPostProcessor...postProcessBeanDefinitionRegistry...");
+        //增强bean定义信息的注册中心，比如自己注册组件
+
+    }
+}
+```
+
+```java
+@Component
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+    MyBeanFactoryPostProcessor() {
+        System.out.println("MyBeanFactoryPostProcessor...");
+    }
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        System.out.println("BeanFactoryPostProcessor....postProcessBeanFactory");
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="top.noaharno.processor"/>
+    <bean class="top.noaharno.bean.Cat" id="cat"/>
+</beans>
+```
+
+测试环境已经搭建好，接下来就是一步步调试，查看源码：
+
+### 1. invokeBeanFactoryPostProcessors
+
+上述标题的方法其实就是容器刷新十二大步中的一步，在准备好BeanFactory之后，就得去调用这个方法对所有的BeanFactory进行后置增强。**配置类会在这里进行解析**
+
+在这个方法中，它会去执行所有的工厂增强器：`PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());`。
+
+**注意这个PostProcessorRegistrationDeledate，也就是后置处理器的注册代理，它代理执行所有后置增强器的功能。**
+
+![image-20220417083530926](IMG/Spring源码分析.assets/image-20220417083530926.png)
+
+在invokeBeanFactoryPostProcessors方法中：
+
+```java
+//执行工厂的后置处理器
+public static void invokeBeanFactoryPostProcessors(
+    ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
+
+    // 标记已经被处理过的bean
+    Set<String> processedBeans = new HashSet<>();
+
+    if (beanFactory instanceof BeanDefinitionRegistry) {
+        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+        List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+        List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
+        //先拿到底层默认有的BeanFactoryPostProcessor，这里暂时是没有
+        for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+            if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
+                BeanDefinitionRegistryPostProcessor registryProcessor =
+                    (BeanDefinitionRegistryPostProcessor) postProcessor;
+                registryProcessor.postProcessBeanDefinitionRegistry(registry);
+                registryProcessors.add(registryProcessor);
+            }
+            else {
+                regularPostProcessors.add(postProcessor);
+            }
+        }
+
+        // 不要在这里初始化FactoryBeans：我们需要让所有常规bean保持未初始化状态，以便让bean factory后处理器应用于它们！在实现PriorityOrdered、Ordered和其他功能的BeanDefinitionRegistryPostProcessor之间进行分离。
+        List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
+
+        // 首先：从工厂中获取所有的实现了 PriorityOrdered 接口的 BeanDefinitionRegistryPostProcessor； 
+        String[] postProcessorNames =
+            beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false); //拿到系统中每一个组件的BD信息，进行类型对比，是否匹配指定的类型
+        for (String ppName : postProcessorNames) {
+            if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+                currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));//从工厂中获取这个组件【getBean整个组件创建的流程】并放到这个集合
+                processedBeans.add(ppName);
+            }
+        } //下面利用优先级排序
+        sortPostProcessors(currentRegistryProcessors, beanFactory);
+        registryProcessors.addAll(currentRegistryProcessors);
+        invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup()); //执行这些BeanDefinitionRegistryPostProcessor的
+        currentRegistryProcessors.clear();
+
+        // 接下来，获取所有实现了Ordered接口的 BeanDefinitionRegistryPostProcessor
+        postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+        for (String ppName : postProcessorNames) {
+            if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
+                currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+                processedBeans.add(ppName);
+            }
+        }//排序
+        sortPostProcessors(currentRegistryProcessors, beanFactory);
+        registryProcessors.addAll(currentRegistryProcessors);
+        invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup()); //执行
+        currentRegistryProcessors.clear();
+
+        // 最后，我们自定义的一般没有任何优先级和排序接口   Finally, invoke all other BeanDefinitionRegistryPostProcessors until no further ones appear.
+        boolean reiterate = true;
+        while (reiterate) {
+            reiterate = false;
+            postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);//拿到所有的BeanDefinitionRegistryPostProcessor
+            for (String ppName : postProcessorNames) {
+                if (!processedBeans.contains(ppName)) {
+                    currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+                    processedBeans.add(ppName);
+                    reiterate = true;
+                }
+            }//排序，根据类名大小写进行排序
+            sortPostProcessors(currentRegistryProcessors, beanFactory);
+            registryProcessors.addAll(currentRegistryProcessors);
+            invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());
+            currentRegistryProcessors.clear(); //防止重复执行
+        }
+
+        // 接下来，再来执行postProcessBeanFactory的回调
+        invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+        invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
+    }
+
+    else {
+        // Invoke factory processors registered with the context instance.
+        invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
+    }
+    //以前在执行 BeanDefinitionRegistryPostProcessor ,以后来执行 BeanFactoryPostProcessor
+    // Do not initialize FactoryBeans here: We need to leave all regular beans
+    // uninitialized to let the bean factory post-processors apply to them!
+    String[] postProcessorNames =
+        beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
+
+    // Separate between BeanFactoryPostProcessors that implement PriorityOrdered,
+    // Ordered, and the rest.
+    List<BeanFactoryPostProcessor> priorityOrderedPostProcessors = new ArrayList<>();
+    List<String> orderedPostProcessorNames = new ArrayList<>();
+    List<String> nonOrderedPostProcessorNames = new ArrayList<>();
+    for (String ppName : postProcessorNames) {
+        if (processedBeans.contains(ppName)) {
+            // skip - already processed in first phase above
+        }
+        else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+            priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
+        }
+        else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+            orderedPostProcessorNames.add(ppName);
+        }
+        else {
+            nonOrderedPostProcessorNames.add(ppName);
+        }
+    }
+
+    // 首先执行所有实现了 PriorityOrdered 的 BeanFactoryPostProcessor；First, invoke the BeanFactoryPostProcessors that implement PriorityOrdered.
+    sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
+    invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors, beanFactory);
+
+    // 接下来执行，实现了 Ordered 接口的 BeanFactoryPostProcessor  Next, invoke the BeanFactoryPostProcessors that implement Ordered.
+    List<BeanFactoryPostProcessor> orderedPostProcessors = new ArrayList<>(orderedPostProcessorNames.size());
+    for (String postProcessorName : orderedPostProcessorNames) {
+        orderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+    }
+    sortPostProcessors(orderedPostProcessors, beanFactory);
+    invokeBeanFactoryPostProcessors(orderedPostProcessors, beanFactory);
+
+    // 最后执行没有任何优先级和排序接口的 BeanFactoryPostProcessor Finally, invoke all other BeanFactoryPostProcessors.
+    List<BeanFactoryPostProcessor> nonOrderedPostProcessors = new ArrayList<>(nonOrderedPostProcessorNames.size());
+    for (String postProcessorName : nonOrderedPostProcessorNames) {
+        nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+    }
+    invokeBeanFactoryPostProcessors(nonOrderedPostProcessors, beanFactory); //执行所有的 BeanFactoryPostProcessor
+
+    // Clear cached merged bean definitions since the post-processors might have
+    // modified the original metadata, e.g. replacing placeholders in values...
+    beanFactory.clearMetadataCache();
+}
+```
+
+那么它是如何执行BeanDefinitionRegistryPostProcessor中的postProcessBeanDefinitionRegistry方法的呢？其实也就是方法：`invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());`它会将当前需要进行处理的BeanDefinitionRegistryPostProcessor和DefaultListableBeanFactory传进去，然后遍历所有的传进去的Processor进行执行：
+
+```java
+private static void invokeBeanDefinitionRegistryPostProcessors(
+    Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry, ApplicationStartup applicationStartup) {
+
+    for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
+        StartupStep postProcessBeanDefRegistry = applicationStartup.start("spring.context.beandef-registry.post-process")
+            .tag("postProcessor", postProcessor::toString);
+        postProcessor.postProcessBeanDefinitionRegistry(registry); //核心，配置类的后置处理器会在此解析配置类
+        postProcessBeanDefRegistry.end();
+    }
+}
+```
+
+在处理完所有的BeanDefinitionRegistryPostProcessor的postProcessBeanDefitionRegistry回调之后，它会紧接着去执行该类的postProcessBeanFactory回调，和前面类似，也是进行一个遍历执行。
+
+这时候就已经处理完所有的BeanDefinitionRegistryPostProcessor了，然后就会立马去按照上述的流程执行BeanFactoryPostProcessor的postProcessBeanFactory回调。注意的是，这一步他会先去获取到的所有BeanFactoryPostProcessor类型的BeanName，然后去判读这个BeanName有没有被上述流程处理过，因为BeanDefinitionRegistryPostProcessor其实就是继承了BeanFactoryPostProcessor的。
+
+**总结：**
+
+1. 在容器刷新十二大步中的第五步，即工厂创建好了之后就会进行增强， 执行bean工厂的后置增强功能。
+2. 它使用PostProcessorRegistrationDelegate代理执行所有后置增强器的功能。
+3. 具体流程就是它首先会执行容器中默认有的BeaDefinitionRegistryPostProcessor，执行它们的postProcessorBeanDefinitionRegistry后置增强方法，注意只执行了这个方法，剩下的postProcessorBeanFactory方法留到后续流程一起执行。
+4. 然后它会依照方法后置增强器类是否实现PriorityOrdered、Order、没有实现任何排序接口这三中情况进行分类，然后分别排序，接着就是分别执行bean工厂的增强。
+5. **在获取所有的BeanDefinitionRegistryPostProcessor的时候，它会去调用getBean方法走后续的流程，将该Processor给创建出来**
+6. 在分类执行完所有的postProcessorBeanDefinitionRegistry增强方法之后，他会去统一去执行所有方法后置增强器的postProcessorBeanFactory，至此，所有BeaDefinitionRegistryPostProcessor的实现类都已经执行完了它们的增强。
+7. 下一步就是执行所有BeanFactoryPostProcessor的bean工厂增强方法，流程和BeaDefinitionRegistryPostProcessor大致一样。
+
+![image-20220417092804970](IMG/Spring源码分析.assets/image-20220417092804970.png)
+
+至此：所有的工厂增强逻辑已经讲解完毕。
+
+**那么Spring中到哪哪里用到了这个BeanFactory的后置增强器呢？思考下面的问题：**
+
+1. Configuration注解的作用是什么，Spring是如何解析加了@Configuration注解的类？
+2. Spring在什么时候对@ComponentScan、@ComponentScans注解进行了解析？
+3. Spring什么时候解析了@Import注解，如何解析的？
+4. Spring什么时候解析了@Bean注解？
+
+我们可以以注解版方式进行调试启动，可以发现Spring底层有一个Processor：ConfigurationClassPostProcessor，配置类的后置处理器。
+
+![img](IMG/Spring源码分析.assets/20190917233910588.png)
+
+```java
+@Override // 把配置类中所有的bean的定义信息导入进来。
+public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    int factoryId = System.identityHashCode(beanFactory);
+    if (this.factoriesPostProcessed.contains(factoryId)) {
+        throw new IllegalStateException(
+            "postProcessBeanFactory already called on this post-processor against " + beanFactory);
+    }
+    this.factoriesPostProcessed.add(factoryId);
+    if (!this.registriesPostProcessed.contains(factoryId)) {
+        // BeanDefinitionRegistryPostProcessor hook apparently not supported...
+        // Simply call processConfigurationClasses lazily at this point then.
+        // 核心方法
+        processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
+    }
+
+    enhanceConfigurationClasses(beanFactory);
+    beanFactory.addBeanPostProcessor(new ImportAwareBeanPostProcessor(beanFactory));
+}
+```
+
+在方法processConfigBeanDefinitions中，它会去从给定的BeanDefinitionRegistry中拿到所有的BeanDefinitionNames，然后依次去遍历这些name，如果这个name所对应的BeanDefinition是一中包含属性configurationClass，就将该配置类加到候选集合里面，后来就将这个集合configCandidates转换为一个Set，然后依次遍历set中的每个对象。
+
+![image-20220414162031257](IMG/Spring源码分析.assets/image-20220414162031257.png)
+
+![image-20220414162504808](IMG/Spring源码分析.assets/image-20220414162504808.png)
+
+![image-20220414162434285](IMG/Spring源码分析.assets/image-20220414162434285.png)
+
+在后续的处理中，它会通过读取这个类的注解、成员和方法，去构建一个完整的ConfigurationClass。
+
+- 首先他会去处理任何递归的成员类。
+- 然后他会去看该类有没有使用@PropertySources，有的话就进行处理。
+- 接着它看该类有没有使用@ComponentScans或者@ComponentScan。
+- 然后就是处理任何标注了@Import注解的
+- 处理标注了@ImportResource
+- 接着去处理单个的@Bean方法
+- 处理接口上的默认方法
+- 处理父类（如果有）
+
+### 2. 将所有的BeanPostProcessor给注册进容器
+
+至于怎么去将所有的BeanPostProcessor给注册进容器，主要看容器刷新十二大步中的**registerBeanPostProcessors(beanFactory);**
+
+```java
+protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+    PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
+}
+```
+
+可以看到，它其实也是调用我们的PostProcessorRegistrationDelegate来代理执行。
+
+在这个方法里面，它的整体流程其实和BeanFactoryPostProcessor的注册流程有相同之处。只不过在registerBeanPostProcessor方法中，它只会去将所有的BeanPostProcessor保存在容器中，并不会去执行它们的回调方法。
+
+**步骤：**
+
+1. 获取到容器中所有的 BeanPostProcessorName； Bean的后置处理器的名字。
+
+2. 将这些BeanPostProcessor进行分类，同样是PriorityOrdered、Order、未实现任何排序接口这三个大类。
+
+3. 将这些后置处理器根据名字从容器中获取，如果容器中没有，就进行创建，并将其注册到容器中。
+
+4. 所谓的注册流程，其实就是添加到**beanPostProcessors**中。
+
+5. 同时，**如果当前的后置处理器实现了MergedBeanDefinitionPostProcessor接口，还会额外添加到internalPostProcessors中，它是一个List。**
+
+6. 在注册完所有的BeanPostProcessor之后，他会将所有的**internalPostProcessors**进行一个排序，然后重新注入到容器中。
+
+7. 至此所有我们的BeanPostProcessor已经注册完毕，但是还剩下一步：那就是new一个后置增强器，将其添加到beanPostProcessors中的末尾位置。
+
+   ```java
+   //Re-register post-processor for detecting inner beans as ApplicationListeners,
+   //moving it to the end of the processor chain (for picking up proxies etc).
+   beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));
+   ```
+
+![image-20220417102039557](IMG/Spring源码分析.assets/image-20220417102039557.png)
+
+至此该小节分析结束，它的主要流程其实就是**工厂提前保存所有Bean的增强器，方便在后面创建bean的时候直接使用**。
+
+![image-20220417105843086](IMG/Spring源码分析.assets/image-20220417105843086.png)
+
+### 3. predictBeanType的执行时机
+
+当我们看到registerListeners方法的时候，首先肯定想到它是用来注册监听器的，Spring事件监听机制在这里开始初始化，那么它和我们的SmartInstantiationAwareBeanPostProcessor.predictBeanType( )，决定当前初始化的组件类型，有什么关系呢？
+
+在这个方法中，它会根据类型获取ApplicationListener在IOC容器中注册的所有bean的名字：
+
+```java
+String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
+```
+
+而就是在这个方法中，就会有机会执行predictBeanType方法。
+
+在经过一系列的判断之后，它执行的核心方法其实是：`doGetBeanNamesForType`。在这个方法中，它会遍历所有的beanDefinitionNames，然后挨个判断该beanName所对应的类型是否是ApplicationListener。
+
+在这里先说一下**Spring如何在容器中按照类型找组件**。它其实是非常笨的，具体如下图所示：
+
+![image-20220417120834166](IMG/Spring源码分析.assets/image-20220417120834166.png)
+
+明明容器中有很多的bean的定义信息，为什么执行的时候只有Cat和Dog会调用SmartInstantiationAwareBeanPostProcessor.predictBeanType( )？：
+
+![image-20220417120948642](IMG/Spring源码分析.assets/image-20220417120948642.png)
+
+一种简单的语义理解就是：**这些beanDefinitionNames中，前面的这些Processor其实早就创建好实例了，也就是说它们的类型其实早就被决定好了，而Cat和Dog它们还并没有创建实例，因此还可以通过predictBeanType方法来修改它们的BeanType。这就导致了在容器想要获取所有的ApplicationListen所属于的bean的时候，在遍历过程中，它会去看看容器中的那些还未创建好实例的beanName它们的类型在经过predictBeanType改变之后，是否为它所想要的类型**/
+
+也就是说：**在组件对象创建之前还有机会改变一下它的类型。基本上之后每一次如果调用getBeanNamesForType方法的时候，都会去判断一下。**
+
+而对于这次的调试来说，我们接着往下执行，来到容器刷新十二大步中的最重要的一步：**finishBeanFactoryInitialization**，即BeanFactory初始化，它会完成容器中所有的bean创建。而在这个方法中，
+
+```java
+protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
+    // 给工厂设置好 ConversionService【负责类型转换的组件服务】，
+    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
+        beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+        beanFactory.setConversionService(
+            beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+    }
+
+    // 注册一个默认的值解析器（"${}"）
+    if (!beanFactory.hasEmbeddedValueResolver()) {
+        beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
+    }
+
+    // LoadTimeWeaverAware；aspectj：加载时织入功能【aop】。 Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+    String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
+    for (String weaverAwareName : weaverAwareNames) {
+        getBean(weaverAwareName); //从容器中获取组件，有则直接获取，没则进行创建
+    }
+    ....
+}
+```
+
+它会有一些前置操作，而其中就有一个，获取beanFactory中所有的**LoadTimeWeaverAware**类型的名字，然后依次进行创建。在这个步骤的执行过程中，同样也会去调用`doGetBeanNamesForType`，然后里面会再次对Cat和Dog进行一个类型检查。
+
+### 4. 其它的后置处理器对bean的生命周期的干预过程
+
+在**finishBeanFactoryInitialization**中，执行完上述的一些基本流程之后，它会执行它里面的核心方法：
+
+```java
+//初始化所有的非懒加载的单实例Bean
+beanFactory.preInstantiateSingletons();
+```
+
+它会拿到beanDefinitionNames中的所有的bean的名字，然后依次遍历这些beanName，根据名字获取到它的RootBeanDefinition，并且判断它不是抽象的，是单实例的，不是懒加载的，然后就可以对这个RootBeanDefinition分类讨论，FactoryBean和普通的Bean分为两种方式进行创建。
+
+如果不是FactoryBean，并且是普通的单实例非懒加载bean的创建，就会执行方法：**getBean(beanName);**，它里面会调用doGetBean方法。
+
+在doCreateBean方法中，
+
+1. 它会先去检查容器中有有没有单实例bean的缓存，第一次获取肯定是没有的
+2. 然后它就会拿到当前beanFactory的父工厂，看看有没有父工厂，会尝试去父工厂中获取组件。
+3. 如果没有父工厂，就会先标记当前的beanName它的bean已经被创建了，接下来就走创建流程
+4. 它会去获取当前beanName的RootBeanDefinition，然后看当前的mdb有没有依赖其它的Bean，如果依赖了就会去挨个递归获取，如果没有就继续。
+5. 后续的大致流程就是判断bean的类型，如果是单例的，就执行单例的流程；如果是多例的，就走原型模式创建；如果都不是，就走其它的流程创建。
+
+```java
+// 创建bean的实例；Create bean instance.
+if (mbd.isSingleton()) {
+    sharedInstance = getSingleton(beanName, () -> {
+        try {
+            return createBean(beanName, mbd, args);  //创建bean对象的实例
+        }
+        catch (BeansException ex) {
+            // Explicitly remove instance from singleton cache: It might have been put there
+            // eagerly by the creation process, to allow for circular reference resolution.
+            // Also remove any beans that received a temporary reference to the bean.
+            destroySingleton(beanName);
+            throw ex;
+        }
+    }); //看当前bean是否是FactoryBean
+    beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
+}
+```
+
+在开始创建该Bean之前，他会将该beanName添加到singletonsCurrentlyInCreation中。创建Bean之后，会将该beanName从singletonsCurrentlyInCreation池中移除。
+
+```java
+protected void beforeSingletonCreation(String beanName) {
+    if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
+        throw new BeanCurrentlyInCreationException(beanName);
+    }
+}
+```
+
+接下来我们重点看调用的lamda表达式中的内容，它会真正的创建对象。即**createBean(beanName, mbd, args)**
+
+```java
+@Override
+protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
+    throws BeanCreationException {
+    .......
+    try {
+        //（即使AOP的BeanPostProcessor都不会珍惜这个机会） 提前给我们一个机会，去返回组件的代理对象。
+        Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+        if (bean != null) {
+            return bean;
+        }
+    }
+    ......
+    try { //Spring真正自己创建对象
+        Object beanInstance = doCreateBean(beanName, mbdToUse, args);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Finished creating instance of bean '" + beanName + "'");
+        }
+        return beanInstance;
+    }
+	......
+}
+```
+
+就在这个方法中，它会先去给我们一个机会，看看我们会不会自己返回对象。而这个方法的内部实现，其实就是调用`InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation`方法，**如果我们自己创建了对象返回。Spring则不会帮我们创建对象，用我们自己创建的对象，而且这个对象同样是单实例的，并且如果当前方法的确返回了对象， 还会立马去执行它的postProcessAfterInstantiation方法，接着当前beanName的bean创建过程就结束了。**
+
+但是其实我们很少去干预bean的创建，因此一般都是直接返回null，然后交由Spring自动帮我们创建对象。
+
+在Spring帮我们创建对象的过程中，它会给我们一个机会，让我们去决定当前bean使用哪个构造器，即调用`SmartInstantiationAwareBeanPostProcessor.determineCandidateConstructors()`方法，**返回我们要使用的构造器候选列表。如果返回的不是null，就使用构造器方式的自动装配创建bean。否则就默认使用无参构造器**
+
+此时Cat算是被创建出来了，与此同时，Spring还允许后置处理器再来修改下beanDefinition，这里用的是：`MergedBeanDefinitionPostProcessor.postProcessMergedBeanDefinition`。
+
+![image-20220417142818168](IMG/Spring源码分析.assets/image-20220417142818168.png)
+
+![image-20220417143023418](IMG/Spring源码分析.assets/image-20220417143023418.png)
+
+接下来Spring就会给创建好的对象的每个属性进行赋值，**@Autowired就发生在这里面，即populateBean方法**
+
+在populateBean方法中，在属性真正的赋值之前，它可以调用`InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation()`来初始化之前进行处理，如果该方法返回false，就直接中断初始化行为。一个典型的例子就是**Spring的自动装配后置处理器在这里工作，但是它并没有做什么其余的操作，只是返回了true。**
+
+它还可以使用`InstantiationAwareBeanPostProcessor中的postProcessProperties`方法，对pvs进行处理。**比如Spring的自动装配后置处理器AutowiredAnnotationBeanPostProcessor就会在这里工作，它会找到自动装配的元数据信息，然后执行自动装配工作。**
+
+在处理完这些后置处理器的方法之后，Spring就会为当前bean设置属性，把以前处理好的PropertyValues给bean里面设置一下。主要是上面步骤没有给bean里面设置的属性，通过反射的方式进行赋值。
+
+![image-20220417144543682](IMG/Spring源码分析.assets/image-20220417144543682.png)
+
+接下来就执行bean的初始化流程：`initializeBean(beanName, exposedObject, mbd)`
+
+![image-20220417150629886](IMG/Spring源码分析.assets/image-20220417150629886.png)
+
+注意上图没有MergedBeanDefinitionPostProcessor的postProcessBeforeInitialization和postProcessAfterInitialization流程，因为这两个方法其实是MergedBeanDefinitionPostProcessor实现了BeanPostProcessor接口之后，BeanPostProcessor接口中的两个方法， 它们的执行流程就和BeanPostProcessor的执行流程完全一致。
+
+### 5. 小结
+
+在Spring中有很多的后置增强器，其中有工厂增强器和bean增强器。在Spring的启动过程中， 在他的工厂创建好了之后，就可以调用工厂增强器对创建好的工厂进行增强。接着Spring会在工厂中提前保存所有的Bean增强器，方便在后续的bean创建过程中直接使用。之后其实就是在bean的创建前后，各种PostProcessor发挥作用。
+
+具体流程如下图所示：
+
+![image-20220417151316059](IMG/Spring源码分析.assets/image-20220417151316059.png)
+
+## 2.10 Bean的初始化流程（GetBean的详细逻辑）
+
+
+
+
+
+## 2.11 注解版容器刷新12大步
+
+
+
+# 第三章 循环依赖
+
+
+
+# 第四章 AOP源码分析
+
+
+
+
+
+# 第五章 监听器
