@@ -1774,7 +1774,7 @@ protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable O
     throws BeanCreationException {
     .......
     try {
-        //（即使AOP的BeanPostProcessor都不会珍惜这个机会） 提前给我们一个机会，去返回组件的代理对象。
+        //提前给我们一个机会，去返回组件的代理对象。
         Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
         if (bean != null) {
             return bean;
@@ -2169,8 +2169,428 @@ private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 # 第四章 AOP源码分析
 
+## 4.1 配置调试环境
+
+```java
+@EnableAspectJAutoProxy //开启自动代理
+@Configuration
+public class AopOpenConfig {
+}
+```
+
+```java
+@Component  //切面存在的化就会返回代理对象
+public class HelloService {
+
+	public HelloService(){
+		System.out.println("HelloService....");
+	}
+
+	public String sayHello(String name){
+		String result = "你好："+name;
+		System.out.println(result);
+		int length = name.length();
+		return result + "---" + length;
+	}
+}
+```
+
+```java
+@Component  //切面也是容器中的组件
+@Aspect //说明这是切面
+public class LogAspect {
+
+    public LogAspect(){
+        System.out.println("LogAspect...");
+    }
+
+    //前置通知  增强方法/增强器
+    @Before("execution(* com.atguigu.spring.aop.HelloService.sayHello(..))")
+    public void logStart(JoinPoint joinPoint){
+        String name = joinPoint.getSignature().getName();
+        System.out.println("logStart()==>"+name+"....【args: "+ Arrays.asList(joinPoint.getArgs()) +"】");
+    }
+
+    //返回通知
+    @AfterReturning(value = "execution(* com.atguigu.spring.aop.HelloService.sayHello(..))",returning = "result")
+    public void logReturn(JoinPoint joinPoint,Object result){
+        String name = joinPoint.getSignature().getName();
+        System.out.println("logReturn()==>"+name+"....【args: "+ Arrays.asList(joinPoint.getArgs()) +"】【result: "+result+"】");
+    }
 
 
+    //后置通知
+    @After("execution(* com.atguigu.spring.aop.HelloService.sayHello(..))")
+    public void logEnd(JoinPoint joinPoint){
+        String name = joinPoint.getSignature().getName();
+        System.out.println("logEnd()==>"+name+"....【args: "+ Arrays.asList(joinPoint.getArgs()) +"】");
+    }
 
 
-# 第五章 监听器
+    //异常
+    @AfterThrowing(value = "execution(* com.atguigu.spring.aop.HelloService.sayHello(..))",throwing = "e")
+    public void logError(JoinPoint joinPoint,Exception e){
+        String name = joinPoint.getSignature().getName();
+        System.out.println("logError()==>"+name+"....【args: "+ Arrays.asList(joinPoint.getArgs()) +"】【exception: "+e+"】");
+    }
+}
+
+```
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext =
+        new AnnotationConfigApplicationContext(MainConfig.class);
+    //AOP,原理测试
+    HelloService helloService = applicationContext.getBean(HelloService.class);
+    helloService.sayHello("zhangsan");
+}
+```
+
+## 4.2 系统中如何添加AOP功能？
+
+我们先点开@EnableAspectJAutoProxy，可以看到它其实导入了一个类：`@Import(AspectJAutoProxyRegistrar.class)`。在容器刷新十二大流程中的工厂增强环境，**ConfigurationClassPostProcessor**会进行工作，它解析所有的配置类，比如这里它开始解析AopOpenConfig，然后发现它上面有一个@Import注解，就会调用loadBeanDefinitionsFromRegistrars方法来处理@Import注解。**最终就会调用Import上的AspectJAutoProxyRegistrar中的registerBeanDefinitions方法**。因为AspectJAutoProxyRegistrar其实是实现了ImportBeanDefinitionRegistrar接口。
+
+在AspectJAutoProxyRegistrar中的registerBeanDefinitions方法中，它的核心方法其实就是`AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);`注册切面的基于注解的自动代理的创建器。它的内部其实就是注册了一个类：**AnnotationAwareAspectJAutoProxyCreator。**它的类图如下图所示：
+
+![image-20220418134537802](IMG/Spring源码分析.assets/image-20220418134537802.png)
+
+从这个图就可以看到，AnnotationAwareAspectJAutoProxyCreator其实就i是一个BeanPostProcessor，它会干预到 Bean的创建流程中。
+
+![image-20220418133651905](IMG/Spring源码分析.assets/image-20220418133651905.png)
+
+## 4.3 AnnotationAwareAspectJAutoProxyCreator运行流程
+
+首先AnnotationAwareAspectJAutoProxyCreator是一个BeanPostProcessor，它会在容器刷新十二步中的registerBeaenPostProcessor中被创建出来。然后调用**initialBean**方法进行初始化的时候，正好这个后置处理器**实现了BeanClassLoaderAware、BeanFactoryAware接口，就会进行一个Aware执行：**
+
+```java
+private void invokeAwareMethods(String beanName, Object bean) {
+    if (bean instanceof Aware) {
+        if (bean instanceof BeanNameAware) {
+            ((BeanNameAware) bean).setBeanName(beanName);
+        }
+        if (bean instanceof BeanClassLoaderAware) {
+            ClassLoader bcl = getBeanClassLoader();
+            if (bcl != null) {
+                ((BeanClassLoaderAware) bean).setBeanClassLoader(bcl);
+            }
+        }
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(AbstractAutowireCapableBeanFactory.this);
+        }
+    }
+}
+```
+
+然后它就会执行BeanFactoryAware的setBeanFactory方法，而且值得注意的是，**BeanFactoryAware的实现类AbstractAdvisorAutoProxyCreator它重写了该方法，并且在里面调用了initBeanFactory方法，同时，它的子类也会继续重写该方法，最终就是执行了我们的AnnotationAwareAspectJAutoProxyCreator的initBeanFactory方法。**
+
+```java
+@Override   // BeanFactoryAware 来的。 当前后置处理器初始化创建对象的时候回调的
+protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    super.initBeanFactory(beanFactory);
+    if (this.aspectJAdvisorFactory == null) {
+        this.aspectJAdvisorFactory = new ReflectiveAspectJAdvisorFactory(beanFactory); //准备一个ReflectiveAspectJAdvisorFactory
+    }
+    this.aspectJAdvisorsBuilder =
+        new BeanFactoryAspectJAdvisorsBuilderAdapter(beanFactory, this.aspectJAdvisorFactory);
+}
+```
+
+可以看到它会给这个后置增强器添加aspectJAdvisorFactory和aspectJAdvisorsBuilder。
+
+至此，我们的这个AnnotationAwareAspectJAutoProxyCreator就创建完成并放入容器中了。
+
+然后就会接着走后续的初始化整个beanFactory流程。我们之前的章节在分析bean的创建过程的时候，即调用createBean方法的时候，Spring会给我们一个机会去返回该组件的代理对象，也就是`Object bean = resolveBeforeInstantiation(beanName, mbdToUse);`它执行的就是**InstantiationAwareBeanPostProcessor**后置处理器中的postProcessBeforeInstantiation方法，如果这个方法返回的结果不是null，Spring就不会帮我们去创建组件，而是去使用这个方法返回的组件。
+
+同时我们又知道，我们的AnnotationAwareAspectJAutoProxyCreator实现了AbstractAutoProxyCreator接口，而该接口又实现了InstantiationAwareBeanPostProcessor接口，并且对postProcessorBeforeInstantiation方法进行了重写。
+
+```java
+@Override
+public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
+    Object cacheKey = getCacheKey(beanClass, beanName);
+
+    if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+        if (this.advisedBeans.containsKey(cacheKey)) { //已经分析过的组件内
+            return null;
+        } //所有增强了的组件会被缓存在advisedBeans，如果我们需要增强的bean，我们就放在缓存中
+        // ⭐重点是下面这两个方法，放到接下来去分析
+        if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+            this.advisedBeans.put(cacheKey, Boolean.FALSE);
+            return null;
+        }
+    }
+
+    //创建个代理 Create proxy here if we have a custom TargetSource.
+    // Suppresses unnecessary default instantiation of the target bean:
+    // The TargetSource will handle target instances in a custom fashion.
+    TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+    if (targetSource != null) {
+        if (StringUtils.hasLength(beanName)) {
+            this.targetSourcedBeans.add(beanName);
+        }
+        Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+        Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
+        this.proxyTypes.put(cacheKey, proxy.getClass());
+        return proxy;
+    }
+
+    return null;
+}
+```
+
+这个postProcessBeforeInstantiation方法内部调用了`isInfrastructureClass(beanClass)`方法，这个方法它由AnnotationAwareAspectJAutoProxyCreator进行了重写，**主要作用是判断当前的bean是否是一个切面，即判断当前类它是否被@Aspect注解所标注**：
+
+```java
+@Override
+protected boolean isInfrastructureClass(Class<?> beanClass) {
+    // 判断是否切面
+    return (super.isInfrastructureClass(beanClass) ||
+            (this.aspectJAdvisorFactory != null && this.aspectJAdvisorFactory.isAspect(beanClass)));
+}
+```
+
+除了当前bean标注了Aspect注解用以表明它是一个切面，如果它不是一个切面，就继续**判断是否需要跳过当前类**
+
+```java
+@Override  //判断是否需要跳过当前类
+protected boolean shouldSkip(Class<?> beanClass, String beanName) {
+    // TODO: Consider optimization by caching the list of the aspect names
+    List<Advisor> candidateAdvisors = findCandidateAdvisors();  //找到候选的增强器
+    for (Advisor advisor : candidateAdvisors) {
+        if (advisor instanceof AspectJPointcutAdvisor &&
+            ((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) {
+            return true;
+        }
+    }
+    return super.shouldSkip(beanClass, beanName);
+}
+```
+
+在判断该类是否需要跳过的时候，它会先去找到所有的候选的增强器，也就是执行`findCandidateAdvisors`方法，在这个方法里面，它会去调用父类的findCandidateAdvisors方法，一般而言，我们在对bean挨个创建的时候，第一次进来的时候它返回的都是null。接着如果此时aspectJAdvisorsBuilder不为null（注意，这个aspectJAdvisorsBuilder在执行BeanFactoryAware的时候就已经被设置进去了），他就会往advisors中进行添加。具体如下面方法所示：
+
+```java
+@Override  //找到候选的增强器。
+protected List<Advisor> findCandidateAdvisors() {
+    // Add all the Spring advisors found according to superclass rules. 判断这个bean是否需要增强只需要找到他的所有增强器
+    List<Advisor> advisors = super.findCandidateAdvisors();
+    // 构建增强器？？？？ Build Advisors for all AspectJ aspects in the bean factory.
+    if (this.aspectJAdvisorsBuilder != null) { //增强器的构建器只要有
+        advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
+    }
+    return advisors;
+}
+```
+
+在进行构建的时候，即执行`this.aspectJAdvisorsBuilder.buildAspectJAdvisors()`的时候，如果它是第一次进来，Spring就会获取容器中所有的Object类型的组件，然后挨个判断它是否是切面，即是否有@Aspect，然后将是切面的组件放到一个集合中，紧接着就会遍历所有的切面， 将它们内部的增强器都添加到一个集合中。
+
+也就是说，在初始化完AnnotationAwareAspectJAutoProxyCreator后置处理器之后，进入到beanFactory的初始化流程中，然后在第一个bean初始化过程中，我们就已经将所有的切面都添加到了容器中，并且进行了增强器（advisor）的构建，即哪些切面中有哪些方法什么时候运行。在advisorsCache（Map<String, List< Advisor>>）中保存了增强器（通知方法）。
+
+**⭐至于如何在第一次bean初始化过程中构建增强器，再来详细讲述：**
+
+1. 拿到容器中所有的beanNames，然后依次遍历
+2. 获取当前beanName所属于的类型，然后判断该类是否标注了@Aspect注解，如果没有就continue，判断下一个beanName。
+3. 如果当前beanName的beanType有@Aspect注解的话，首先将其添加到this.aspectBeanNames中，即该容器中保存了所有的切面的类的beanName。
+4. 然后就利用当前类中的beanFactory和切面的beanName构建一个BeanFactoryAspectInstanceFactory，利用这个factory来获取到这个切面中的所有的增强器。
+5. 然后将获取到的所有的增强器都添加到advisorsCache中进行保存，方便后续使用。
+
+**⭐再来详细讲述如何从一个切面中获取到它里面的所有的增强器：**
+
+1. 利用反射获取当前切面中的所有的方法
+2. 看当前方法是否是通知方法：`Pointcut.class, Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class。`
+3. 将每个通知方法都封装成Advisor即增强器。
+4. 每个增强器都是InstantiationModelAwarePointcutAdvisorImpl。
+
+## 4.4 如何创建需要被增强的方法所属的类？
+
+在我们本次案例中，针对HelloService类中的sayHello进行了代理增强。那么在Spring的容器中，HelloService是以什么样的形式存在的呢？
+
+对于HelloService的创建，在它创建之前，它会去执行`AbstractAutoProxyCreator(实现了InstantiationAwareBeanPostProcessor接口).postProcessBeforeInstantiation`后置处理器的处理方法，在这个方法中，它会去判断HelloService是否是切面（false）、判断是否可以跳过，在判断跳过的逻辑中，它先去获取到所有切面的所有增强器（这个在我们第一次创建bean的时候就已经将所有的增强器给放入到advisorsCache中了），然后看这个类是否属于特殊类。结果HelloService都不满足，因此返回null，也就是什么都没做。
+
+后续的流程其实顺风顺水，AnnotationAwareAspectJAutoProxyCreator其实并没有过多的干预，但是等到HelloService初始化完之后，执行**BeanPostProcessor.postProcessAfterInitialization。**
+
+```java
+@Override
+public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
+    if (bean != null) {
+        Object cacheKey = getCacheKey(bean.getClass(), beanName);
+        if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+            return wrapIfNecessary(bean, beanName, cacheKey);
+        }
+    }
+    return bean;
+}
+```
+
+它内部的所有实现细节其实就是挨个判断所有的增强器的正则是否能够切入这个helloService对象，然后将结果添加到eligibleAdvisors（合适的增强器）集合中。紧接着它就会想要创建一个`ExposeInvocationINterceptor拦截器`，并将其添加到eligibleAdvisors中的最开始的位置，添加完之后对整个集合进行排序，最终eligibleAdvisors中保存的元素如下图所示：
+
+![image-20220418201402660](IMG/Spring源码分析.assets/image-20220418201402660.png)
+
+这时候所有的增强器就返回了，也就是eligibleAdvisors，但是postProcessAfterInitialization还未结束。然后就会拿着能适用于HelloService的增强器，创建HelloService的代理对象。由于HelloService并没有实现什么接口，因此使用CGlib来创建代理对象。最终代理对象如下图所示：
+
+![image-20220418202338136](IMG/Spring源码分析.assets/image-20220418202338136.png)
+
+最终我们的Spring容器中的单例池中就保存了helloService，只不过它所对于的value是一个代理对象。
+
+## 4.5 AOP链式执行流程
+
+对于我们创建好的helloService，它保存的是代理对象，于是我们在执行helloService.sayHello("zhangsan");方法的时候，整体流程和平时不太一样。
+
+在我们执行sayHello方法的时候，其实调用的是CglibAopProxy中的DynamicAdvisedInterceptor类中的intercept方法，至于为什么调用这个方法，是因为在我们使用cglib进行增强的时候，设置了CallBack，而CallBack其实传入的是一个MethodInterceptor，正好我们的DynamicAdvisedInterceptor就实现了MethodInterceptor。
+
+这个interccept方法首先利用目标方法和目标类将上一步在创建需要被增强的方法所属的类中创建出的helloService的五个增强器给转换为拦截器，即把所有的增强器再转换为真正的拦截器，这是因为增强器中只是保存了信息，而拦截器是能够真正执行目标方法。最终构建好的五个拦截器如下图所示：
+
+![image-20220418212517570](IMG/Spring源码分析.assets/image-20220418212517570.png)
+
+创建好拦截器之后，首先将所有的信息封装成一个CglibMethodInvocation类，`new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy)`，包括helloService的代理、真实对象、增强器链、当前方法、使用的参数等等，这就是**FilterChain类**
+
+当创建好这个类之后，就调用它的proceed方法进行执行。后续的流程如下图所示：
+
+![AOP链式调用过程](IMG/Spring源码分析.assets/AOP链式调用过程.jpg)
+
+# 第五章 监听器（事件原理）
+
+## 5.1 环境准备
+
+监听器使用：
+
+1. 自定义组件装配ApplicationContext或者ApplicationEventMulticaster可以派发事件。
+2. 自定义组件实现ApplicationListener或者使用@EventListener标注在方法上可以接受事件。
+3. publish的Object对象会被认为是自定义事件，也可以定义事件（通过实现ApplicationEvent）
+
+```java
+/**
+ * 事件监听器；为什么一个注解就能监听来事件。。。。。
+ */
+@Component
+public class AppEventListener {
+
+    public AppEventListener(){
+        System.out.println("AppEventListener...");
+    }
+
+    @EventListener(MessageEvent.class) //监听事件
+    public void listenMessage(MessageEvent event){
+        System.out.println("Message事件到达..."+event+"；已发送邮件....");
+    }
+
+    @EventListener(ChangeEvent.class)
+    public void listenChange(ChangeEvent event){
+        System.out.println("Change事件到达..."+event+"；已同步状态....");
+    }
+
+    @EventListener(PayloadApplicationEvent.class) //感知任意对象事件的
+    public void listenPayload(PayloadApplicationEvent<A> event){
+        System.out.println("Payload事件到达..."+event.getPayload()+"；已进行处理....");
+    }
+
+}
+```
+
+```java
+// 事件发布器
+@Component
+public class AppEventPublisher implements ApplicationEventPublisherAware {
+
+    ApplicationEventPublisher eventPublisher;
+    public AppEventPublisher(){
+        System.out.println("AppEventPublisher....");
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.eventPublisher = applicationEventPublisher;
+    }
+
+    public void publish(ApplicationEvent applicationEvent){
+        eventPublisher.publishEvent(applicationEvent);
+    }
+}
+```
+
+```java
+// 事件需要实现序列化接口
+public class ChangeEvent extends ApplicationEvent implements Serializable {
+    private static final long serialVersionUID = 0L;
+    private String state;
+    private ChangeEvent(Object source) {
+        super(source);
+    }
+
+    public ChangeEvent(Object source,String state){
+        super(source);
+        this.state = state;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    @Override
+    public String toString() {
+        return "ChangeEvent{" +
+            "state='" + state + '\'' +
+            ", source=" + source +
+            '}';
+    }
+}
+```
+
+```java
+// 事件需要实现序列化接口
+public class MessageEvent extends ApplicationEvent implements Serializable {
+    private static final long serialVersionUID = 0L;
+
+    public MessageEvent(String source) {
+        super(source);
+    }
+
+    @Override
+    public String toString() {
+        return "MessageEvent{" +
+            ", source=" + source +
+            '}';
+    }
+}
+```
+
+测试类中：
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext =
+        new AnnotationConfigApplicationContext(MainConfig.class);
+
+    //测试事件
+    AppEventPublisher eventPublisher = applicationContext.getBean(AppEventPublisher.class);
+    //    eventPublisher.publish(new A());
+    eventPublisher.publish(new MessageEvent("hello，你好"));
+    eventPublisher.publish(new ChangeEvent(eventPublisher,"sending..."));
+}
+```
+
+## 5.2 源码分析
+
+首先IOC容器在this()阶段， 其实往容器的beanDefinitionMap中添加了一些原生的定义信息，这里面就包含了两个事件有关的后置处理器：**EventListenerMethodProcessor和DefaultEventListenerFactory**
+
+![image-20220418215230755](IMG/Spring源码分析.assets/image-20220418215230755.png)
+
+可以看到，我们的EventListenerMethodProcessor其实是实现了两种接口：**SmartInitializingSingleton和BeanFactoryPostProcessor**，这就表明了**它会在工厂后置处理环节执行，用来执行工厂增强；还会在所有的Bean都创建完之后，循环挨个判断这些bean是否实现了SmartInitializingSingleton接口，如果实现了就调用该接口的afterSingletonsInstantiated方法。**
+
+在工厂后置增强环节，它会把容器中所有的DefaultEventListenerFactory拿来排个序并保存。
+
+在最后的初始化环节：
+
+1. 拿到容器中所有组件
+2. 处理这个组件
+   1. 找到组件中所有@EventListener标注的方法
+   2. 遍历每个方法，先拿到所有的DefaultEventListenerFactory，然后把当前方法，beanName等封装到**适配器**中，即`ApplicationListenerMethodAdapter(beanName,beanType,method)`。为每个方法都创建一个适配器（ApplicationListenerMethodApdater）。
+   3. 把这个适配器（它也是监听器）放到了容器（applicationListeners）中和事件多播器（applicationEventMulticaster）中。
+3. 事件派发给的是适配器，适配器利用反射调用自己组件的事件监听方法。
+
+![image-20220418220751089](IMG/Spring源码分析.assets/image-20220418220751089.png)
+
+![image-20220418221041589](IMG/Spring源码分析.assets/image-20220418221041589.png)
+
+**在事件的派发过程中，即eventPublisher.publish(new MessageEvent("hello，你好"))方法，它会按照发送的事件的类型，如果它是实现了ApplicationEvent接口，就将该事件转换为ApplicationEvent。如果该对象没有实现该接口，就将其用PayloadApplicationEvent进行封装，最后执行的时候，它会拿到事件多播器，用它来发送事件。至于怎么发送事件，它会利用观察者模式（for遍历），将符合event和type的ApplicationListenerMethodAdapter拿来，然后依次调用它们的invokeListener方法即可。**
+
+![image-20220418213441154](IMG/Spring源码分析.assets/image-20220418213441154.png)
