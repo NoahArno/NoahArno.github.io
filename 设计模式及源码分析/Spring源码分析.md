@@ -2142,6 +2142,8 @@ beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationCont
 
 # 第三章 循环依赖
 
+## 3.1 具体流程
+
 首先得知道的是，在Spring中，解决循环依赖问题，需要三级缓存。分别为：
 
 ```java
@@ -2156,7 +2158,7 @@ private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 ```
 
 1. 先想要对A进行实例化，调用getSingleton(beanName)依次从一级、二级、三级缓存中进行查询，但是都没有，返回null
-2. 调用getSingleton(beanName)的重载方法，该方法将该A的beanName添加到singletonsCurrentlyInCreation集合中之后，调用createBean方法中的doCreateBean方法， 先利用默认的无参构造器创建出A的实例，但是此时A并没有被初始化。**然后将其先添加到【三级缓存】中。注意的是，这里其实不是将A给放到三级缓存中，而是将一个工厂方法给传进去，到时候获取对象的时候，可以直接通过工厂方法返回早期暴露出来的Bean引用**。
+2. 调用getSingleton(beanName)的重载方法，该方法将该A的beanName添加到singletonsCurrentlyInCreation集合中之后，调用createBean方法中的doCreateBean方法， 先利用默认的无参构造器创建出A的实例，但是此时A并没有被初始化。**然后将其先添加到【三级缓存】中（addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean))）。注意的是，这里其实不是将A给放到三级缓存中，而是将一个工厂方法给传进去，到时候获取对象的时候，可以直接通过工厂方法返回早期暴露出来的Bean引用**。
 3. 接着调用populateBean，想对A进行属性填充，此时`AutowiredAnnotationBeanPostProcessor`感知到A需要自动装配B，于是开始调用getBean来获取B。
 4. 和上述流程一样，一开始getSingleton(beanName)依次查找之后发现容器中并没有B，然后就将B的beanName添加到singletonsCurrentlyInCreation集合中，接着就会创建B，将其添加到【三级缓存】中。此时又发现B依赖于A，就又调用getBean方法来获取A。
 5. 它同样会去容器中查找A，从一级到二级到三级，发现三级中存在A的工厂方法，并且调用这个工厂来获取到A早期暴露出来的引用，然后将A给添加到二级缓存中，并且从三级缓存中删除A。
@@ -2166,6 +2168,14 @@ private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 ![循环依赖](IMG/Spring源码分析.assets/image-20210924154224430.png)
 
 ![循环依赖](IMG/Spring源码分析.assets/循环依赖.jpg)
+
+## 3.2 为什么需要二级缓存earlySingletonObjects
+
+我们都知道，针对于A实例化之后，会将他放入到三级缓存singletonFactories中，保存的是以A的beanName为key，以一个执行getEarlyBeanReference方法的lambda表达式为value的map中。如果我们的A中的方法使用到了AOP，那么实际上单例池中保存的其实就是A的代理对象。 于是我们重新以AOP代理A的视角来看循环依赖。
+
+还是一样的流程，一开始我们去容器中找A，发现找不到，就会去创建A，然后给三级缓存中添加了数据。在赋值过程中，发现依赖于B，于是去创建B，同样给三级缓存中放入B。然后在B创建过程中，发现需要A，就去容器中找，发现三级缓存中有，就会调用之前存入的lambda表达式，由该表达式创建A，然后将A放入到二级缓存，删除三级缓存中的A。但是如果没有二级缓存，也就是说我们每次获取A的时候都会从那个三级缓存中去执行getEarlyBeanReference方法。**而这个方法在执行过程中，其实是调用了所有的SmartInstantiationAwareBeanPostProcessor的getEarlyBenaReference方法，正好AOP相关增强器就重写了这个方法，它会返回一个A的代理类对象，然后交给B。但问题就出现在这里，其实每次调用这个三级缓存中的方法的时候，都会去创建一个新的代理类对象，这就导致了A不是单例的。**因此二级缓存尤为重要。
+
+也可以看看这一篇博客：[(34条消息) 面试题：Spring 为何需要三级缓存解决循环依赖，而不是二级缓存？_公众号:肉眼品世界的博客-CSDN博客](https://blog.csdn.net/weixin_45727359/article/details/114696668)
 
 # 第四章 AOP源码分析
 
@@ -2406,7 +2416,7 @@ protected List<Advisor> findCandidateAdvisors() {
 
 对于HelloService的创建，在它创建之前，它会去执行`AbstractAutoProxyCreator(实现了InstantiationAwareBeanPostProcessor接口).postProcessBeforeInstantiation`后置处理器的处理方法，在这个方法中，它会去判断HelloService是否是切面（false）、判断是否可以跳过，在判断跳过的逻辑中，它先去获取到所有切面的所有增强器（这个在我们第一次创建bean的时候就已经将所有的增强器给放入到advisorsCache中了），然后看这个类是否属于特殊类。结果HelloService都不满足，因此返回null，也就是什么都没做。
 
-后续的流程其实顺风顺水，AnnotationAwareAspectJAutoProxyCreator其实并没有过多的干预，但是等到HelloService初始化完之后，执行**BeanPostProcessor.postProcessAfterInitialization。**
+后续的流程其实顺风顺水，AnnotationAwareAspectJAutoProxyCreator其实并没有过多的干预，但是等到HelloService初始化完之后，执行**BeanPostProcessor.postProcessAfterInitialization。**即在initializeBean方法的末尾执行该后置增强器，然后就会返回代理对象。当然，当这个方法执行完毕之后，singletonFactories中的lambda表达式还是没有执行，还得看后续流程。当整体创建完成之后，Spring会去判断当前的组件是否是新建的，显而易见是的，因此就会将上述使用initialBean创建好的代理对象给放入一级缓存单例池中，然后删掉三级缓存中的数据。
 
 ```java
 @Override
