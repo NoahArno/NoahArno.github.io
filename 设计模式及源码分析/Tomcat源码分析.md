@@ -98,3 +98,35 @@
 对于我们以前启动tomcat来说，都是执行startup命令，但是这次我们以源码分析，可以查看startup命令，然后它其实执行的是catalina.bat命令，它里面规定了`MAINCLASS=org.apache.catalina.startup.Bootstrap`。
 
 因此我们重点就可以开始分析源码中的Bootstrap类了。
+
+我们先将项目启动起来，先配置一个Application：
+
+![image-20220421204107522](IMG/Tomcat源码分析.assets/image-20220421204107522.png)
+
+然后给这个Application配置一个主类，就是我们上面说的Bootstrap类，同时可能项目启动的时候会报错，这时候就可以去根据提示修改源码，把VERSON_15等给修改成VERSON_8。然后为了解决乱码问题，可以添加一些VM。
+
+![image-20220421204554002](IMG/Tomcat源码分析.assets/image-20220421204554002.png)
+
+```properties
+-Duser.language=en
+-Duser.region=US
+-Dfile.encoding=UTF-8
+-Dsun.jnu.encoding=UTF-8
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+如果一个请求http://localhost:8080/noaharno/hello，首先根据localhost解析到我们本机域名，而我们本机启动了一个tomcat，它监听了8080端口，因此这个请求就会交给我们的server服务器，服务器交给Catalina Service进行处理，然后它里面的Connector接受到了请求，然后交给引擎进行处理，然后此时我们的请求是localhost，然后引擎就会交给localhost所在的host，然后从webapps进行寻找。
+
