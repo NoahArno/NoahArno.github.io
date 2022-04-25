@@ -426,7 +426,7 @@ system>const>eq_ref>ref>range>index>ALL
 
 4、存储引擎不能使用索引中范围条件右边的列
 
-![IMG/MySQL高级.assets/image-20210917193420571.png]()
+![IMG/MySQL高级.assets/image-20210917193420571.png](IMG/MySQL高级.assets/image-20210917193420571.png)
 
 5、尽量使用覆盖索引（只访问索引的查询（索引列和查询列一致）），减少select *
 
