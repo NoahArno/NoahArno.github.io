@@ -222,16 +222,84 @@ optional byte[] content;
 int<var> length;
 ```
 
-相对于ziplist的定义，它记录的 不再是前一个节点的长度，而是自己的长度。同时它将记录自己的长度放到了节点的尾部。
+相对于ziplist的定义，它记录的不再是前一个节点的长度，而是自己的长度。同时它将记录自己的长度放到了节点的尾部。
 
 1. 不再需要zltail_offset属性也可以快速定位到最后一个节点。只需要使用listpack的总长度 - 最后一个节点的长度。
-2. 每个节点记录自己的长度，当本节点的值发生了改变，只需要更改自己的长度即可，不再需要更改别的节点的属性，解决掉了连锁更新问题
+2. **每个节点记录自己的长度，当本节点的值发生了改变，只需要更改自己的长度即可，不再需要更改别的节点的属性，解决掉了连锁更新问题**
 3. listpack的内存使用率上逊色于ziplist
 4. 代码的实现或复杂度上面，极简且高效
 
 ## 2.4 快速列表（quicklist）
 
-[Redis数据结构——快速列表(quicklist) - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/12624691.html)
+对于Redis中的双向链表来说，每个节点除了数据部分，都要额外的16字节的内存来表示prev和next（64bit系统的指针为8个字节），而且每个节点的内存都是单独分配的，容易加剧内存的碎片化，影响内存管理效率。
+
+Redis3.2之后对于List类型的value来说，**使用quicklist代替了ziplist和linkedlist。**
+
+对于quicklist来说，它其实是ziplist和linkedlist的结合体，它将linkedlist按段切分，每一段使用ziplist来紧凑存储，多个ziplist之间使用双向指针连接起来。
+
+它相对于linkedlist来说，**进一步压缩了空间**
+
+![img](IMG/深入理解Redis.assets/QuickList.png)
+
+```c
+typedef struct quicklist {
+    quicklistNode *head; // 头节点
+    quicklistNode *tail; // 尾节点
+	// 所有的节点的个数
+    unsigned long count;        /* total count of all entries in all ziplists */
+    // quicklistNode的个数
+    unsigned long len;          /* number of quicklistNodes */
+    // 16bit，ziplist大小设置，存放list-max-ziplist-size参数的值
+    int fill : QL_FILL_BITS;              /* fill factor for individual nodes */
+    // 16bit，节点压缩深度设置，存放lits-compress-depth参数的值
+    unsigned int compress : QL_COMP_BITS; /* depth of end nodes not to compress;0=off */
+    unsigned int bookmark_count: QL_BM_BITS;
+    quicklistBookmark bookmarks[];
+} quicklist;
+
+typedef struct quicklistNode {
+    struct quicklistNode *prev;
+    struct quicklistNode *next;
+    unsigned char *zl; // 如果当前节点的数据没有压缩，那么它指向一个ziplist，否则指向一个quicklistLZF结构
+    // zl指向的ziplist总大小，包括bytes、zltail、zllen、zlend和各个数据项。
+    // 如果ziplist被压缩了，这个sz同样也是压缩前的ziplist大小。
+    unsigned int sz; 
+    // ziplist里面包含的数据项个数，16bit
+    unsigned int count : 16;     /* count of items in ziplist */
+    // 1表示没有压缩，2表示被压缩了，而且用的是LZF压缩算法
+    unsigned int encoding : 2;   /* RAW==1 or LZF==2 */
+    // 预留字段，本来的设计是用来表明一个quicklistNode下面是直接存数据还是使用ziplist存储数据，或者用其它的结构来存。
+    // 但是目前只是固定的值2，表示使用ziplist作为数据容器。
+    unsigned int container : 2;  /* NONE==1 or ZIPLIST==2 */
+    unsigned int recompress : 1; /* was this node previous compressed? */
+    unsigned int attempted_compress : 1; /* node can't compress; too small */
+    unsigned int extra : 10; /* more bits to steal for future usage */
+} quicklistNode;
+
+/* quicklistLZF is a 4+N byte struct holding 'sz' followed by 'compressed'.
+ * 'sz' is byte length of 'compressed' field.
+ * 'compressed' is LZF data with total (compressed) length 'sz'
+ * NOTE: uncompressed length is stored in quicklistNode->sz.
+ * When quicklistNode->zl is compressed, node->zl points to a quicklistLZF */
+// 表示一个被压缩过的ziplist
+typedef struct quicklistLZF {
+    unsigned int sz; /* LZF size in bytes*/
+    char compressed[]; // 柔性数组，存放压缩后的ziplist字节数组。
+} quicklistLZF;
+```
+
+对于quicklist的插入来说：
+
+1. 如果是往头节点（尾节点）插入，
+    1. 如果此时对应的ziplist的容量足够，就直接插入到对应的ziplist中；
+    2. 如果超出了容量限制，就会创建一个新的quicklistNode，这个新的node里面又会包含新的ziplist，而新数据就存储在这里面，并且这个新的quicklistNode就会插入到新的quicklist双向链表中。
+2. 如果是指定位置插入数据：
+    1. 当插入位置所在的ziplist大小没有超过限制时，直接插入到ziplist中就好了；
+    2. 当插入位置所在的ziplist大小超过了限制，但插入的位置位于ziplist两端，并且相邻的quicklist链表节点的ziplist大小没有超过限制，那么就转而插入到相邻的那个quicklist链表节点的ziplist中；
+    3. 当插入位置所在的ziplist大小超过了限制，但插入的位置位于ziplist两端，并且相邻的quicklist链表节点的ziplist大小也超过限制，这时需要新创建一个quicklist链表节点插入。
+    4. 对于插入位置所在的ziplist大小超过了限制的其它情况（主要对应于在ziplist中间插入数据的情况），则需要把当前ziplist分裂为两个节点，然后再其中一个节点上插入数据。
+
+如果是quicklist的查询，因为每个quicklistNode其实记录了内部的ziplist的entry的个数，因此就可以通过index找到是哪个ziplist，然后进而找到对应的值。
 
 ## 2.5 跳表
 
@@ -242,8 +310,6 @@ int<var> length;
 [Redis数据结构——整数集合 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11268067.html)
 
 [Redis数据结构——压缩列表 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11306690.html)
-
-[Redis对象——Redis对象系统简介 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11386610.html)
 
 [Redis对象——字符串 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11675540.html)
 
@@ -256,6 +322,54 @@ int<var> length;
 [Redis数据结构——字典 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/9989771.html)
 
 [Redis数据结构——字典 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/9989771.html)
+
+## 2.7 redisObject
+
+Redis采用redisObject结构来统一几种不同的数据类型，这样所有的数据类型就都可以通过相同的形式在函数间传递而不用使用特定的类型结构。同时为了识别不同的数据类型，redisObject中还定义了type和encoding来对不同的数据类型加以区分。简单来说，redisObject就相当于这些数据类型的父类，可以在函数间传递时隐藏具体的类型信息。
+
+**前面说到的全局哈希表，在dictEntry中会有一个指针val指向数据对象的地址，而这个val指向的地址的内存空间其实就是一个redisObject！**
+
+dictEntry 结构，表示哈希表节点的结构，结构里存放了 void * key 和 void * value 指针， *key 指向的是 String 对象，而 *value 则可以指向 String 对象，也可以指向集合类型的对象，比如 List 对象、Hash 对象、Set 对象和 Zset 对象。
+
+void * key 和 void * value 指针指向的是 Redis 对象，Redis 中的每个对象都由 redisObject 结构表示，如下图：
+
+![image](IMG/深入理解Redis.assets/2355823-20211228161425350-2025781052.png)
+
+```c
+typedef struct redisObject {
+    // 当前value对象的一个数据结构
+   // string、hash、set、list、zset、stream、bitmaps、typeloglogs、geo
+    unsigned type:4;
+    // 当前值对象底层存储的编码格式
+    unsigned encoding:4;
+    // 记录对象最后一次访问时间
+    unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or
+                            * LFU data (least significant 8 bits frequency
+                            * and most significant 16 bits access time). */
+    // 记录当前对象被引用的次数，为0表示可以安全回收当前对象
+    int refcount;
+    // 真实存储数据的指针。
+    void *ptr;
+} robj;
+
+// 下面是Redis所拥有的编码格式
+/* Objects encoding. Some kind of objects like Strings and Hashes can be
+ * internally represented in multiple ways. The 'encoding' field of the object
+ * is set to one of this fields for this object. */
+#define OBJ_ENCODING_RAW 0     /* Raw representation */
+#define OBJ_ENCODING_INT 1     /* Encoded as integer */
+#define OBJ_ENCODING_HT 2      /* Encoded as hash table */
+#define OBJ_ENCODING_ZIPMAP 3  /* Encoded as zipmap */
+#define OBJ_ENCODING_LINKEDLIST 4 /* No longer used: old list encoding. */
+#define OBJ_ENCODING_ZIPLIST 5 /* Encoded as ziplist */
+#define OBJ_ENCODING_INTSET 6  /* Encoded as intset */
+#define OBJ_ENCODING_SKIPLIST 7  /* Encoded as skiplist */
+#define OBJ_ENCODING_EMBSTR 8  /* Embedded sds string encoding */
+#define OBJ_ENCODING_QUICKLIST 9 /* Encoded as linked list of ziplists */
+#define OBJ_ENCODING_STREAM 10 /* Encoded as a radix tree of listpacks */
+```
+
+
 
 # 第三章 基本数据类型
 
