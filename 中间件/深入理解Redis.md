@@ -173,22 +173,48 @@ struct __attribute__ ((__packed__)) sdshdr64 {
 
 ## 2.2 压缩列表（ziplist）
 
+在一般的数组中，会要求我们每个元素的大小相同，如果我们想要存储不同长度的字符串，就需要以最大长度的字符串的大小为数组元素的大小，就会非常浪费空间。
+
+但是数组是占用连续空间的，这种结构能很好的利用CPU缓存访问数据，提升效率，因此我们就可以去将数组进行压缩，让他同时兼顾效率和空间。
+
 ![img](IMG/深入理解Redis.assets/9587e483f6ea82f560ff10484aaca4a0.jpg)
 
 ```c
 typedef struct ziplist{
-    /*ziplist分配的内存大小*/
-    uint32_t bytes;
+    /*ziplist分配的内存大小，在对ziplist进行内存重分配或者计算zlend位置时使用你*/
+    uint32_t zlbytes;
     /*达到尾部的偏移量*/
-    uint32_t tail_offset;
+    uint32_t zltail_offset;
     /*存储元素实体个数*/
-    uint16_t length;
+    uint16_t zllength;
     /*存储内容实体元素*/
     unsigned char* content[];
-    /*尾部标识*/
-    unsigned char end;
+    /*尾部标识， 0xFF，十进制255*/
+    unsigned char zlend;
 }ziplist;
+
+// redis对压缩列表中节点的定义如下：
+typedef struct zlentry {
+    unsigned int prevrawlensize; // 存储上一个节点长度的数值所需要的字节数
+    unsigned int prevrawlen;     // 上一个节点的长度
+    unsigned int lensize;        // 当前节点长度的数值所需要的字节数
+    unsigned int len;           // 当前节点的长度
+    unsigned int headersize;    // 当前节点的头部大小， = prevrawlensize + lensize
+    unsigned char encoding;      // 编码方式，ZIP_STR_*或ZIP_INT_*
+    unsigned char *p;            // 指向节点内容的指针
+} zlentry;
 ```
+
+虽然定义了这个结构体，但是**根本就没有使用zlentry这个结构来作为压缩列表中用来存储数据节点中的结构**，因为造成的空间浪费太严重了。
+
+**真正的节点结构】**
+
+![image-20220429165414706](IMG/深入理解Redis.assets/image-20220429165414706.png)
+
+1. **prev_entry_len**：以字节为单位，记录了压缩列表中前一个节点的长度。该属性的长度可以是**1字节或者5字节**
+   - 如果前一个节点的长度小于254字节，那么previous_entry_length属性的长度为1字节，前一个节点的长度就保存在这一个字节里面
+   - 如果前一个节点的长度大于等于254字节，那么属性的长度就为5字节；其中属性的第一字节会被设置为0xFE（十进制254，作为这种情况的一个标记），而之后的四个字节则用于真正保存前一节点的占用的字节数。
+2. **encoding：**记录了节点的value（或者说content）属性所保存的类型以及长度。
 
 在压缩列表中，如果要查找定位第一个元素和最后一个元素，就可以通过表头三个字段直接定位，复杂度为O1。
 
@@ -203,6 +229,10 @@ typedef struct ziplist{
 1. 压缩列表在空间利用率上极高，每个entry最多只有6字节的浪费
 2. 底层无链表结构，通过内存偏移量获取next或last节点的位置
 3. 在插入和删除的时候会有相当大的概率出现**连锁更新**，因此在使用的时候尽量保证所存的value位数相同。
+
+**连锁更新】**
+
+由于表示长度的字节大小不一样，当新节点的插入可能会导致下一个节点原本存放表示上一个节点的长度的空间大小不够，导致需要扩容这一字段。相应的该字段会由一个字节扩容到五个字节，四个字节的长度变化，当发生变化的节点原本的长度在250-253之间的时候，将会导致下一个节点存储上一个节点长度的空间发生变化，引起一个连锁扩容的情况，这一情况会一直持续，直到到达一个不需要扩容的节点为止。
 
 ## 2.3 紧凑列表（listpack）
 
@@ -303,17 +333,103 @@ typedef struct quicklistLZF {
 
 ## 2.5 跳表（skiplist）
 
-[Redis数据结构——跳跃表 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11248192.html)
+zset类型在数据量较多或者成员是比较长的字符串的时候，Redis会使用skiplist作为有序集合的底层实现。
+
+**以空间换时间的方式提升了查找速度**
+
+```c
+typedef struct zskiplistNode {
+    sds ele; // 
+    double score; // 分数
+    // 后退指针，指向位于当前节点的前一个节点，从表尾向表头遍历使用
+    // 每次只能往后退一个节点
+    struct zskiplistNode *backward;
+    struct zskiplistLevel {
+        struct zskiplistNode *forward; // 
+        unsigned long span;
+    } level[];
+} zskiplistNode;
+
+typedef struct zskiplist {
+    struct zskiplistNode *header, *tail; // 分别指向skiplist的头、尾节点
+    unsigned long length; // skiplist的长度，也就是目前包含节点的数量
+    int level; // 目前的skiplist中，层级最大的那个节点的层数
+} zskiplist;
+```
+
+![Redis跳跃表](IMG/深入理解Redis.assets/Redis跳跃表.png)
+
+[Skip List--跳表（全网最详细的跳表文章没有之一） - 简书 (jianshu.com)](https://www.jianshu.com/p/9d8296562806)
+
+我们的查找复杂度是O(logn)，空间复杂度O(n)。
+
+对于查找过程，首先从最高层索引开始看，如果发现它的下一个比目标值要大，就会索引下沉，然后继续比较，直到到达最底层的链表。
+
+对于插入过程，就有很大的讲究了：
+
+- 如果我们每次插入元素之后都不更新索引，那么时间久了之后，就可能会导致skiplist的效率退化至O(N)。
+- 如果我们按照严格的索引要求，那么每次插入数据都得重构索引，效率大大降低。
+- 在数据量大的时候，可以如此分析：有2/n的数据会作为一级索引，有4/n的数据作为二级索引，有8/n的数据作为三级索引。因此就可以使用概率学，随机抽取2/n的数据作为一级索引，依次内推。在数据量大的时候，趋向于稳定，这也是我们选择的方向。
+
+进一步说：在插入一个元素的时候，我们可以通过一个随机函数返回它的概率，也就是说，这个新插入的节点有1/2的几率建立一级索引，1/4的概率建立二级索引，1/8的概率建立三级索引...
+
+```c
+int zslRandomLevel(void) {
+    static const int threshold = ZSKIPLIST_P*RAND_MAX;
+    int level = 1;
+    while (random() < threshold)
+        level += 1;
+    return (level<ZSKIPLIST_MAXLEVEL) ? level : ZSKIPLIST_MAXLEVEL;
+}
+```
+
+- 返回1表示插入该元素不需要建立索引（1/2）
+- 返回2表示插入该元素需要建立一级索引（1/4）
+- 依次内推。。
+
+那么疑惑来了，之前不是说要让建立一级索引的概率为1/2吗？怎么这里又说等到该方法以1/4的概率返回2的时候才建立一级索引？首先我们得知道的是，**建立二级索引的时候同时也会去创建一级索引**，因此只要不建立索引的概率为1/2，那么剩下的能建立一级索引的概率就为1/2了，也就是建立一级索引的概率其实是将所有返回值大于等于2的值加起来，趋向于1/2。
+
+对于元素插入的时间复杂度来说，最坏的是元素x要插入到每层索引中，所以插入数据到各层索引，最坏的时间复杂度为O(logn)。
 
 ## 2.6 整数集合（intset）
 
-[Redis数据结构——整数集合 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11268067.html)
+**底层结构】**
 
-[Redis数据结构——压缩列表 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11306690.html)
+当集合类型的元素都是整数并且元素个数不超过512个时，会使用intset作为底层数据结构
 
-[Redis对象——字符串 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11675540.html)
+```c
+typedef struct intset {
+    uint32_t encoding;
+    uint32_t length;
+    int8_t contents[]; // 整数集合中的每个元素都是contents数组中的一个数组项
+} intset;
 
-[Redis数据结构——字典 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/9989771.html)
+// encoding表示contents中存储的元素的类型：
+/* Note that these encodings are ordered, so:
+ * INTSET_ENC_INT16 < INTSET_ENC_INT32 < INTSET_ENC_INT64. */
+#define INTSET_ENC_INT16 (sizeof(int16_t))
+#define INTSET_ENC_INT32 (sizeof(int32_t))
+#define INTSET_ENC_INT64 (sizeof(int64_t))
+```
+
+数组contents的类型为int8_t，但是不会保存任何int8_t类型的数据，它保存的是encoding属性对应的类型的数据。
+
+**升级过程】**
+
+为了解决内存，如果intset存储的是16位（-32768~32767）的整数，那么就可以使用int16_t的类型来存储数据。但是如果此时添加的数据超过了16位能表示的范围，于是int16_t就存储不下了，这个时候就得**升级**，将数据类型设置为int32_t。
+
+1. 根据新元素的类型扩展数组的空间
+2. 将其他的数据类型转换为与新元素的数据类型相同
+3. 将新元素插入到数据的合适位置，并更新encoding属性的值。
+
+**intset提供的升级过程增加了数组操作的灵活性并且能够达到节约内存的效果，但是它并没有提供降级操作**
+
+![深入理解Redis](IMG/深入理解Redis.assets/深入理解Redis.png)
+
+**优点】**
+
+1. **灵活性更高：**intset可以自动升级底层数组来适应新元素，而不必担心出现类型错误。
+2. **节约内存：**如果想要同时保存int16、32、64位的整数，就可以直接使用64位类型的数组作为intset的底层实现，但是如果intset里面都是16位的数据，而暂时没有出现64位的数据，就会造成空间的浪费。
 
 ## 2.7 redisObject
 
@@ -331,7 +447,7 @@ void * key 和 void * value 指针指向的是 Redis 对象，Redis 中的每个
 typedef struct redisObject {
     // 当前value对象的一个数据结构
    // string、hash、set、list、zset、stream、bitmaps、typeloglogs、geo
-    unsigned type:4;
+    unsigned type:4; 
     // 当前值对象底层存储的编码格式
     unsigned encoding:4;
     // 记录对象最后一次访问时间
@@ -361,9 +477,40 @@ typedef struct redisObject {
 #define OBJ_ENCODING_STREAM 10 /* Encoded as a radix tree of listpacks */
 ```
 
-
-
 # 第三章 基本数据类型
+
+## 3.0 String
+
+**底层结构】**
+
+字符串对象是Redis中最基本的数据类型，它的内部实现是通过**int和SDS实现**
+
+**String类型的内部编码有3种：int、raw、embstr**
+
+1. 如果一个字符串对象保存的是整数值，并且这个整数值可以用long类型来表示，那么字符串对象会将整数值保存在字符串对象结构的ptr属性里面（将void*转换为long），并且将字符串对象的编码设置为int。
+2. 如果字符串对象保存的是一个字符串值，并且这个字符串值大于44字节，那么字符串对象将使用一个SDS来保存这个字符串，并将对象的编码设置为raw。
+3. 如果字符串值大小小于或等于44字节，那么字符串对象将使用一个SDS保存这个字符串值，并将对象的编码格式设置为embstr，注意此时redisObject和SDS是连续存放的。
+
+**上述的44字节随着Redis版本的变化也同时变化着，最新的一般为44字节（redis3.2之后从39变为44）**
+
+redisObject的type（4bits）、encoding（4bits）、lru（24bits）、refcount（4bytes）、ptr（8bytes，在64位系统中），于是redisObject就占用了16字节。
+
+而SDS的capacity（1byte）、alloc（1byte）、flags（1byte），加上之前的就一共19字节了，因此就是64-16-3-1 = 44字节，这个1字节是结束符"\0"
+
+![深入理解Redis-String对象](IMG/深入理解Redis.assets/深入理解Redis-String对象.png)
+
+`embstr`编码是专门用于保存短字符串的一种优化编码方式，我们可以看到`embstr`和`raw`编码都会使用`SDS`来保存值，但不同之处在于`embstr`会通过一次内存分配函数来分配一块连续的内存空间来保存`redisObject`和`SDS`。而`raw`编码会通过调用两次内存分配函数来分别分配两块空间来保存`redisObject`和`SDS`。Redis这样做会有很多好处。
+
+- `embstr`编码将创建字符串对象所需的内存分配次数从raw编码的两次降低为一次
+- 释放 `embstr`编码的字符串对象同样只需要调用一次内存释放函数
+- 因为`embstr`编码的字符串对象的所有数据都保存在一块连续的内存里面可以更好的利用CPU缓存提升性能
+
+**应用场景】**
+
+1. **作为缓存层**
+2. 计数器、限速器、分布式ID
+3. 分布式系统共享session，例如SpringSession
+4. 二进制存储
 
 ## 3.1 List
 
