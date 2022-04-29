@@ -301,25 +301,17 @@ typedef struct quicklistLZF {
 
 如果是quicklist的查询，因为每个quicklistNode其实记录了内部的ziplist的entry的个数，因此就可以通过index找到是哪个ziplist，然后进而找到对应的值。
 
-## 2.5 跳表
+## 2.5 跳表（skiplist）
 
 [Redis数据结构——跳跃表 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11248192.html)
 
-## 2.6 整数集合
+## 2.6 整数集合（intset）
 
 [Redis数据结构——整数集合 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11268067.html)
 
 [Redis数据结构——压缩列表 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11306690.html)
 
 [Redis对象——字符串 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/11675540.html)
-
-[Redis对象——哈希(Hash) - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/12651530.html)
-
-[Redis对象——集合(Set) - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/12695738.html)
-
-[Redis对象——有序集合(ZSet) - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/12717643.html)
-
-[Redis数据结构——字典 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/9989771.html)
 
 [Redis数据结构——字典 - Mr于 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hunternet/p/9989771.html)
 
@@ -382,7 +374,7 @@ typedef struct redisObject {
 - **压缩列表：**当列表的元素个数小于list-max-ziplist-entries配置（默认512个），同时列表中的每个元素的值都小于list-max-ziplist-value配置（默认64字节），Redis会选用压缩列表作为内部的实现来减少内存的使用。
 - **链表：**当列表类型无法满足压缩列表所需要的条件的时候，Redis就会使用链表作为内部实现。
 
-在Redis3.2开始，List类型的底层使用快速列表（quicklist）代替了ziplist和linkedlist
+**在Redis3.2开始，List类型的底层使用快速列表（quicklist）代替了ziplist和linkedlist**
 
 **应用场景】**
 
@@ -405,24 +397,54 @@ typedef struct redisObject {
 
 ## 3.2 Hash
 
-压缩 + 哈希表
+**底层结构】**
+
+Redis中的Hash类型，内部同样也有两种编码格式：ziplist和hashtable，当然在redis6之后用listpack代替了ziplist。
+
+和3.1说的List类型一样，当Hash中的数据不满足ziplist的要求的时候，就将转化为hashtable，因为此时`ziplist`的读写效率会下降，而`hashtable`的读写时间复杂度为O（1）。
 
 **应用场景】**
 
-1. 相当于Java里面的Map<String, Map<Object, Object>>，可以用来实现早期的购物车。
+1. 相当于Java里面的Map<String, Map<Object, Object>>，可以用来实现早期的**购物车**。
 
-```
-新增商品 hset shopcar:uid1024 334488 1 // 用户1024添加一件334488的商品到购物车
-增加商品数量 hincrby shopcar:uid1024 334488 1
-商品总数 hlen shopcar:uid1024
-全部选择 hgetall shopcar:1024
-```
+    ```
+    新增商品 hset shopcar:uid1024 334488 1 // 用户1024添加一件334488的商品到购物车
+    增加商品数量 hincrby shopcar:uid1024 334488 1
+    商品总数 hlen shopcar:uid1024
+    全部选择 hgetall shopcar:1024
+    ```
+
+2. **配置中心的配置项**
+
+3. **计数器：**
+
+    用于记录网站每一天、一月、一年的访问量
+
+    ```
+    HINCRBY MyBLOG 202204 1 // 记录2022年4月份的访问量
+    HINCRBY MyBLOG 202205 1
+    ```
+
+    也可以用于记录商品的好评数量、差评数量等
+
+    也可以实时记录当天的在线的人数。
 
 ## 3.3 Set
 
-整数数组、哈希表
+**底层结构】**
+
+Set类型是一个无序且唯一的键值对集合。它的存储顺序不会按照插入的先后顺序进行存储。
+
+一个集合最多可以存储232-1个元素。Redis除了支持集合内的增删改查，同时还支持多个集合取交集、并集、差集，合理地使用好集合类型，能在实际开发中解决很多实际问题。
+
+集合类型的内部编码有两种：
+
+- **intset（整数集合）**：当集合中的元素都是整数且元素个数小于set-maxintset-entries配置（默认512个）时，Redis会采用intset来作为集合的内部实现，从而减少内存的使用
+- **hashtable**：当集合类型无法满足intset的条件时，会使用hashtable作为集合的内部实现。
 
 **应用场景】**
+
+集合的主要几个特性，**无序、不可重复、支持并交差等操作**。因此集合类型比较适合用来数据**去重和保障数据的唯一性**，还可以用来统计多个**集合的交集、错集和并集**等，当我们存储的数据是无序并且需要去重的情况下，比较适合使用集合类型进行存储。
 
 1. **店铺抽奖活动：**
 
@@ -430,7 +452,7 @@ typedef struct redisObject {
    用户参加抽奖 sadd action UID1024
    显示已经有多少人参与了 scard action
    抽奖，从set中选n个人 srandmember key 2 随机抽2人，不删除；
-   随机抽3人，删除 spop key 3
+   随机抽3人，删除 spop key 3 // spop命令：随机移除并返回集合中一个或多个元素
    ```
 
 2. **给商品点赞**
@@ -445,13 +467,27 @@ typedef struct redisObject {
 
 ## 3.4 ZSet
 
-压缩列表、跳表
+**内部结构】**
+
+相对于Set来说多了一个排序属性score（分值），ZSet同样不允许成员重复（score可以重复），但是它可以利用score对ZSet中的元素进行排序。
+
+有序集合使用**ziplist或skiplist**组成
+
+- 当有序集合保存的元素个数小于128（Hash和List都是默认512）并且每个元素的长度都小于64字节，采用ziplist进行存储。
+- 如果不能满足上序条件，采用skiplist进行存储。
 
 **应用场景】**
 
-1. **热搜排行榜**
+1. **排行榜**：比如文章点赞排行榜
 
-   
+  ```
+  zincrby user:ranking articleID 10 // 新增十个赞
+  zincrby user:ranking articleID -1 // 取消点赞
+  zscore user:ranking articleID // 查看指定文章的点赞数
+  zrevrangebyrank user:ranking 0 9 // 点赞数最多的十篇文章
+  ```
+  
+2. **电话号码排序或者姓名排序：**使用ZRANGEBYLEX和ZREVRANGEBYLEX指令（分数相同）
 
 # 第四章 持久化机制
 
