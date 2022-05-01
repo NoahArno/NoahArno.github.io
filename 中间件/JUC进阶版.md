@@ -1517,7 +1517,7 @@ objectMonitor.hpp文件中：
 
 **ObjectMonitor中有两个队列：WaitSet和EntryList，用来保存ObjectMonitor对象列表（每个等待锁的线程都会被封装成ObjectWaiter对象），owner指向持有当前ObjectMonitor对象的线程，当多个线程同时访问同一段同步代码块的时候，首先会进入EntryList集合，当线程获取到对象的monitor之后就会进入到owner区域，并把monitor中的owner变量设置为当前线程，同时将monitor中的计数器count加1。如果该线程调用wait方法，就会释放当前持有的monitor，owner变量就会恢复成null，count自减，同时该线程就会进入WaitSet集合中等待被唤醒。如果当前线程执行完毕之后也会释放monitor，并且复位变量的值，以便其它线程进入获取monitor。**
 
-**如果当前synchronized是重量级锁，即锁标识位=10，Mark word中会记录指向monitor对象的指针。*
+**如果当前synchronized是重量级锁，即锁标识位=10，Mark word中会记录指向monitor对象的指针。**
 
 **也就是说，其实每个对象天生都带有一个对象监视器；**
 
@@ -2406,7 +2406,24 @@ AtomicInteger（带原子性包装的整形类）的底层原理：CAS
 
 sync：首先根据锁定原则，一个锁的unlock操作一定先行发生于它后续的lock操作。假设当线程a释放锁后，线程b拿到了锁并且开始执行代码块中的代码时，线程b必然能够看到线程a看到的所有结果，所以synchronized能够保证线程间数据的可见性。
 
-lock：[(34条消息) Java锁是如何保证数据可见性的 （本文未经过技术多方验证，仅供留存）_tomli2017的博客-CSDN博客_java 锁的可见性](https://blog.csdn.net/tomli2017/article/details/73263949)
+lock：将其简化可得如下代码：
+
+```java
+private volatile int state;
+
+void lock() {
+    read state;
+    if (can get state)
+        write state
+}
+void unlock() {
+    write state;
+}
+```
+
+使用volatile变量原则，对一个volatile的写操作一定happens-before于对该volatile变量的读操作。
+
+当线程b执行获取锁的操作，读取了state变量之后，线程a在写入state变量（即解锁）之前的任何操作结果都是对线程b是可见的。
 
 # 第六章 volatile
 
