@@ -31,6 +31,23 @@
 
 # 第二章 底层数据结构
 
+Redis其实是存在数据库的概念的，比如默认的就有16个数据库，只不过我们平时都是默认使用0号数据库。
+
+```c
+typedef struct redisDb {
+    dict *dict;                 /* The keyspace for this DB */
+    dict *expires;              /* Timeout of keys with a timeout set */
+    dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
+    dict *ready_keys;           /* Blocked keys that received a PUSH */
+    dict *watched_keys;         /* WATCHED keys for MULTI/EXEC CAS */
+    int id;                     /* Database ID */
+    long long avg_ttl;          /* Average TTL, just for stats */
+    unsigned long expires_cursor; /* Cursor of the active expire cycle. */
+    list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
+    clusterSlotToKeyMapping *slots_to_keys; /* Array of slots to keys. Only used in cluster mode (db 0). */
+} redisDb;
+```
+
 ## 2.0 全局哈希表（hashtable）
 
 **概念】**
