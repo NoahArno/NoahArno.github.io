@@ -2171,6 +2171,28 @@ private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 ## 3.2 为什么需要二级缓存earlySingletonObjects
 
+> 如果只有一级缓存其实也能解决循环依赖问题
+
+```java
+//			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean)); //三级缓存中的Bean也会被后置处理来增强，
+addSingleton(beanName, getEarlyBeanReference(beanName, mbd, bean));
+```
+
+我们修改源代码，让早期暴露出来的bean直接放入一级缓存中，然后最终发现其实也可以解决A和B的循环依赖问题。
+
+**没有代理的情况下（getEarlyBeanReference返回原对象）去创建A**：
+
+1. 创建A的实例，放入一级缓存。
+2. 初始化A的时候发现需要依赖注入B，就去获取B的实例
+3. 创建B的实例并放入一级缓存。
+4. 初始化B的时候发现需要A，就去一级缓存中拿。
+5. 完成B的初始化，放入一级缓存中（此时A还只是实例化，未完成属性赋值和初始化）
+6. 回到第2步，A初始化完成，放入一级缓存。
+
+**那为什么还需要三级缓存呢？**
+
+首先我们从单一职责的角度来说，如果我们将完整的和不完整的Bean都放入同一个集合中，就可能会引发未知的错误。因此就需要将他们给分离开来。
+
 我们都知道，针对于A实例化之后，会将他放入到三级缓存singletonFactories中，保存的是以A的beanName为key，以一个执行getEarlyBeanReference方法的lambda表达式为value的map中。如果我们的A中的方法使用到了AOP，那么实际上单例池中保存的其实就是A的代理对象。 于是我们重新以AOP代理A的视角来看循环依赖。
 
 还是一样的流程，一开始我们去容器中找A，发现找不到，就会去创建A，然后给三级缓存中添加了数据。在赋值过程中，发现依赖于B，于是去创建B，同样给三级缓存中放入B。然后在B创建过程中，发现需要A，就去容器中找，发现三级缓存中有，就会调用之前存入的lambda表达式，由该表达式创建A，然后将A放入到二级缓存，删除三级缓存中的A。但是如果没有二级缓存，也就是说我们每次获取A的时候都会从那个三级缓存中去执行getEarlyBeanReference方法。**而这个方法在执行过程中，其实是调用了所有的SmartInstantiationAwareBeanPostProcessor的getEarlyBenaReference方法，正好AOP相关增强器就重写了这个方法，它会返回一个A的代理类对象，然后交给B。但问题就出现在这里，其实每次调用这个三级缓存中的方法的时候，都会去创建一个新的代理类对象，这就导致了A不是单例的。**因此二级缓存尤为重要。
