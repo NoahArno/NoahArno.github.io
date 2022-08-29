@@ -3,7 +3,7 @@
 ## 1.1 背景说明
 
 1. 生产环境中的问题：
-
+   
    - 生产环境发生了内存溢出该如何处理？
    - 生产环境应该给服务器分配多少内存合适？
    - 如何对垃圾回收器的性能进行调优？
@@ -13,43 +13,43 @@
    - 不加log，如何实时查看某个方法的入参和返回值？
 
 2. 为什么要调优？
-
+   
    防止出现OOM、解决OOM、减少FullGC出现的频率
 
 3. 不同阶段的考虑：
-
+   
    上线前、项目运行阶段、线上出现OOM
 
 ## 1.2 调优概述
 
 1. 监控的依据
-
+   
    运行日志、异常堆栈、GC日志、线程快照、堆转储快照
 
 2. 调优的大方向
-
+   
    合理地编写代码、充分并合理的使用硬件资源、合理地进行JVM调优
 
 ## 1.3 性能优化的步骤
 
 1. （发现问题）：性能监控
-
+   
    > 性能监控是一种非强行或者入侵方式收集或查看应用运营性能数据的活动
-   >
+   > 
    > 监控通常是指一种在生产、质量评估或者开发环境下实施的带有预防或主动性的活动
-   >
+   > 
    > 当应用相关干系人提出性能问题却没有提供足够多的线索时，首先我们需要进行性能监控，随后是性能分析
-
+   
    GC、cpu load过高、OOM、内存泄漏、死锁、程序响应时间较长
 
 2. （排查问题）：性能分析
-
+   
    > 性能分析是一种侵入方式收集运行性能数据的活动，它会影响应用的吞吐量或响应性
-   >
+   > 
    > 性能分析是针对性能问题的答复结果，关注的范围通常比性能监控更加集中
-   >
+   > 
    > 性能分析很少在生产环境下进行，通常是在质量评估、系统测试或者开发环境下进行，是性能监控之后的步骤
-
+   
    - 打印GC日志，通过GCviewer或者http://gceasy.io来分析异常信息
    - 灵活运用命令行工具、jstack、jmap、jinfo等
    - dump出堆文件，使用内存分析工具分析文件
@@ -57,9 +57,9 @@
    - jstack查看堆栈信息
 
 3. （解决问题）：性能调优
-
+   
    > 一种为改善应用响应性或吞吐量而更改参数、源代码、属性配置的活动，性能调优是在性能监控、性能分析之后的活动
-
+   
    - 适当增加内存，更具业务背景选择垃圾回收器
    - 优化代码，控制内存使用
    - 增加机器，分散节点压力
@@ -69,9 +69,9 @@
 ## 1.4 性能评价/测试指标
 
 1. 停顿时间（或响应时间）
-
+   
    提交请求和返回该请求的响应之间使用的时间，在垃圾回收环节中：暂停时间：垃圾收集时，程序的工作线程被暂停的时间
-
+   
    -XX：MaxGCPauseMillis
 
 2. 吞吐量：对单位时间内完成的工作量（请求）的量度，在GC中，运行用户代码的事件占总运行时间的比例 -XX：GCTimeRatio = n，吞吐量为1-1/(1 + n)
@@ -102,7 +102,7 @@ Javav Process Status
 
 以上参数可以综合使用：jps -l -m 等价于jps -lm
 
-将信息输出到同级文件中：命令 > 文件名称	：	jps -l > a.txt
+将信息输出到同级文件中：命令 > 文件名称    ：    jps -l > a.txt
 
 如果某Java进程关闭了默认开启的UsePerfData参数（即使用参数 -XX：-UsePerfData），那么jps命令（以及下面介绍的jstat）将无法探知该Java进程
 
@@ -127,33 +127,33 @@ jstat  < option> [-t] [-h< lines > ]  < vmid > [ < interval> [ < count> ] ]
 **option**
 
 - **类转载相关的**：
-
+  
   -class：显示ClassLoader的相关信息：类的装载、卸载数量、总空间、类装载所消耗的时间等
 
 - **垃圾回收相关的：**
-
+  
   -gc：显示与GC相关的堆信息。包括Eden区、两个Survivor区、老年代、永久代等的容量、已用空间、GC时间合计等信息
-
+  
   -gccapacity：显示内容与-gc基本相同，但是输出主要关注已使用空间占总空间的百分比。
-
+  
   -gcutil：显示内容与-gc基本相同，单输出主要关注已使用空间占总空间的百分比
-
+  
   -gccause：与-gcutil功能一样，但是会额外输出导致最后一次或当前正在发生的GC产生的原因
-
+  
   -gcnew：显示新生代GC状况
-
+  
   -gcnewcapacity：显示内容与-gcnew基本相同，输出主要关注使用到的最大、最小空间
-
+  
   -gcold：显示老年代GC状况
-
+  
   -gcoldcapacity：显示内容基本与-gcold相同，输出主要关注使用到的最大、最小空间
-
+  
   -gcpermcapacity：显示永久代使用到的最大、最小空间
 
 - **JIT相关的：**
-
+  
   -compiler：显示JIT编译器编译过的方法、耗时等信息
-
+  
   -printcompilation：输出已经被JIT编译的方法
 
 **interval参数**：用于指定输出统计数据的周期，单位为毫秒。即：查询间隔
@@ -163,7 +163,7 @@ jstat  < option> [-t] [-h< lines > ]  < vmid > [ < interval> [ < count> ] ]
 **-t参数**：可以在输出信息前加上一个Timestamp列，显示程序的运行时间。单位秒
 
 > 我们可以比较Java进行的启动时间以及总GC时间（GCT列），或者两次测量的间隔时间以及总GC时间的增量来得出GC时间占运行时间的比例。
->
+> 
 > 如果该比例超过20%，则说明目前堆的压力较大；如果该比例超过90%，则说明堆里几乎没有可用空间，随时都可能抛出OOM异常。
 
 **-h参数**：可以在周期性数据输出时，输出多少行数据后输出一个表头信息
@@ -219,14 +219,14 @@ jinfo [ options ] pid
 
 **options**
 
-| 选项             | 选项说明                                                     |
-| ---------------- | ------------------------------------------------------------ |
-| no option        | 输出全部的参数和系统属性                                     |
-| -flag name       | 输出对应名称的参数                                           |
+| 选项               | 选项说明                                     |
+| ---------------- | ---------------------------------------- |
+| no option        | 输出全部的参数和系统属性                             |
+| -flag name       | 输出对应名称的参数                                |
 | -flag [+ - name] | 开启或关闭对应名称的参数，只有被标记为manageable的参数才可以被动态修改 |
-| -flag name=value | 设定对应名称的参数                                           |
-| -flags           | 输出全部的参数                                               |
-| -sysprops        | 输出系统属性                                                 |
+| -flag name=value | 设定对应名称的参数                                |
+| -flags           | 输出全部的参数                                  |
+| -sysprops        | 输出系统属性                                   |
 
 **拓展**
 
@@ -243,22 +243,22 @@ jinfo [ options ] pid
 - jmap [ option ] < pid >
 
 - jmap [ option ] < executable < core >
-
+  
   < executable < core >代表可执行的代码，比如使用 > 文件名称 来指定生成的dump文件的生成位置
 
 - jmap [ option ] [ server_id@ ] < remote server IP or hostname >
-
+  
   为远程连接准备的
 
 **option**
 
-| 选项           | 作用                                                         |
-| -------------- | ------------------------------------------------------------ |
-| **-dump**      | 生成dump文件；-dump:live只保存堆中的存活对象                 |
-| -finalizerinfo | 以ClassLoader为统计口径输出永久代的内存状态信息，**仅Linux/solaris平台有效** |
-| **-heap**      | 输出整个堆空间的详细信息，包括GC的使用、堆配置信息，以及内存的使用信息等。 |
-| **-histo**     | 输出堆空间中对象的统计信息，包括类、实例数量和合计容量。-histo:live只统计堆中存活对象 |
-| -permstat      | 以ClassLoader为统计口径输出永久代的内存状态信息，**仅Linux/solaris平台有效** |
+| 选项             | 作用                                                        |
+| -------------- | --------------------------------------------------------- |
+| **-dump**      | 生成dump文件；-dump:live只保存堆中的存活对象                             |
+| -finalizerinfo | 以ClassLoader为统计口径输出永久代的内存状态信息，**仅Linux/solaris平台有效**      |
+| **-heap**      | 输出整个堆空间的详细信息，包括GC的使用、堆配置信息，以及内存的使用信息等。                    |
+| **-histo**     | 输出堆空间中对象的统计信息，包括类、实例数量和合计容量。-histo:live只统计堆中存活对象          |
+| -permstat      | 以ClassLoader为统计口径输出永久代的内存状态信息，**仅Linux/solaris平台有效**      |
 | -F             | 当虚拟机进程对-dump选项没有任何响应时，强制执行生成dump文件，**仅Linux/solaris平台有效** |
 
 当程序发生OOM退出系统时，一些瞬时信息都随着程序的终止而消失，而重现OOM问题往往比较困难或者耗时。此时若能在OOM时，自动导出dump文件就显得非常迫切
@@ -398,11 +398,11 @@ MAT可以分析heap dump文件。在进行内存分析时，只要获得了反�
 **内存泄漏与内存溢出的关系**
 
 1. 内存泄漏：
-
+   
    申请了内存用完了不释放，就是【占着茅坑不拉屎】
 
 2. 内存溢出
-
+   
    申请内存时，没有足够的内存可以使用。
 
 3. 内存泄漏的增多，最终导致内存溢出
@@ -417,9 +417,9 @@ MAT可以分析heap dump文件。在进行内存分析时，只要获得了反�
 **内存泄漏的八种情况**
 
 1. 静态集合类：
-
+   
    静态集合类，比如HashMap、LinkedList等等。如果这些容器为静态的，那么它们的生命周期与JVM程序一致，则容器中的对象在程序结束之前将不能被释放，从而造成内存泄漏。简而言之，长生命周期的对象持有短生命周期对象的引用，尽管短生命周期的对象不再被使用，但是因为长生命周期对象持有它的引用而导致不能被回收。
-
+   
    ```java
    public class MemoryLeak {
        static List list = new ArrayList();
@@ -431,33 +431,33 @@ MAT可以分析heap dump文件。在进行内存分析时，只要获得了反�
    ```
 
 2. 单例模式
-
+   
    单例模式和静态集合导致内存泄漏的原因类似，因为单例的静态特性，它的生命周期和JVM的生命周期一样长，所以如果单例对象如果持有外部对象的引用，那么这个外部对象也不会被回收，那么就会造成内存泄漏。
 
 3. 内部类持有外部类
-
+   
    内部类持有外部类，如果一个外部类的实例对象的方法返回了一个内部类的实例对象。这个内部类对象被长期引用了，即使那个外部类实例对象不再被使用，但由于内部类持有外部类的实例对象，这个外部类对象将不会被垃圾回收，这也会造成内存泄漏
 
 4. 各种连接，如数据库连接、网络连接和IO连接等
-
+   
    在对数据库进程操作的过程中，首先需要建立与数据库的连接，当不再使用时，需要调用close方法来释放与数据库的连接。只有连接被关闭后，垃圾回收器才会回收对应的对象。否则如果在访问数据库的过程中，对Connection、Statement或ResultSet不显性地关闭，将会造成大量的对象无法被回收，从而引起内存泄漏。
 
 5. 变量不合理的作用域
-
+   
    一般而言，一个变量的定义的作用范围大于其使用范围，很有可能会造成内存泄漏。另一方面，如果没有及时地把对象设置为null，很有可能导致内存泄漏的发生。
 
 6. 改变哈希值
-
+   
    当一个对象被存储进HashSet集合中以后，就不能修改这个对象中的那些参与计算哈希值的字段了。否则对象修改后的哈希值与最初存储进HashSet集合中时的哈希值就不同了，在这种情况下，即使在contains方法使用该对象的当前引用作为的参数去HashSet集合中检索对象，也将返回找不到对象的结果，这也会导致无法从HashSet集合中单独删除当前对象，造成内存泄漏。
-
+   
    这也是String为什么被设置成了不可变类型，当我们想把自己定义的类保存到散列表的时候，需要保证对象的hashCode不可变。
 
 7. 缓存泄漏
-
+   
    一旦你把对象引用放到缓存中，他就很容易遗忘。比如之前项目在一次上线的时候，应用启动奇慢，就是因为代码会加载一个表中的数据到缓存（内存）中，测试环境只有几百条数据，但是生成环境有几百万的数据。可以用WeakHashMap代表缓存，当除了自身有对key的引用外，此key没有其他引用那么此map会自动丢弃此值。
 
 8. 监听器和回调
-
+   
    如果客户端在你实现的API中注册回调，却没有显示的取消，那么就会积聚。需要确保回调立即被当作垃圾回收的最佳方法是只保存他的弱引用，例如将他们保存为WeakHashMap中的键
 
 ## 3.5 其他工具
@@ -468,12 +468,12 @@ JProfiler、Arthas、Java Mission Control、Flame Graphs、Tprofiler、Btrace、
 
 ## **4.1、打印设置的XX选项及值**
 
-| 参数                       | 作用                                                    |
-| -------------------------- | ------------------------------------------------------- |
+| 参数                         | 作用                             |
+| -------------------------- | ------------------------------ |
 | -XX:+PrintCommandLineFlags | 可以让程序运行前打印出用户手动设置或JVM自动设置的XX选项 |
-| -XX:+PrintFlagsInitial     | 表示打印出所有XX选项默认值                              |
-| -XX:+PrintFlagsFinal       | 打印出XX选项在运行程序时生效的值                        |
-| -XX:+PrintVMOptions        | 打印JVM的参数                                           |
+| -XX:+PrintFlagsInitial     | 表示打印出所有XX选项默认值                 |
+| -XX:+PrintFlagsFinal       | 打印出XX选项在运行程序时生效的值              |
+| -XX:+PrintVMOptions        | 打印JVM的参数                       |
 
 ## **4.2、堆、栈、方法区等内存大小设置**
 
@@ -483,96 +483,96 @@ JProfiler、Arthas、Java Mission Control、Flame Graphs、Tprofiler、Btrace、
 
 **堆内存**
 
-| 参数                              | 作用                                                         |
-| --------------------------------- | ------------------------------------------------------------ |
-| -Xms3500m                         | 等价于-XX:InitialHeapSize，设置JVM初始堆内存为3550M          |
-| -Xmx3500m                         | 等价于-XX:MaxHeapSize，设置JVM最大堆内存为3500M              |
+| 参数                                | 作用                                                                                                 |
+| --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| -Xms3500m                         | 等价于-XX:InitialHeapSize，设置JVM初始堆内存为3550M                                                            |
+| -Xmx3500m                         | 等价于-XX:MaxHeapSize，设置JVM最大堆内存为3500M                                                                |
 | -Xmn2g                            | 设置年轻代大小为2G，即等价于-XX:NewSize=2g -XX:MaxNewSize=2g，<br />也就是设置年轻代初始值和年轻代最大值都是2G<br />官方推荐配置为整个堆大小的3/8 |
-| -XX:NewSize=1024m                 | 设置年轻代初始值为1024M                                      |
-| -XX:MaxNewSize=1024m              | 设置年轻代最大值为1024M                                      |
-| -XX:SurvivorRatio=8               | 设置年轻代中Eden区与一个Survivor区的比值，默认为8            |
-| -XX:+UseAdaptiveSizePolicy        | 自动选择各区大小比例，默认开启                               |
-| -XX:NewRatio=2                    | 设置老年代与年轻代（包括1个Eden区和2个Survivor区）的比值，默认为2 |
-| -XX:PretenureSizeThreadshold=1024 | 设置让大于此阈值的对象直接分配在老年代，单位为字节<br />只对Serial、ParNew收集器有效 |
-| -XX:MaxTenuringThreshold=15       | 默认值为15<br />新生代每次MinorGC后，还存活的对象年龄+1，当对象的年龄大于设置的这个值时就进入老年代 |
-| -XX:+PrintTenuringDistribution    | 让JVM在每次MinorGC后打印出当前使用的Survivor中对象的年龄分布 |
-| -XX:TargetSurvivorRatio           | 表示MinorGC结束后Survivor区域中占用空间的期望比例            |
+| -XX:NewSize=1024m                 | 设置年轻代初始值为1024M                                                                                     |
+| -XX:MaxNewSize=1024m              | 设置年轻代最大值为1024M                                                                                     |
+| -XX:SurvivorRatio=8               | 设置年轻代中Eden区与一个Survivor区的比值，默认为8                                                                    |
+| -XX:+UseAdaptiveSizePolicy        | 自动选择各区大小比例，默认开启                                                                                    |
+| -XX:NewRatio=2                    | 设置老年代与年轻代（包括1个Eden区和2个Survivor区）的比值，默认为2                                                           |
+| -XX:PretenureSizeThreadshold=1024 | 设置让大于此阈值的对象直接分配在老年代，单位为字节<br />只对Serial、ParNew收集器有效                                                |
+| -XX:MaxTenuringThreshold=15       | 默认值为15<br />新生代每次MinorGC后，还存活的对象年龄+1，当对象的年龄大于设置的这个值时就进入老年代                                         |
+| -XX:+PrintTenuringDistribution    | 让JVM在每次MinorGC后打印出当前使用的Survivor中对象的年龄分布                                                            |
+| -XX:TargetSurvivorRatio           | 表示MinorGC结束后Survivor区域中占用空间的期望比例                                                                   |
 
 **方法区 ——永久代**
 
-| 参数                 | 作用                   |
-| -------------------- | ---------------------- |
+| 参数                   | 作用            |
+| -------------------- | ------------- |
 | -XX:PermSize=256m    | 设置永久代初始值为256M |
 | -XX:MaxPermSize=256m | 设置永久代最大值为256M |
 
 **方法区——元空间**
 
-| 参数                            | 作用                              |
-| ------------------------------- | --------------------------------- |
-| -XX:MetaspaceSize               | 初始空间大小                      |
-| -XX:MaxMetaspaceSize            | 最大空间，默认没有限制            |
+| 参数                              | 作用                        |
+| ------------------------------- | ------------------------- |
+| -XX:MetaspaceSize               | 初始空间大小                    |
+| -XX:MaxMetaspaceSize            | 最大空间，默认没有限制               |
 | -XX:+UseCompressedOops          | 使用压缩对象指针                  |
-| -XX:+UseCompressedClassPointers | 使用压缩类指针                    |
+| -XX:+UseCompressedClassPointers | 使用压缩类指针                   |
 | -XX:CompressedClassSpaceSize    | 设置Klass Metaspace的大小，默认1G |
 
 **直接内存**
 
--XX:MaxDirectMemorySize		指定DirectMemory容量，若未指定，则默认与Java堆最大值一样
+-XX:MaxDirectMemorySize        指定DirectMemory容量，若未指定，则默认与Java堆最大值一样
 
 ## 4.3 OOM相关的选项
 
-| 参数                          | 作用                                                         |
-| ----------------------------- | ------------------------------------------------------------ |
-| -XX:+HeapDumpOnOutMemoryError | 表示在内存出现OOM的时候，生成Heap转储文件，以便后续分析，-XX:+HeapDumpBeforeFullGC和-XX:+HeapDumpOnOutMemoryError只能设置1个 |
+| 参数                            | 作用                                                                                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| -XX:+HeapDumpOnOutMemoryError | 表示在内存出现OOM的时候，生成Heap转储文件，以便后续分析，-XX:+HeapDumpBeforeFullGC和-XX:+HeapDumpOnOutMemoryError只能设置1个                                |
 | -XX:+HeapDumpBeforeFullGC     | 表示在出现FullGC之前，生成Heap转储文件，以便后续分析，-XX:+HeapDumpBeforeFullGC和-XX:+HeapDumpOnOutMemoryError只能设置1个，请注意FullGC可能出现多次，那么dump文件也会生成多个 |
-| -XX:HeapDumpPath=< path>      | 指定heap转存文件的存储路径，如果不指定，就会将dump文件放在当前目录中 |
-| -XX:OnOutOfMemoryError        | 指定一个可行性程序或者脚本的路径，当发生OOM的时候，去执行这个脚本 |
+| -XX:HeapDumpPath=< path>      | 指定heap转存文件的存储路径，如果不指定，就会将dump文件放在当前目录中                                                                                       |
+| -XX:OnOutOfMemoryError        | 指定一个可行性程序或者脚本的路径，当发生OOM的时候，去执行这个脚本                                                                                           |
 
 ## 4.4 垃圾收集器相关选项
 
 1. 查看默认的垃圾回收器：**-XX:+PrintCommandLineFlags**
 
 2. **Serial回收器**
-
+   
    Serial回收器作为HotSpot中Client模式下的默认新生代垃圾收集器。Serial Old是运行在Client模式下默认的老年代的垃圾回收器
-
-   **-XX:+UseSerialGC**	指定年轻代和老年代都使用串行收集器。可以获得最高的单线程收集效率
+   
+   **-XX:+UseSerialGC**    指定年轻代和老年代都使用串行收集器。可以获得最高的单线程收集效率
 
 3. **Parnew回收器**
-
+   
    **-XX:+UseParNewGC**：手动指定使用ParNew收集器执行内存回收任务。它表示年轻代使用并行收集器，不影响老年代
-
+   
    -**XX:ParallelGCThreads** 设置年轻代并行收集器的线程数。一般最好和CPU数量相等，以避免过多的线程数影响垃圾收集性能
-
+   
    现在该回收器相当于被抛弃了
 
 4. **Parallel回收器**
-
+   
    **-XX:+UseParallelGC** 手动指定年轻代使用Parallel并行收集器执行内存回收任务
-
-   **-XX:+UseParallelOldGC**	手动指定老年代都是使用并行垃圾收集器
-
+   
+   **-XX:+UseParallelOldGC**    手动指定老年代都是使用并行垃圾收集器
+   
    - 这两个参数默认开启一个，另一个也会被开启（互相激活）
-
+   
    **-XX：ParallelGCThreads** 设置年轻代并行收集器的线程数。
-
+   
    **-XX：MaxGCPauseMillis** 设置垃圾收集器最大停顿时间（STW），单位毫秒
-
+   
    - 为了尽可能地把停顿时间控制在MaxGCPauseMills以内，收集器在工作时会调整Java堆大小或者其他一些参数
    - 对用户来讲停顿时间越短越好，但是在服务器端，我们注重高并发、整体的吞吐量。所以服务器端适合Parallel，进行控制
-
+   
    **-XX：GCTimeRatio** 垃圾收集时间占总时间的比例（ 1 / （N + 1））。用于衡量吞吐量的大小
-
+   
    - 取值范围（0，100），默认99，也就是垃圾收集时间不超过1%
    - 与前一个参数有一定矛盾性。暂停时间越长，Radio参数就容易超过设定的比例
-
+   
    **-XX：+UseAdaptiveSizePolicy** 设置Parallel Scavenge收集器具有自适应调节策略
-
+   
    - 在这种模式下，年轻代的大小、Eden和Survivor的比例、晋升老年代的对象年龄等参数会被自动调整，已达到在堆大小、吞吐量和停顿时间之间的平衡点
    - 在手动调优比较困难的场合，可以直接使用这种自适应的方式，仅指定虚拟机的最大堆、目标的吞吐量和停顿时间，让虚拟机自己完成调优工作。
-
+   
    **注意：**
-
+   
    1. Parallel回收器主打吞吐量，而CMS和G1主打低延迟，如果主打吞吐量，那么就不应该限制最大停顿时间，所以-XX:MaxGCPauseMills不应该设置
    2. -XX:MaxGCPauseMills中的调整堆大小通过默认开启的-XX:+UseAdaptiveSizePolicy来实现
    3. -XX:GCTimeRatio用来衡量吞吐量，并且和-XX:MaxGCPauseMills矛盾，因此不会同时使用
@@ -581,41 +581,41 @@ JProfiler、Arthas、Java Mission Control、Flame Graphs、Tprofiler、Btrace、
 
 **常用参数**
 
-| 参数                       | 作用                                                         |
-| -------------------------- | ------------------------------------------------------------ |
-| -verbose:gc                | 输出日志信息，默认输出的标准输出                             |
-| -XX:+PrintGC               | 等同于-verbose:gc<br/>表示打开简化的日志                     |
-| **-XX:+PrintGCDetails**    | 在发生垃圾回收时打印内存回收详细的日志，<br/>并在进程退出时输出当前内存各区域的分配情况 |
-| **-XX:+PrintGCTimeStamps** | 程序启动到GC发生的时间秒数<br />不可以独立使用，需要配合-XX:+PrintGCDetails使用 |
+| 参数                         | 作用                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| -verbose:gc                | 输出日志信息，默认输出的标准输出                                                                           |
+| -XX:+PrintGC               | 等同于-verbose:gc<br/>表示打开简化的日志                                                               |
+| **-XX:+PrintGCDetails**    | 在发生垃圾回收时打印内存回收详细的日志，<br/>并在进程退出时输出当前内存各区域的分配情况                                             |
+| **-XX:+PrintGCTimeStamps** | 程序启动到GC发生的时间秒数<br />不可以独立使用，需要配合-XX:+PrintGCDetails使用                                      |
 | -XX:+PrintGCDateStamps     | 输出GC发生时的时间戳（以日期的形式，例如：2013-05-04T21:53:59.234+0800）<br />不可以独立使用，可以配合-XX:+PrintGCDetails使用 |
-| -XX:+PrintHeapAtGC         | 每一次GC前和GC后，都打印堆信息                               |
-| **-XIoggc:< file>**        | 把GC日志写入到一个文件中去，而不是打印到标准输出中           |
+| -XX:+PrintHeapAtGC         | 每一次GC前和GC后，都打印堆信息                                                                          |
+| **-XIoggc:< file>**        | 把GC日志写入到一个文件中去，而不是打印到标准输出中                                                                 |
 
 **其他参数**
 
-| 参数                                  | 作用                                                         |
-| ------------------------------------- | ------------------------------------------------------------ |
-| -XX:TraceClassLoading                 | 监控类的加载                                                 |
-| -XX:PrintGCApplicationStoppedTime     | 打印GC时线程的停顿时间                                       |
-| -XX:+PrintGCApplicationConcurrentTime | 垃圾收集之前打印出应用未中断的执行时间                       |
-| -XX:+PrintReferenceGC                 | 记录回收了多少种不同引用类型的引用                           |
+| 参数                                    | 作用                                      |
+| ------------------------------------- | --------------------------------------- |
+| -XX:TraceClassLoading                 | 监控类的加载                                  |
+| -XX:PrintGCApplicationStoppedTime     | 打印GC时线程的停顿时间                            |
+| -XX:+PrintGCApplicationConcurrentTime | 垃圾收集之前打印出应用未中断的执行时间                     |
+| -XX:+PrintReferenceGC                 | 记录回收了多少种不同引用类型的引用                       |
 | -XX:+PrintTenuringDistribution        | 让JVM在每次MinorGC后打印出当前使用的Survivor中对象的年龄分布 |
-| -XX:+UseGCLogFileRotation             | 启用GC日志文件的自动转储                                     |
-| -XX:NumberOfGCLogFiles=1              | GC日志文件的循环数目                                         |
-| -XX:GCLogFileSize=1M                  | 控制GC日志文件的大小                                         |
+| -XX:+UseGCLogFileRotation             | 启用GC日志文件的自动转储                           |
+| -XX:NumberOfGCLogFiles=1              | GC日志文件的循环数目                             |
+| -XX:GCLogFileSize=1M                  | 控制GC日志文件的大小                             |
 
 ## 4.6 其他参数
 
-| 参数                                                         | 作用                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| -XX:+DisableExplicitGC                                       | 禁用hotspot执行System.gc()，默认禁用                         |
-| -XX:ReservedCodeCacheSize=< n>[g\|m\|k]<br />-XX:InitialCodeCacheSize=< n>[g\|m\|k] | 指定代码缓存的大小                                           |
-| -XX:+UseCodeCacheFlushing                                    | 使用该参数让jvm放弃一些被编译的代码，<br/>避免代码缓存被占满时JVM切换到interpreted-only的情况 |
-| -XX:+DoEscapeAnalysis                                        | 开启逃逸分析                                                 |
-| -XX:+UseBiasedLocking                                        | 开启偏向锁                                                   |
-| -XX:+UseLargePages                                           | 开启使用大页面                                               |
-| -XX:+PrintTLAB                                               | 打印TLAB的使用情况                                           |
-| -XX:TLABSize                                                 | 设置TLAB大小                                                 |
+| 参数                                                                                  | 作用                                                           |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| -XX:+DisableExplicitGC                                                              | 禁用hotspot执行System.gc()，默认禁用                                  |
+| -XX:ReservedCodeCacheSize=< n>[g\|m\|k]<br />-XX:InitialCodeCacheSize=< n>[g\|m\|k] | 指定代码缓存的大小                                                    |
+| -XX:+UseCodeCacheFlushing                                                           | 使用该参数让jvm放弃一些被编译的代码，<br/>避免代码缓存被占满时JVM切换到interpreted-only的情况 |
+| -XX:+DoEscapeAnalysis                                                               | 开启逃逸分析                                                       |
+| -XX:+UseBiasedLocking                                                               | 开启偏向锁                                                        |
+| -XX:+UseLargePages                                                                  | 开启使用大页面                                                      |
+| -XX:+PrintTLAB                                                                      | 打印TLAB的使用情况                                                  |
+| -XX:TLABSize                                                                        | 设置TLAB大小                                                     |
 
 # 第五章 分析GC日志
 
@@ -630,7 +630,6 @@ JProfiler、Arthas、Java Mission Control、Flame Graphs、Tprofiler、Btrace、
     - 注意，很多时候Major和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收
   - 混合收集（Mixed GC）：收集整个新生代以及部分老年代的垃圾回收，目前只有G1会有这种行为
 - 整堆收集（FullGC）：收集整个Java堆和方法区的垃圾收集
-
 1. **新生代收集**：当Eden区满的时候就会进行新生代收集，所以和S0、S1没有关系
 2. **老年代收集和新生代的关系**：进行老年代收集之前会先进行一次年轻代的垃圾收集，原因如下：一个比较大的对象无法放入新生代，那么它自然会往老年代去放，如果老年代也放不下，那么先进行一次新生代的垃圾收集，之后尝试往新生代放。如果还是放不下才会进行老年代的垃圾收集，之后再往老年代放，这是一个过程。至于为什么需要往老年代放但是放不下，而进行新生代的垃圾回收，是因为新生代垃圾收集比老年代更加简单，这样做可以节省性能
 3. **进行垃圾收集的时候，堆包含新生代、老年代、元空间/永久代**：但是我们设置堆空间大小的时候设置的只是新生代、老年代而已，元空间是分开的。

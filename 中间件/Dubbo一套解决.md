@@ -2511,3 +2511,9 @@ NettyServerHandler#channelRead(ChannelHandlerContext, MessageEvent)
 
 1. Dubbo的传输是二进制的，占用宽带更少；而后者是HTTP传输，占用宽带更多，而且传输格式是JSON，消耗更大
 2. 前者是后者的一个子集，前者解决的是分布式中的服务之间的调用问题，而后者是提供了全套的解决方案。
+
+> Dubbo3.0
+
+- 拥抱云原生，多语言，java-go社区互通，部分治理能力交给service mesh去搞，进行打通。
+- 定制新的tri协议
+- 服务发现从接口粒度改为服务粒度

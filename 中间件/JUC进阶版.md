@@ -80,9 +80,9 @@ public static void main(String[] args) {
 解决方案：
 
 1. new Vector<>( );
-
+   
    矢量队列，能解决线程安全问题，源码中的add方法被synchronized同步修饰
-
+   
    ```java
    public synchronized boolean add(E e) {
        ++this.modCount;
@@ -90,33 +90,33 @@ public static void main(String[] args) {
        return true;
    }
    ```
-
+   
    但是这个类已经过时了，同时效率较低
 
 2. Collections工具类
-
+   
    该集合工具类中提供了方法synchronizedList来保证list是同步安全的，同时set和map都可以用这个来确保安全
 
 3. CopyOnWriteArrayList
-
+   
    相当于线程安全的arraylist，是一个可变数组
-
+   
    1、最适合于以下特征的应用程序：List大小通常很小，只读操作远多于可变操作，需要在遍历期间防止线程间的冲突
-
+   
    2、线程是安全的
-
+   
    3、通常需要复制整个基础数组，所以可变操作的开销很大
-
+   
    4、迭代器支持hasNext、next等不可变操作，但是不支持remove等操作
-
+   
    5、使用迭代器遍历的速度很快，并且不会与其他线程发生冲突
-
+   
    当我们往一个容器添加元素的时候，不直接往当前容器里面添加，而是先将容器复制一份，然后再在新的容器里面添加元素，添加完之后再将原来的容器的引用指向新的容器
-
+   
    也就是**读写分离和写时复制技术**，能保证线程安全，但是因为读和写不是对应的同一份数据，因此可能会读到脏数据
-
+   
    JDK8源码如下（后序的JDK版本可能会稍有不同）：
-
+   
    ```java
    public boolean add(E e) {
        final ReentrantLock lock = this.lock;
@@ -316,14 +316,14 @@ public class SpinLockDemo {
 }
 
 /*
-AA	 come in
-BB	 come in
-BB	 正在自旋
-BB	 正在自旋
-BB	 正在自旋
-BB	 正在自旋
-AA	 invoked myUnLock()
-BB	 invoked myUnLock()
+AA     come in
+BB     come in
+BB     正在自旋
+BB     正在自旋
+BB     正在自旋
+BB     正在自旋
+AA     invoked myUnLock()
+BB     invoked myUnLock()
 */
 ```
 
@@ -450,10 +450,10 @@ public class CountDownLatchDemo {
     public static void main(String[] args) throws Exception {
         closeDoor();
     }
-    
+
     private static void closeDoor() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(6);
-        
+
         for (int i = 1; i <= 6; i++) {
             new Thread(() -> {
                 System.out.println(Thread.currentThread().getName() + "上完自习");
@@ -555,14 +555,14 @@ public class SemaphoreDemo {
 
 ![image-20210918141837176](IMG/JUC进阶版.asserts/image-20210918141837176.png)
 
-|   分类   |                             描述                             |
-| :------: | :----------------------------------------------------------: |
+| 分类   | 描述                                                                                                                                                               |
+|:----:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | 抛出异常 | 当阻塞队列满时,再往队列里面add插入元素会抛IllegalStateException: Queue full<br/>当阻塞队列空时,再往队列Remove元素时候回抛出NoSuchElementException<br/>element()检查队列是否为空及队首元素是谁 NoSuchElementException |
-|  特殊值  | 插入方法,成功返回true 失败返回false<br/>移除方法,成功返回元素,队列里面没有就返回null |
-| 一直阻塞 | 当阻塞队列满时,生产者继续往队列里面put元素,队列会一直阻塞直到put数据or响应中断退出<br/>当阻塞队列空时,消费者试图从队列take元素,队列会一直阻塞消费者线程直到队列可用. |
-| 超时退出 | 当阻塞队列满时,队列会阻塞生产者线程一定时间,超过后限时后生产者线程就会退出 |
+| 特殊值  | 插入方法,成功返回true 失败返回false<br/>移除方法,成功返回元素,队列里面没有就返回null                                                                                                            |
+| 一直阻塞 | 当阻塞队列满时,生产者继续往队列里面put元素,队列会一直阻塞直到put数据or响应中断退出<br/>当阻塞队列空时,消费者试图从队列take元素,队列会一直阻塞消费者线程直到队列可用.                                                                    |
+| 超时退出 | 当阻塞队列满时,队列会阻塞生产者线程一定时间,超过后限时后生产者线程就会退出                                                                                                                           |
 
-​	**种类分析**
+​    **种类分析**
 
 1. **ArrayBlockingQueue**: 由数组结构组成的有界阻塞队列.
 
@@ -573,9 +573,9 @@ public class SemaphoreDemo {
 4. DelayQueue: 使用优先级队列实现的延迟无界阻塞队列.
 
 5. **SynchronousQueue**:不存储元素的阻塞队列,也即是单个元素的队列.
-
+   
    与其他BlockingQueue不同，SynchronousQueue是一个不存储元素的BlockingQueue，每个put操作必须要等待一个take操作，否则不能继续添加元素，反之亦然
-
+   
    ```java
    public class SynchronousQueueDemo {
        public static void main(String[] args) {
@@ -852,12 +852,12 @@ Lock不是java语言内置的，synchronized是java语言的关键字，因此�
 ```java
 public interface Lock {
 
- 	void lock();
- 	void lockInterruptibly() throws InterruptedException;
-	boolean tryLock();
-	boolean tryLock(long var1, TimeUnit var3) throws InterruptedException;
-	void unlock();
-	Condition newCondition();
+     void lock();
+     void lockInterruptibly() throws InterruptedException;
+    boolean tryLock();
+    boolean tryLock(long var1, TimeUnit var3) throws InterruptedException;
+    void unlock();
+    Condition newCondition();
 }
 ```
 
@@ -869,11 +869,11 @@ public interface Lock {
 Lock lock-….;
 lock.lock();
 try{
-	//处理任务
+    //处理任务
 }catch(Exception ex){
 
 }finally{
-	lock.unlock(); //释放锁
+    lock.unlock(); //释放锁
 }
 ```
 
@@ -963,7 +963,7 @@ public class ThreadDemo2 {
                 }
             }
         },"BB").start();
-        
+
     }
 }
 ```
@@ -1089,7 +1089,7 @@ public class ThreadDemo3 {
 2. 为实现Callable接口，需要实现在完成时返回结果的call方法，而且call方法可以引发异常，run不能
 
 3. Future接口：
-
+   
    1. 当call方法完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程的返回结果，因此就需要Future对象，实现该接口需要重写五个方法
    2. `public boolean cancel(boolean mayInterrupt)`：用于停止任务，如果尚未启动任务它将停止任务。如果已经启动则仅在mayInterrupt为true时才会中断任务
    3. `public Object get()`：用于获取任务的结果，如果任务完成， 它将立即返回结果；否则等任务完成后再返回结果
@@ -1098,7 +1098,7 @@ public class ThreadDemo3 {
 4. FutureTask：可以通过为其构造函数提供Callable来创建FutureTask。然后将FutureTask对象提供给Thread的构造函数以创建Thread对象
 
 5. 重点：
-
+   
    1. 在主线程中需要执行比较耗时的操作时，但又不想阻塞主线程，可以把这些作业交给Future对象在后台完成
    2. 当主线程将来需要时，可以通过Future对象获得后台作业的计算结果或者执行状态
    3. 一般FutureTask多用于耗时的计算，主线程可以在完成自己的任务后，再去获取结果
@@ -1106,7 +1106,7 @@ public class ThreadDemo3 {
    5. 一旦计算完成，就不能再重新开始或取消计算
    6. get方法而获取结果只有在计算完成时获取，否则会一直阻塞直到任务转入完成状态，然后回返回结果或抛出异常
    7. get只计算一次，因此get方法放到最后
-
+   
    ```java
    //实现Callable接口
    class MyCallableImpl implements Callable {
@@ -1160,22 +1160,22 @@ public class ThreadDemo3 {
 - `Executors.newWorkStealingPool(int)`：jdk8新出，了解
 
 - `Executors.newFixedThreadPool(int)`：固定线程数的线程池，执行一个长期的任务，性能好很多
-
+  
   ```java
   public static ExecutorService newFixedThreadPool(int nThreads) {
-  	return new ThreadPoolExecutor(nThreads, nThreads,
+      return new ThreadPoolExecutor(nThreads, nThreads,
                                    0L, TimeUnit.MILLISECONDS,
                                    new LinkedBlockingQueue<Runnable>());
   }
   ```
-
+  
   主要特点：
-
+  
   1. 创建一个**定长线程池**，可控制线程的最大并发数，超出的线程会在队列中等待
   2. newFixedThreadPool创建的线程池corePoolSize和MaxmumPoolSize是相等的，它使用的是**LinkedBlockingQueue**
 
 - `Executors.newSingleThreadExecutor()`：一池一线程，一个任务一个线程执行的任务场景
-
+  
   ```java
   public static ExecutorService newSingleThreadExecutor() {
       return new FinalizableDelegatedExecutorService
@@ -1184,12 +1184,12 @@ public class ThreadDemo3 {
                                   new LinkedBlockingQueue<Runnable>()));
   }
   ```
-
+  
   1. 创建一个**单线程化的线程池**，他只会用唯一的工作线程来执行任务，保证所有任务都按照指定顺序执行
   2. newSingleThreadExecutor将corePoolSize和MaxmumPoolSize都设置为1，它使用的**LinkedBlockingQueue**
 
 - `Executors.newCachedThreadPool()`：一池多线程，可扩容，带缓冲缓存的，适用于执行很多短期异步的小程序或者负载较轻的服务器
-
+  
   ```java
   public static ExecutorService newCachedThreadPool() {
       return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
@@ -1197,7 +1197,7 @@ public class ThreadDemo3 {
                                     new SynchronousQueue<Runnable>());
   }
   ```
-
+  
   1. 创建一个**可缓存线程池**，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则创建新线程
   2. 来了任务就创建线程运行， 如果线程空闲超过60秒就销毁线程
 
@@ -1271,21 +1271,21 @@ public ThreadPoolExecutor(int corePoolSize,
 ### 1.9.7 合理配置线程池
 
 1. CPU密集型
-
+   
    CPU密集型是该任务需要大量的运算，而没有阻塞，CPU一直全速运行。
-
+   
    CPU密集任务只有在真正的多核CPU上才可能得到加速（通过多线程），而在单核CPU，无论你开几个模拟的多线程该任务都不可能得到加速，因为CPU总的运算力就那些
-
+   
    CPU密集型任务配置尽可能少的线程数量：CPU核数+1个线程的线程池
-
+   
    `Runtime.getRuntime().availableProcessors()`查看电脑的CPU核数
 
 2. IO密集型
-
+   
    由于IO密集型任务线程并不是一直在执行任务，则应配置尽可能多的线程，CPU核数*2。
-
+   
    该任务需要大量的IO，大量的阻塞，在单线程上运行IO密集型任务会导致浪费大量的CPU运算能力在等待，所以在IO密集型任务中使用多线程可以大大的加速程序运行
-
+   
    ![image-20220329102052419](IMG/JUC进阶版.assets/image-20220329102052419.png)
 
 1、看公司业务是CPU密集型还是IO密集型的，这两种不一样，来决定线程池线程数的最佳合理配置数
@@ -1471,7 +1471,7 @@ public synchronized void m2() {
 
 ```java
 public static synchronized void m3() {
-    
+
 }
 ```
 
@@ -1505,13 +1505,13 @@ objectMonitor.hpp文件中：
 
 ![image-20220128211625979](IMG/JUC进阶版.asserts/image-20220128211625979.png)
 
-| 属性名称    | 作用                              |
-| ----------- | --------------------------------- |
-| _owner      | 指向持有ObjectMonitor对象的线程   |
+| 属性名称        | 作用                     |
+| ----------- | ---------------------- |
+| _owner      | 指向持有ObjectMonitor对象的线程 |
 | _WaitSet    | 存放处于wait状态的线程队列        |
-| _EntryList  | 存放处于等待锁block状态的线程队列 |
-| _recursions | 锁的重入次数                      |
-| _count      | 用来记录该线程获取锁的次数        |
+| _EntryList  | 存放处于等待锁block状态的线程队列    |
+| _recursions | 锁的重入次数                 |
+| _count      | 用来记录该线程获取锁的次数          |
 
 每个对象都对应一个monitor对象，在hotspot虚拟机中它是由ObjectMonitor实现的。每个对象都存在着一个monitor与之关联，对象与其monitor之间的关系存在很多种实现方式，比如monitor可以和对象一起创建销毁或当线程试图获取对象锁时自动生成，但当一个monitor被某个线程持有后，它变处于锁定状态。
 
@@ -1579,7 +1579,7 @@ public class DeadLockCase {
 
                 try { TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) { e.printStackTrace(); }
-                
+
                 synchronized (lockB) {
                     System.out.println(Thread.currentThread().getName() + " 获取锁B成功");
                 }
@@ -1593,7 +1593,7 @@ public class DeadLockCase {
 
                 try { TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) { e.printStackTrace(); }
-                
+
                 synchronized (lockA) {
                     System.out.println(Thread.currentThread().getName() + " 获取锁A成功");
                 }
@@ -1694,7 +1694,7 @@ class Allocator {
         als.add(to);
         return true;
     }
-    
+
     synchronized void free(Object from, Object to) {
         als.remove(from);
         als.remove(to);
@@ -1760,7 +1760,7 @@ class Allocator {
         als.add(from);
         als.add(to);
     }
-    
+
     synchronized void free(Object from, Object to) {
         als.remove(from);
         als.remove(to);
@@ -1821,11 +1821,11 @@ class Allocator {
 
 ### **4.1.3、中断的相关API**
 
-| API                              | 作用                                                         |
-| -------------------------------- | ------------------------------------------------------------ |
-| public void interrupt()          | 实例方法，仅仅是设置线程的中断状态true，不会停止线程。       |
+| API                              | 作用                                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| public void interrupt()          | 实例方法，仅仅是设置线程的中断状态true，不会停止线程。                                                                                        |
 | public static boolean interupted | 静态方法，Thread.interrupted()；<br />**判断线程是否被中断，并清除当前状态**<br />该方法做了两件事<br />1、**返回当前线程的中断状态**<br />2、将当前线程的中断状态设置为false |
-| public boolean isInterrupted     | 判断当前线程是否被中断（通过检查中断标志位）                 |
+| public boolean isInterrupted     | 判断当前线程是否被中断（通过检查中断标志位）                                                                                               |
 
 #### 4.1.3.1 interrupt源码分析
 
@@ -1865,7 +1865,7 @@ public void interrupt() {
 ```java
 public class InterruptDemp {
     private static volatile boolean isStop = false;
-    
+
     public static void main(String[] args) {
         new Thead(() -> {
             while (true) {
@@ -1876,11 +1876,11 @@ public class InterruptDemp {
                 System.out.println(" ------ Hello Interrupt");
             }
         }, "t1").start();
-        
+
         try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        
+
         isStop = true;
     }
 }
@@ -2085,7 +2085,7 @@ public static void loc() {
     }, "t1");
     t1.start();
 
-	// 这个示例会导致t1线程阻塞，原因如上面的话。
+    // 这个示例会导致t1线程阻塞，原因如上面的话。
     new Thread(() -> {
         LockSupport.unpark(t1);
         System.out.println("发出第一条通知");
@@ -2336,14 +2336,14 @@ AtomicInteger（带原子性包装的整形类）的底层原理：CAS
 **8条原则**
 
 1. **次序规则**
-
+   
    - **一个线程内**，按照代码顺序，写在前面的操作先行发生与写在后面的操作；
    - 前一个操作的结果可以被后续的操作获取。讲白点就是前面一个操作把变量x赋值为1，那么后面一个操作肯定能知道x已经变成了1.
 
 2. **锁定规则：**
-
+   
    - 一个unLock操作先行发生于后面（这里的后面指的是时间上的先后）对同一个锁的lock操作。
-
+   
    - ```java
      public class HappenBeforeDemo{
      
@@ -2359,27 +2359,27 @@ AtomicInteger（带原子性包装的整形类）的底层原理：CAS
      ```
 
 3. **volatile变量规则：**
-
+   
    - 对一个volatile变量的写操作先行发生于后面对这个变量的读操作，**前面的写对后面的读是可见的**，这里的后面指的是时间上的先后。
 
 4. **传递原则：**
-
+   
    - 如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C
 
 5. **线程启动规则（Thread Start Rule）：**
-
+   
    - Thread对象的start方法先行发生于此线程的每一个动作。
    - 主线程A启动子线程B，子线程B能够看到主线程在启动子线程B之前的所有操作。
 
 6. **线程中断规则（Thread Interruption Rule）：**
-
+   
    - 对线程interrupt方法的调用先行发生于被中断线程的代码检测到中断事件的发生；
    - 可以通过Thread.interrupted检测到是否发生中断。
 
 7. **线程终止规则（Thread Termination Rule）：**
-
+   
    - 线程中的的所有操作都可以先行发生于对此线程的终止检测，我们可以通过Thread::join方法是否结束、Thread::isAlive的返回值等手段检测线程是否已经终止执行。
-
+     
      ```java
      Thread B = new Thread(()->{
          // 此处对共享变量var修改
@@ -2396,7 +2396,7 @@ AtomicInteger（带原子性包装的整形类）的底层原理：CAS
      ```
 
 8. **对象终结规则（Finalizer Rule）：**
-
+   
    - 一个对象的初始化完成（构造函数执行结束）先行发生于它的finalize方法的开始
    - 也就是对象没有完成初始化之前，是不能调用finalized方法的。
 
@@ -2468,11 +2468,11 @@ orderAccess_linux_x86.inline.hpp：
 
 那么所谓的四大屏障分别是什么意思呢？
 
-| 屏障类型   | 指令示例                   | 说明                                                         |
-| ---------- | -------------------------- | ------------------------------------------------------------ |
-| LoadLoad   | Load1；LoadLoad；Load2     | 保证Load1的读取操作在Load2及后续读取操作之前执行             |
-| StoreStore | Store1；StoreStore；Store2 | 在Store2及其后的写操作执行前，保证store1的写操作已经刷新到主内存 |
-| LoadStore  | Load1；LoadStore；Store2   | 在store2及其后的写操作执行前，保证load1的读操作已经读取结束  |
+| 屏障类型       | 指令示例                     | 说明                                      |
+| ---------- | ------------------------ | --------------------------------------- |
+| LoadLoad   | Load1；LoadLoad；Load2     | 保证Load1的读取操作在Load2及后续读取操作之前执行           |
+| StoreStore | Store1；StoreStore；Store2 | 在Store2及其后的写操作执行前，保证store1的写操作已经刷新到主内存  |
+| LoadStore  | Load1；LoadStore；Store2   | 在store2及其后的写操作执行前，保证load1的读操作已经读取结束     |
 | StoreLoad  | Store1；StoreLoad；Load2   | 保证store1的写操作已经刷新到主内存之后，load2及其后的读操作才能执行 |
 
 进一步加深理解：
@@ -2565,8 +2565,6 @@ public class MySingleton {
 }
 ```
 
-
-
 # 第七章 CAS
 
 ## 7.1 CAS
@@ -2591,7 +2589,7 @@ public class CASDemo {
 
 ```java
 public final int getAndIncrement() {
-	return unsafe.getAndAddInt(this, valueOffset, 1);
+    return unsafe.getAndAddInt(this, valueOffset, 1);
 }
 ```
 
@@ -2647,8 +2645,6 @@ var5 是用过var1 var2找出内存中绅士的值
 
  5.线程A重新获取value值,因为变量value是volatile修饰,所以其他线程对他的修改,线程A总是能够看到,线程A继续执行compareAndSwapInt方法进行比较替换,直到成功.
 
-
-
 原子整型之所以在i++这种多线程的环境下面，不用加synchronized，就凭借着底层UnSafe类也能保证原子性，来保证线程安全，是因为UnSafe是CAS的核心类，且UnSafe是根据内存偏移地址来获取的。
 
 **3、CAS的缺点**
@@ -2691,7 +2687,7 @@ public class AtomicReferenceDemo {
     }
 }
 
-//结果就是true	user = ls； false	user = ls
+//结果就是true    user = ls； false    user = ls
 ```
 
 原子引用的用法其实和AtomicInteger差不多，只是可以自定义CAS操作对象，且这个同样也有ABA问题
@@ -2779,11 +2775,11 @@ class MyNumber {
 
 public class AtomicIntegerDemo {
     public static final int SIZE = 50;
-    
+
     public static void main(String[] args) {
         MyNumber myNumber = new MyNumber();
         CountDownLatch countDownLatch = new CountDownLatch(SIZE);
-        
+
         for (int i = 1; i <= SIZE; i++) {
             new Thread(() -> {
                 try {
@@ -2791,15 +2787,15 @@ public class AtomicIntegerDemo {
                         myNumber.addPlusPlus();
                     }
                 } catch (Exception e) {
-                    
+
                 } finally {
                     countDownLatch.countDown();
                 }
             }, String.value(i)).start();
         }
-        
+
         countDownLatch.await();
-        
+
         System.out.println(Thread.currentThread().getName() + " -- " myNumberr.atomicInteger.get());
     }
 }
@@ -2833,8 +2829,8 @@ public static void main(String[] args) {
 0
 0
 
-0	1122
-2	3
+0    1122
+2    3
 */
 ```
 
@@ -2962,10 +2958,10 @@ AtomicReferenceFieldUpdater：原子更新引用类型字段的值
 ```java
 class BankAccount {
     String bankName = "ccb";
-    
+
     public volatile int money = 0;
     AtomicIntegerFieldUpdater fieldUpdater = AtomicIntegerFieldUpdater.newUpdater(BankAccount.class, "money");
-    
+
     public void transfer(BankAccount bankAccount) {
         fieldUpdater.incrementAndGet(bankAccount);
     }
@@ -2974,16 +2970,16 @@ class BankAccount {
 public class AtomicIntegerFieldUpdaterDemo {
     public static void main(String[] args) throws InterruptedException{
         BankAccount bankAccount = new BankAccount();
-        
+
         for (int i = 1; i <= 1000; i++) {
             new Thread(() -> {
                 bankAccount.transfer(bankAccount);
             }, String.valueOf(i)).start();
         }
-        
+
         // 暂停几秒钟线程
         sleep(1);
-        
+
         sout(bankAccount.money);
     }
 }
@@ -3322,8 +3318,6 @@ public void increment() {
 
 说明当前线程对应的数组中有了数据，也重置过hash值，这时通过CAS操作尝试对当前数中的value值进行累加x操作，x默认为1，如果CAS成功则直接跳出循环。
 
-
-
 **3.4**
 
 ![image-20220206211615943](IMG/JUC进阶版.asserts/image-20220206211615943.png)
@@ -3503,7 +3497,7 @@ class House {
 
 ```java
 public class DateUtils {
-	// 模拟并发环境下使用SimpleDateFormat的parse方法将字符串转换成Date对象
+    // 模拟并发环境下使用SimpleDateFormat的parse方法将字符串转换成Date对象
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static Date parseDate(String stringDate) throws Exception {
@@ -3537,7 +3531,7 @@ SimpleDateFormat类内部有一个Calendar对象引用，它用来存储和这�
 解决办法：
 
 1. 将SimpleDateFormat定义为局部变量。但是每调用一次方法就会创建一个SimpleDateFormat对象，方法结束又要作为垃圾回收。
-
+   
    ```java
    public static void main(String[] args) throws Exception {
        for (int i = 1; i <=30; i++) {
@@ -3555,7 +3549,7 @@ SimpleDateFormat类内部有一个Calendar对象引用，它用来存储和这�
    ```
 
 2. 使用ThreadLocal
-
+   
    ```java
    public class DateUtils {
        private static final ThreadLocal<SimpleDateFormat>  sdf_threadLocal =
@@ -3585,7 +3579,7 @@ SimpleDateFormat类内部有一个Calendar对象引用，它用来存储和这�
 3. 加锁或者第三方时间库
 
 4. 使用DateTimeFormatter
-
+   
    ```java
    //3 DateTimeFormatter 代替 SimpleDateFormat
    public static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -3716,13 +3710,13 @@ Object object = new Object()，谈谈你对这句话的理解？一般而言，J
 
 **1、对象标记：**
 
-| 存储内容                             | 标志位 | 状态               |
-| ------------------------------------ | ------ | ------------------ |
-| 对象哈希码、对象分代年龄             | 01     | 未锁定             |
-| 指向锁记录的指针                     | 00     | 轻量级锁定         |
-| 指向重量级锁的指针                   | 10     | 膨胀（重量级锁定） |
-| 空，不需要记录信息                   | 11     | GC标记             |
-| 偏向线程ID、偏向时间戳、对象分代年龄 | 01     | 可偏向             |
+| 存储内容                | 标志位 | 状态        |
+| ------------------- | --- | --------- |
+| 对象哈希码、对象分代年龄        | 01  | 未锁定       |
+| 指向锁记录的指针            | 00  | 轻量级锁定     |
+| 指向重量级锁的指针           | 10  | 膨胀（重量级锁定） |
+| 空，不需要记录信息           | 11  | GC标记      |
+| 偏向线程ID、偏向时间戳、对象分代年龄 | 01  | 可偏向       |
 
 在64位系统中，MarkWord占了8个字节，类型指针占了8个字节，一共是16个字节。
 
@@ -3798,13 +3792,13 @@ public static void main(String[] args) {
 
 其中MarkWord8个字节，类型指针4个字节
 
-| 名称        | 含义                                     |
-| ----------- | ---------------------------------------- |
+| 名称          | 含义                     |
+| ----------- | ---------------------- |
 | OFFSET      | 偏移量，也就是这个字段位置所占用的byte数 |
-| SIZE        | 后面类型的字节大小                       |
-| TYPE        | 是Class中定义的类型                      |
-| DESCRIPTION | 类型的描述                               |
-| VALUE       | TYPE在内存中的值                         |
+| SIZE        | 后面类型的字节大小              |
+| TYPE        | 是Class中定义的类型           |
+| DESCRIPTION | 类型的描述                  |
+| VALUE       | TYPE在内存中的值             |
 
 注意到上述的类型指针只有4个字节，但是我们之前说类型指针应该是8个才对，这是因为**JVM默认开启了类型指针的压缩，来节省空间**
 
@@ -4137,7 +4131,7 @@ public class LockBigDemo {
 >  * #setState} and {@link #compareAndSetState} is tracked with respect
 >  * to synchronization.
 > ```
->
+> 
 > 依靠单个原子来表示状态，通过占用和释放方法改变状态值
 
 AQS使用一个volatile的int类型的成员变量来表示同步状态，通过内置的FIFO队列来完成资源获取的排队工作将每条要去抢占资源的线程封装成一个Node节点来实现锁的分配，通过CAS完成对State值的修改
@@ -4155,25 +4149,25 @@ static final class Node {
 
     // 共享
     static final Node SHARED = new Node();
-	// 独占
+    // 独占
     static final Node EXCLUSIVE = null;
-	// 线程被取消了
+    // 线程被取消了
     static final int CANCELLED =  1;
-	// 后继线程需要唤醒
+    // 后继线程需要唤醒
     static final int SIGNAL    = -1;
-	// 等待condition唤醒
+    // 等待condition唤醒
     static final int CONDITION = -2;
     // 共享式同步状态获取将会无条件地传播下去
     static final int PROPAGATE = -3;
-	// 初始为0，状态是上面的几种
+    // 初始为0，状态是上面的几种
     volatile int waitStatus;
-	// 前置节点
+    // 前置节点
     volatile Node prev;
-	// 后继节点
+    // 后继节点
     volatile Node next;
 
     volatile Thread thread;
-    
+
     // 后面省略。。。
 }
 ```
@@ -4181,8 +4175,6 @@ static final class Node {
 Node的waitStatus就是等候区其他顾客（其他线程）的等待状态，队列中每一个排队的个体就是一个Node
 
 ![image-20210923203705089](IMG/JUC进阶版.asserts/image-20210923203705089.png)
-
-
 
 AQS底层是用LockSupport.park()进行排队的
 
@@ -4293,8 +4285,8 @@ final boolean nonfairTryAcquire(int acquires) {
     }
     else if (current == getExclusiveOwnerThread()) {
         /* 
-        	当前锁已经被占用，但是占用锁的是当前线程本身，ReentrantLock支持重入
-        	这里就是重入锁的实现，当已经获取锁的线程每多获取一次锁，state就进行加1操作
+            当前锁已经被占用，但是占用锁的是当前线程本身，ReentrantLock支持重入
+            这里就是重入锁的实现，当已经获取锁的线程每多获取一次锁，state就进行加1操作
         */
         int nextc = c + acquires;
         if (nextc < 0) // overflow
@@ -4406,7 +4398,7 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         } while (pred.waitStatus > 0);
         pred.next = node;
     } else {
-		// 将当前节点的前驱节点设置为SIGNAL，用于后续唤醒操作
+        // 将当前节点的前驱节点设置为SIGNAL，用于后续唤醒操作
         // 程序第一次执行到这里返回false，还会进行外层第二次循环
         compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
     }
@@ -4576,7 +4568,7 @@ public class LockDownGradingDemo {
 
         readLock.lock();
         System.out.println("-------正在读取");
-        
+
         writeLock.unlock();
     }
 }
