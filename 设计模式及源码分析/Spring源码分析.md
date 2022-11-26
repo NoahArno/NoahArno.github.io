@@ -2201,6 +2201,128 @@ addSingleton(beanName, getEarlyBeanReference(beanName, mbd, bean));
 
 # 第四章 AOP源码分析
 
+## 4.0 动态代理原理
+
+### JDKProxy
+
+测试源代码：
+
+```java
+public class JDKProxyTest {
+
+    interface ActionService {
+        int getOrderCount();
+    }
+
+    static class ActionServiceImpl implements ActionService {
+
+        @Override
+        public int getOrderCount() {
+            System.out.println("get order count...");
+            return 10;
+        }
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        ActionServiceImpl actionService = new ActionServiceImpl();
+
+        ActionService proxyInstance = (ActionService)Proxy.newProxyInstance(JDKProxyTest.class.getClassLoader(), new Class[]{ActionService.class}, (p, method, param) -> {
+            System.out.println("before....");
+            Object result = method.invoke(actionService, param);
+            System.out.println("after....");
+            return result;
+        });
+
+        System.out.println(proxyInstance.getOrderCount());
+        System.in.read();
+    }
+}
+```
+
+通过Arthas反编译代理类得到：
+
+```java
+final class $Proxy0
+    extends Proxy
+    implements JDKProxyTest.ActionService {
+    private static Method m1;
+    private static Method m2;
+    private static Method m3;
+    private static Method m0;
+
+    public $Proxy0(InvocationHandler invocationHandler) {
+        super(invocationHandler);
+    }
+
+    static {
+        try {
+            m1 = Class.forName("java.lang.Object").getMethod("equals", Class.forName("java.lang.Object"));
+            m2 = Class.forName("java.lang.Object").getMethod("toString", new Class[0]);
+            m3 = Class.forName("top.noaharno.springcache.JDKProxyTest$ActionService").getMethod("getOrderCount", new Class[0]);
+            m0 = Class.forName("java.lang.Object").getMethod("hashCode", new Class[0]);
+            return;
+        }
+        catch (NoSuchMethodException noSuchMethodException) {
+            throw new NoSuchMethodError(noSuchMethodException.getMessage());
+        }
+        catch (ClassNotFoundException classNotFoundException) {
+            throw new NoClassDefFoundError(classNotFoundException.getMessage());
+        }
+    }
+
+    public final boolean equals(Object object) {
+        try {
+            return (Boolean)this.h.invoke(this, m1, new Object[]{object});
+        }
+        catch (Error | RuntimeException throwable) {
+            throw throwable;
+        }
+        catch (Throwable throwable) {
+            throw new UndeclaredThrowableException(throwable);
+        }
+    }
+
+    public final String toString() {
+        try {
+            return (String)this.h.invoke(this, m2, null);
+        }
+        catch (Error | RuntimeException throwable) {
+            throw throwable;
+        }
+        catch (Throwable throwable) {
+            throw new UndeclaredThrowableException(throwable);
+        }
+    }
+
+    public final int hashCode() {
+        try {
+            return (Integer)this.h.invoke(this, m0, null);
+        }
+        catch (Error | RuntimeException throwable) {
+            throw throwable;
+        }
+        catch (Throwable throwable) {
+            throw new UndeclaredThrowableException(throwable);
+        }
+    }
+
+    public final int getOrderCount() {
+        try {
+            return (Integer)this.h.invoke(this, m3, null);
+        }
+        catch (Error | RuntimeException throwable) {
+            throw throwable;
+        }
+        catch (Throwable throwable) {
+            throw new UndeclaredThrowableException(throwable);
+        }
+    }
+}
+```
+
+但其实对于JDK自带的动态代理来说，它其实并没有在运行期间生成这些代码，而是直接通过asm来生成字节码，上述代码是我们将字节码反编译得到的。
+
 ## 4.1 配置调试环境
 
 ```java
@@ -2626,3 +2748,120 @@ public static void main(String[] args) {
 **在事件的派发过程中，即eventPublisher.publish(new MessageEvent("hello，你好"))方法，它会按照发送的事件的类型，如果它是实现了ApplicationEvent接口，就将该事件转换为ApplicationEvent。如果该对象没有实现该接口，就将其用PayloadApplicationEvent进行封装，最后执行的时候，它会拿到事件多播器，用它来发送事件。至于怎么发送事件，它会利用观察者模式（for遍历），将符合event和type的ApplicationListenerMethodAdapter拿来，然后依次调用它们的invokeListener方法即可。**
 
 ![image-20220418213441154](IMG/Spring源码分析.assets/image-20220418213441154.png)
+
+# 第六章 事务
+
+## 6.1 环境准备
+
+引入依赖：
+
+```xml
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.4.1</version>
+</dependency>
+```
+
+并且配置文件中进行配置：
+
+```properties
+spring.datasource.username=root
+spring.datasource.password=123456
+spring.datasource.url=jdbc:mysql://192.168.235.123:3306/enjoy_applet?serverTimezone=GMT%2B8&characterEncoding=utf-8
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+```
+
+## 6.2 EnableTransactionManagement
+
+使用该注解，就相当于引入了spring事务相关的功能，它内部其实是通过Import注解引入了**TransactionManagementConfigurationSelector**
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import({TransactionManagementConfigurationSelector.class})
+public @interface EnableTransactionManagement {
+    boolean proxyTargetClass() default false;
+	// 默认是代理模式，当然也可以选择ASPECTJ
+    AdviceMode mode() default AdviceMode.PROXY;
+	// 代表它在初始化的时候的顺序
+    int order() default 2147483647;
+}
+```
+
+![image-20220921114729168](IMG/Spring源码分析.assets/image-20220921114729168.png)
+
+而在我们引入的Selector类中，核心看下面的逻辑：
+
+```java
+@Override
+protected String[] selectImports(AdviceMode adviceMode) {
+    switch (adviceMode) {
+        case PROXY:
+            return new String[] {AutoProxyRegistrar.class.getName(),
+                                 ProxyTransactionManagementConfiguration.class.getName()};
+        case ASPECTJ:
+            return new String[] {determineTransactionAspectClass()};
+        default:
+            return null;
+    }
+}
+```
+
+可以看到，其实它内部导入了**AutoProxyRegistrar和ProxyTransactionManagementConfiguration**两个类，当然，现在并不是说直接引入了bean，而是将它们的名称返回，以待后续向容器中添加它们的beanDefinition，然后后续再实例化操作。
+
+对于**AutoProxyRegistrar**来说，它其实是获取@EnableTransactionManagement注解中的mode属性和proxyTargetClass属性的值，然后**向容器中注入InfrastructureAdvisorAutoProxyCreator**，它其实实现了BeanPostProcessor接口，所有的bean后面在初始化的时候会执行相应的处理器。
+
+这一步流程其实和AOP的实现差不多一致，同样是向容器中注入对应的后置处理器。 但是也只是暂时将其对应的beanDefinition注册到bean工厂中。
+
+而对于**ProxyTransactionManagementConfiguration**来说，它其实也是向容器中注入了一些事务相关的bean，比如：
+
+- 事务增强器：BeanFactoryTransactionAttributeSourceAdvisor，事务增强器，包含了切面组件和标签解析器
+- 标签解析器：TransactionAttributeSource，@Transaction注解标签解析器
+- 事务拦截器Bean：TransactionInterceptor，这个类是Spring事务拦截器的核心业务实现，AOP调用链最终也是触发它的invoke方法。保存了事务属性信息，事务管理器
+
+```java
+@Configuration(proxyBeanMethods = false)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
+
+    @Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
+        TransactionAttributeSource transactionAttributeSource, TransactionInterceptor transactionInterceptor) {
+
+        BeanFactoryTransactionAttributeSourceAdvisor advisor = new BeanFactoryTransactionAttributeSourceAdvisor();
+        // 注入事务配置属性Bean
+        advisor.setTransactionAttributeSource(transactionAttributeSource);
+        advisor.setAdvice(transactionInterceptor); // 注入依赖的拦截器
+        // 设置切面的顺序
+        if (this.enableTx != null) {
+            advisor.setOrder(this.enableTx.<Integer>getNumber("order"));
+        }
+        return advisor;
+    }
+
+    @Bean
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public TransactionAttributeSource transactionAttributeSource() {
+        return new AnnotationTransactionAttributeSource();
+    }
+
+    @Bean
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
+        TransactionInterceptor interceptor = new TransactionInterceptor();
+        interceptor.setTransactionAttributeSource(transactionAttributeSource);
+        if (this.txManager != null) {
+            interceptor.setTransactionManager(this.txManager);
+        }
+        return interceptor;
+    }
+
+}
+```

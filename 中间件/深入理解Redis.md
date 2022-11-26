@@ -654,7 +654,7 @@ redisObject的type（4bits）、encoding（4bits）、lru（24bits）、refcount
 1. **消息队列：**列表类型可以相当于队列去使用，生产者使用lpush将消息添加到list中，然后消费者就可以使用brpop从list的头部去拿消息进行消费。
 
 2. **用户订阅店铺：**比如用户C订阅了店铺A和B，然后他们分别发送了两篇文章，为11和22。只要他们发送了文章，就会安装到C的list里面
-   
+  
    ```
    lpush likearticle:CID 11 22 // 文章推送
    lrange likearticle:CID 0 10 // 查看用户C订阅的全部推文，只显示10条，类似分页
@@ -669,7 +669,7 @@ redisObject的type（4bits）、encoding（4bits）、lru（24bits）、refcount
 6. lpush + brpop = 消息队列
 
 7. **在电商网站的商品评论中，需要统计评论列表中的最新评论。**
-   
+  
    既然要统计最新评论，那么就必须要考虑选择的数据类型是有序的，而我们的List就是有序的（插入顺序有序），因此我们可以维护一个List，然后将最新的评论插入到List的头部：
    
    ```
@@ -694,7 +694,7 @@ Redis中的Hash类型，内部同样也有两种编码格式：ziplist和hashtab
 **应用场景】**
 
 1. 相当于Java里面的Map<String, Map<Object, Object>>，可以用来实现早期的**购物车**。
-   
+  
    ```
    新增商品 hset shopcar:uid1024 334488 1 // 用户1024添加一件334488的商品到购物车
    增加商品数量 hincrby shopcar:uid1024 334488 1
@@ -705,7 +705,7 @@ Redis中的Hash类型，内部同样也有两种编码格式：ziplist和hashtab
 2. **配置中心的配置项**
 
 3. **计数器：**
-   
+  
     用于记录网站每一天、一月、一年的访问量
    
    ```
@@ -745,7 +745,7 @@ Set的差集、并集和交集的计算复杂度较高，**在数据量大的情
 也可以将这些统计数据与在线业务数据拆分开，实例单独部署，防止在做统计操作时影响到在线业务。
 
 1. **店铺抽奖活动：**
-   
+  
    ```
    用户参加抽奖 sadd action UID1024
    显示已经有多少人参与了 scard action
@@ -754,7 +754,7 @@ Set的差集、并集和交集的计算复杂度较高，**在数据量大的情
    ```
 
 2. **给商品点赞**
-   
+  
    ```
    新增点赞 sadd productId UID1 UID2
    取消点赞 srem productId UID1
@@ -777,7 +777,7 @@ Set的差集、并集和交集的计算复杂度较高，**在数据量大的情
 **应用场景】**
 
 1. **排行榜**：比如文章点赞排行榜
-   
+  
    ```
    zincrby user:ranking articleID 10 // 新增十个赞
    zincrby user:ranking articleID -1 // 取消点赞
@@ -788,7 +788,7 @@ Set的差集、并集和交集的计算复杂度较高，**在数据量大的情
 2. **电话号码排序或者姓名排序：**使用ZRANGEBYLEX和ZREVRANGEBYLEX指令（分数相同）
 
 3. **在电商网站的商品评论中，需要统计评论列表中的最新评论**
-   
+  
    我们可以假设越新的评论权重越大，相对于List会使数据下标发生改变，zset中的数据的score是不变的，分页时记录上一次的范围起始值就可以了。具体如下：
    
    假设当前的评论 List 是{A, B, C, D, E, F}（其中，A 是最新的评论，以此类推，F 是最早的评论，权重分别为 10，9，8，7，6，5）。 在展示第一页的 3 个评论时，按照权重排序，查出 ABC。 展示第二页的 3 个评论时，按照权重排序，查出 DEF。 如果在展示第二页前，又产生了一个新评论 G，权重为 11，排序为 {G, A, B, C, D, E, F}。 再次查询第二页数据时，权重还是会以 10 为准，逻辑上，第一页的权重还是 10，9，8。 查询第二页数据时，可以查询出权重等于 7，6，5 的数据，返回评论 DEF。 当想查询出最新评论时，需要以权重 11 为准，第一页数据的权重就是 11，10，9，返回评论 GAB。 再次查询第二页数据时，以权重 11 为准，查询出评论 CDE。
@@ -1019,7 +1019,7 @@ repl_backlog_buffer是一个环形缓冲区，主库会记录自己写到的位�
 > **repl_backlog_buffer和replication buffer的区别】**
 
 1. **repl_backlog_buffer**：为了从库断开之后，如果找到主从库数据差异而设计的环形缓冲区，从而避免全量复制带来的巨额开销。如果主从之间断开时间太久，就可能导致主从重新连接之后进行全量复制。断连恢复之后，在该buffer中找到主从差异的数据之后，会通过replication buffer发送给从库。
-2. **replication buffer**：主从库在进行增量同步期间，从库作为一个client，会分配一个buffer，所有的数据交互都是通过这个buffer进行的，Redis会先把数据写入到这个buffer中，然后再把buffer中的数据发送到clent socket中，再通过网络发送出去，这就完成了数据交互。只不过在主从库增量同步期间，这个buffer专门用来传播用户的写命令到从库，保证主从数据一致性，因此这个buffer通常叫做replication buffer。
+2. **replication buffer**：主从库在进行增量同步期间，从库作为一个client，会分配一个buffer，所有的数据交互都是通过这个buffer进行的，Redis会先把数据写入到这个buffer中，然后再把buffer中的数据发送到client socket中，再通过网络发送出去，这就完成了数据交互。只不过在主从库增量同步期间，这个buffer专门用来传播用户的写命令到从库，保证主从数据一致性，因此这个buffer通常叫做replication buffer。
 3. 如果主从在传播命令的时候，从库处理得非常慢，就会导致replication buffer持续增长，消耗大量的内存资源，甚至OOM。因此Redis提供了client-output-buffer-limit参数限制buffer的大小。如果超过了限制，主库将会强制断开这个client的连接，此时主从复制会中断。然后中断之后如果主从再次发起复制请求，就可能会导致恶性循环，引起复制风暴。
 4. **当主从之间断开了连接，此时replication buffer将会不存在，但是此时主库还是会接受写操作，因此会将所有的写操作在repl-backlog-buffer中记录一份缓存起来，等到主从恢复之后再通过replication buffer继续进行同步**
 
