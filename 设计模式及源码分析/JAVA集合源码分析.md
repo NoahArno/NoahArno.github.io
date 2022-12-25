@@ -1,6 +1,6 @@
-# HashMap源码解析
+## HashMap源码解析
 
-## 基本概念
+### 基本概念
 
 > 介绍一下HashMap
 
@@ -10,7 +10,7 @@
 
 **扩容机制**：默认大小是16，每次扩容都是两倍。当数组的长度大于threshold的时候（threshold = capacity * loadFactor）就会进行resize，即扩容。
 
-## 三种构造器
+### 三种构造器
 
 > new HashMap()时做了什么？
 
@@ -184,7 +184,7 @@ static final int hash(Object key) {
 
 而使用上述的异或操作，可以让计算出来的哈希值的高16位也能够参与运算，降低产生哈希冲突的概率。
 
-## put方法
+### put方法
 
 大致流程：
 
@@ -286,7 +286,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 - 该桶是红黑树，就调用红黑树相应方法
 - 如果是链表，遍历完整个链表之后都没有找到相等的key，就将key插入到链表的尾部，此时如果链表长度大于等于8，就进行树化。
 
-## resize方法
+### resize方法
 
 当HashMap中的元素个数超过threshold的时候，就会进行数组扩容；或者是第一次使用put方法的时候，也会调用一次resize方法
 
@@ -402,7 +402,7 @@ final Node<K,V>[] resize() {
 - 如果桶是红黑树，就会调用其对应的rehash过程
 - 如果桶是链表，就遍历整个链表，按照它rehash之后的位置分别插入到两条临时链表中，最后遍历完整个链表之后，就分别将两条临时链表插入到新数组对应的槽位中。
 
-## 线程不安全
+### 线程不安全
 
 > JDK7扩容造成死循环
 
@@ -480,9 +480,9 @@ transfer方法作用：在对table进行扩容到newTable之后，需要将原�
 
 线程A进入后还未进行数据插入时挂起，而线程B正常执行，从而正常插入数据，然后线程A获取时间片，此时线程A不用再进行hash判断了，此时线程A就会将线程B插入的数据给覆盖，线程不安全。
 
-# ConcurrentHashMap源码解析
+## ConcurrentHashMap源码解析
 
-## 基本概念
+### 基本概念
 
 > 什么是ConcurrentHashMap？
 
@@ -492,7 +492,7 @@ ConcurrentHashMap是为了解决HashMap线程不安全而出现的一个类。
 
 **线程安全**：在JDK1.7的时候，ConcurrentHashMap对整个数组进行了分割，形成了多个Segment，而Segment类继承了ReentrantLock，也就是形成了多把锁，每把锁只锁住容器中的一部分数据。多线程访问不同数据段中的数据，就不会造成并发问题。每个Segment都包含一个HashEntry数组，而每个HashEntry是一个链表结构的元素。而在JDK1.8的时候，进行了大修改。采用synchronized和CAS来操作。同时每次使用synchronized只会锁住当前链表或红黑树的头节点，提升并发量。
 
-## JDK7下的ConcurrentHashMap
+### JDK7下的ConcurrentHashMap
 
 优点：如果多个线程访问不同的Segment，实际上不会产生冲突。
 
@@ -502,7 +502,7 @@ ConcurrentHashMap是为了解决HashMap线程不安全而出现的一个类。
 
 
 
-## JDK8下的ConcurrentHashMap
+### JDK8下的ConcurrentHashMap
 
 对于ConcurrentHashMap的无参构造器来说，其实是个空构造器，什么都没做
 
@@ -515,7 +515,7 @@ ConcurrentHashMap是为了解决HashMap线程不安全而出现的一个类。
     static final int RESERVED  = -3; // hash for transient reservations
 ```
 
-### get方法
+#### get方法
 
 ```java
 public V get(Object key) {
@@ -551,7 +551,7 @@ Node的成员val是用volatile修饰的，因此对val的修改是满足可见�
 
 而table数组也使用了volatile修饰，主要是保证数组在扩容时的可见性。
 
-### put方法
+#### put方法
 
 ```java
 public V put(K key, V value) {
@@ -641,7 +641,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 3. 如果已经有了，就锁住链表头节点，然后进行后续的put操作（链表还是红黑树），接着判断是否需要树化
 4. 最后调用addCount方法，这里面会判断是否需要扩容，即是否超过阈值
 
-### initTable方法
+#### initTable方法
 
 ```java
 /**
@@ -676,7 +676,7 @@ private final Node<K,V>[] initTable() {
 }
 ```
 
-### （TODO）扩容
+#### （TODO）扩容
 
 对于ConcurrentHashMap来说，它的扩容时机主要有两个：
 

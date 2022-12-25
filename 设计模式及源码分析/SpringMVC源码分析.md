@@ -1,4 +1,4 @@
-# 第一章 什么是SPI
+## 第一章 什么是SPI
 
 SPI全称：Service Provider Interfact，是一种服务扩展机制，首先在配置文件中定义好接口的实现类，然后根据这个接口从配置文件中加载该接口的所有实现类，以供使用。
 
@@ -65,9 +65,9 @@ public static void main(String[] args) {
 }
 ```
 
-# 第二章 MVC的启动原理
+## 第二章 MVC的启动原理
 
-## 2.1 Servlet3.0规范
+### 2.1 Servlet3.0规范
 
 首先根据官网的关于SpringMVC注解版的注册并初始化DispatcherServlet，它由Servlet容器自动检测：
 
@@ -151,7 +151,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 2. 过滤掉所有的接口和抽象类
 3. 排好序之后挨个执行他们自己实现的onStartup方法。
 
-## 2.2 onStartup方法的执行
+### 2.2 onStartup方法的执行
 
 至此，我们配置好的启动类中的onStartup方法就可以被执行了，接下来我们细看onStartup方法干了些什么？
 
@@ -230,7 +230,7 @@ protected WebApplicationContext initWebApplicationContext() {
 
 ![SpringMVC应用启动原理](IMG/SpringMVC源码分析.assets/SpringMVC应用启动原理.png)
 
-## 2.3 父子容器
+### 2.3 父子容器
 
 我们以上述的代码启动我们的mvc项目，其中父容器为null。
 
@@ -446,9 +446,9 @@ public void contextInitialized(ServletContextEvent event) { //根容器初始化
 
 ![SpringMVC中的父子容器](IMG/SpringMVC源码分析.assets/SpringMVC中的父子容器.png)
 
-# 第三章 请求处理流程
+## 第三章 请求处理流程
 
-## 3.1 DispatcherServlet中的九大组件
+### 3.1 DispatcherServlet中的九大组件
 
 当Tomcat启动之后，会调用DispatcherServlet的init方法，在这个方法里面，它会去配置父子容器，并且去刷新子容器。然后就是常规的十二步，不过在十二大步中的最后一步：**finishRefresh中，它会去发布事件**
 
@@ -587,7 +587,7 @@ public void afterPropertiesSet() { //初始化以后
 
 ![Dispatcher九大组件初始化流程](IMG/SpringMVC源码分析.assets/Dispatcher九大组件初始化流程.png)
 
-## 3.2 SpringMVC运行流程
+### 3.2 SpringMVC运行流程
 
 我们明白了DispatcherServlet的九大组件之后，接下来开始解析浏览器发送一个请求，MVC是怎么处理它的？也就是SpringMVC的运行流程。
 
@@ -602,7 +602,7 @@ public void afterPropertiesSet() { //初始化以后
 3. 如果我们的flashMapManager（闪存管理器，重定向携带数据）不为空，就给request设置一些属性。
 4. **重点执行doDispatch方法，处理派发功能**
 
-### 1. 总览
+#### 1. 总览
 
 先说一说该方法的大致流程：
 
@@ -705,9 +705,9 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 10. 进行完渲染之后，执行所有拦截器的**afterCompletion**方法
 11. 最后如果是文件上传请求，就**cleanupMultipart(processedRequest);**
 
-![doDispatch总览](../../../document/Spring源码解析/doDispatch总览.png)
+![doDispatch总览](IMG/SpringMVC源码分析.assets/doDispatch总览.png)
 
-### 2. 构造HandlerExecutionChain
+#### 2. 构造HandlerExecutionChain
 
 我们会调用**getHandler**方法来构造目标方法+拦截器的整个链路，接下来来看具体流程：
 
@@ -727,7 +727,7 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 
 ![MVC运行流程-构造目标方法和拦截器的执行链路](IMG/SpringMVC源码分析.assets/MVC运行流程-构造目标方法和拦截器的执行链路.png)
 
-### 3. 获取HandlerAdapter
+#### 3. 获取HandlerAdapter
 
 拿到所有的HandlerAdapter，然后挨个遍历，看当前HandlerAdapter是否支持当前的HandlerMapping。
 
@@ -745,7 +745,7 @@ protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletExcepti
 }
 ```
 
-### 4. 利用反射真正执行目标方法
+#### 4. 利用反射真正执行目标方法
 
 使用上述流程获得的HandlerAdapter去真正执行目标方法。
 
@@ -811,7 +811,7 @@ protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 
 ![反射处理目标方法](IMG/SpringMVC源码分析.assets/反射处理目标方法.png)
 
-### 5. 处理ModelAndView
+#### 5. 处理ModelAndView
 
 首先如果有异常，就会去处理异常
 
@@ -866,13 +866,13 @@ protected void render(ModelAndView mv, HttpServletRequest request, HttpServletRe
 
 ![MVC运行流程-渲染ModelAndView](IMG/SpringMVC源码分析.assets/MVC运行流程-渲染ModelAndView.png)
 
-### 6. 总结
+#### 6. 总结
 
 ![MVC运行流程](IMG/SpringMVC源码分析.assets/MVC运行流程.png)
 
 
 
-# 第四章 @EnableMvc注解原理【存疑，待做】
+## 第四章 @EnableMvc注解原理【存疑，待做】
 
 
 

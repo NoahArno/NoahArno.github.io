@@ -1,4 +1,4 @@
-# ThreadLocal总览
+## ThreadLocal总览
 
 对于每个Thread实例对象，它内部都会有一个threadlocals字段，而该属性字段的类型其实就是ThreadLocal中的内部类ThreadLocalMap。它以ThreadLocal为key，同时使用开放定址法来解决哈希冲突。
 
@@ -29,7 +29,7 @@ static class ThreadLocalMap {
 
 如果使用的是全局的static的TL + 线程池的方式，那么调用remove更多的是防止之前的结果对后续的结果造成影响。
 
-## get()
+### get()
 
 ```java
 public T get() {
@@ -88,7 +88,7 @@ private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
 - 如果不是，就往后遍历，如果发现了过期的key就执行探测性清除
 - 如果找不到，就返回null
 
-## set()
+### set()
 
 ```java
 public void set(T value) {
@@ -331,7 +331,7 @@ private void resize() {
 - 执行一遍启发式清理，如果没有可清理对象并且size大于len的三分之二，进行rehash
 - 在rehash的时候，进行一次全量清理，清理之后如果size还是大于一半就进行扩容。
 
-## remove()
+### remove()
 
 ```java
 public void remove() {
@@ -357,7 +357,7 @@ private void remove(ThreadLocal<?> key) {
 }
 ```
 
-# FastThreadLocal总览
+## FastThreadLocal总览
 
 FTL是Netty写的一个轮子，它内部维护了一个索引常量index，每次创建FTL的时候都会自动加1，保证下标的不重复性，虽然会产生大量的index，但是避免了计算索引下标位置以及处理hash冲突带来的损耗。相当于以空间换取时间。
 
@@ -380,7 +380,7 @@ thread.start();
 - **TL扩容的时候需要rehash，而FTL并不需要**
 - **FTL就算结束不使用remove也不用担心内存泄漏，因为它自己在任务结束后调用removeAll方法**
 
-## FastThreadLocalRunnable
+### FastThreadLocalRunnable
 
 我们上面说到，想要正确使用FTL，就必须结合FTLT线程类以及它的子类，同时构造FTLT的时候，也会通过FastThreadLocalRunnable对Runnable对象进行了包装。
 
@@ -416,7 +416,7 @@ final class FastThreadLocalRunnable implements Runnable {
 
 **其实可以看到，它的run方法执行的时候，会自动的执行removeAll方法，这样其实就不需要我们显示的在方法执行完毕之后去调用FTL的remove方法，其实它的内部会自动的进行处理。**
 
-## InternalThreadLocalMap
+### InternalThreadLocalMap
 
 和普通的Thread对象一样，在FastThreadLocalThread中，也有一个Map用来存储FTL，而这个Map其实就是InternalThreadLocalMap。
 
@@ -454,7 +454,7 @@ class UnpaddedInternalThreadLocalMap {
 }
 ```
 
-## FastThreadLocal初始化
+### FastThreadLocal初始化
 
 在FTL中，有如下代码：
 
@@ -483,7 +483,7 @@ public static int nextVariableIndex() {
 
 **而对于Object数组的初始化，其实就是给它们填充UNSET，也就是static的new Object**
 
-## get方法
+### get方法
 
 在get方法中，我们会拿到该线程对应的Map，**关于FTL兼容TL的逻辑就在这里体现，后续我们再进行分析**
 
@@ -505,7 +505,7 @@ public final V get() {
 }
 ```
 
-## set方法
+### set方法
 
 ```java
 public final void set(V value) {
@@ -543,7 +543,7 @@ private static void addToVariablesToRemove(InternalThreadLocalMap threadLocalMap
 }
 ```
 
-## remove
+### remove
 
 ```java
 public final void remove() {
@@ -583,7 +583,7 @@ private static void removeFromVariablesToRemove(
 }
 ```
 
-## removeAll
+### removeAll
 
 ```java
 public static void removeAll() {
@@ -623,7 +623,7 @@ public static void removeAll() {
 }
 ```
 
-## 如何兼容TL
+### 如何兼容TL
 
 我们在获取当前线程的FTL的时候，需要执行以下语句：
 

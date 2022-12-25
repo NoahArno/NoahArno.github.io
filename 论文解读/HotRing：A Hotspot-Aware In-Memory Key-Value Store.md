@@ -15,7 +15,7 @@
 > 1. FASTER：A Concurrent Key-Value Store with In-Place Updates
 > 2. MICA：A Holistic Approach to Fast In-Memory Key-Value Storage
 
-![image-20221221194304667](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221221194304667.png)
+![image-20221221194304667](IMG//image-20221221194304667.png)
 
 > Figure 1：无热点感知的哈希结构
 
@@ -40,7 +40,7 @@
 
 至此，我们的 HashRing 就被设计成了一个基于有序环的哈希索引了。
 
-![image-20221221211049084](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221221211049084.png)
+![image-20221221211049084](IMG/HotRing.assets/image-20221221211049084.png)
 
 > Figure 2：基于有序环的哈希索引
 
@@ -62,7 +62,7 @@ or \space order_i < order_{i -1} < order_k \quad ③
 \end{cases}
 $$
 
-![image-20221221214644376](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221221214644376.png)
+![image-20221221214644376](IMG/HotRing.assets/image-20221221214644376.png)
 
 > Figure 3：Find operation in HotRing
 
@@ -98,7 +98,7 @@ $$
 
 为了实现更高的性能，我们设计了一种统计采样策略，该策略旨在提供更准确的热点识别，并具有略高的反应延迟。在详细解释该策略之前，我们先来介绍一下 HotRing 中的一些结构的内部实现：
 
-![image-20221222134518866](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221222134518866.png)
+![image-20221222134518866](IMG/HotRing.assets/image-20221222134518866.png)
 
 > Figure 4：HotRing Index Format.
 
@@ -137,7 +137,7 @@ W~t~ 测量当项目 t 被选择为由头部指针指向时，环的平均内存
 
 由于在 RCU 下，更新的是前一项的计数器，头指针就会趋向于指向写入项的前一项，在写密集型的热点时，可以直接定位到热点的前一项，更新时就不需要遍历链表。
 
-![image-20221222152043979](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221222152043979.png)
+![image-20221222152043979](IMG/HotRing.assets/image-20221222152043979.png)
 
 > Figure 5：Updating hot item A with RCU makes item F hot
 >
@@ -157,7 +157,7 @@ W~t~ 测量当项目 t 被选择为由头部指针指向时，环的平均内存
 
 为了实现高访问并发性并确保高吞吐量，我们实现了一套完整的无锁设计，这在之前的工作中得到了严格的介绍。原子 CAS 操作用于确保两个线程不会同时修改同一个Next Item Address。如果多个线程试图更新同一个Next Item Address，则只有一个线程成功，其他线程失败。失败的线程必须重新执行其操作。
 
-![image-20221222152307144](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221222152307144.png)
+![image-20221222152307144](IMG/HotRing.assets/image-20221222152307144.png)
 
 > Figure 6：Different concurrency issues that involve RCU operations.
 
@@ -193,7 +193,7 @@ W~t~ 测量当项目 t 被选择为由头部指针指向时，环的平均内存
 
 随着新数据从插入中到达，环中冲突项的数量继续增加，导致每次访问遍历更多项。在这种情况下，KVS 的性能将严重下降。HotRing 中提出了一种无锁重新散列策略，该策略允许随着数据量的增加而灵活地重新散列。传统的重新散列策略由哈希表的负载因子（即平均链长度）触发。
 
-![image-20221222230106482](IMG/HotRing：A Hotspot-Aware In-Memory Key-Value Store.assets/image-20221222230106482.png)
+![image-20221222230106482](IMG//image-20221222230106482.png)
 
 > Figure 7：The lock-free rehash strategy(The dotted line between (c) and (d) represents a transition period before deletion)
 

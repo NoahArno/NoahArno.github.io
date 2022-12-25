@@ -1,4 +1,4 @@
-# 第一章 @SpringBootApplication
+## 第一章 @SpringBootApplication
 
 首先，为什么我们在使用SpringBoot的时候，只需要**@SpringBootApplication + SpringApplication.run，然后导入各种 spring-boot-starter-xxx**，就能将Spring + SpringMVC + Tomcat + 其他场景给整合进来，然后SpringBoot里面就会有很多的组件了呢？这个注解到底做了什么事情呢？
 
@@ -90,7 +90,7 @@ rotected AutoConfigurationEntry getAutoConfigurationEntry(AnnotationMetadata ann
 
 ![@SpringBootApplication注解解析](IMG/SpringBoot源码分析.assets/@SpringBootApplication注解解析.png)
 
-# 第二章 Tomcat和MVC组件的准备过程
+## 第二章 Tomcat和MVC组件的准备过程
 
 1. SpringBoot.run会创建一个IOC容器：**AnnotationConfigServletWebServerApplicationContext**
 2. IOC容器启动，onRefresh会启动Tomcat

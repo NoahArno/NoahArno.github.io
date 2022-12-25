@@ -1,4 +1,4 @@
-# 前置
+## 前置
 
 导入spring源码需要gradle，但是问题就是gradle导入源码太慢了，因此也可以退而求其次，选择用maven来搭建，只不过用maven的话，无法修改源码，无法在源码上写注释，但是其实问题不大。
 
@@ -130,7 +130,7 @@
 </dependencies>
 ```
 
-# 第一章 核心注解
+## 第一章 核心注解
 
 | **注解**         | **功能**                                                     |
 | :--------------- | ------------------------------------------------------------ |
@@ -165,7 +165,7 @@
 </dependency>
 ```
 
-## 1.1 使用xml文件创建bean
+### 1.1 使用xml文件创建bean
 
 ```java
 <?xml version="1.0" encoding="UTF-8"?>
@@ -187,7 +187,7 @@ public static void main(String[] args) {
 }
 ```
 
-## 1.2 使用注解的方式创建bean
+### 1.2 使用注解的方式创建bean
 
 ```java
 @Configuration
@@ -211,7 +211,7 @@ public static void main(String[] args) {
 }
 ```
 
-## 1.3 @Import注解
+### 1.3 @Import注解
 
 除了使用@Bean来导入bean，还可以在MainConfig类上使用@Import(Person.class)来导入bean，但是这种方式是利用无参构造器来创建bean到容器中的。
 
@@ -250,7 +250,7 @@ class MyImportRegistrar implements ImportBeanDefinitionRegistrar {
 
 可以使用`@Import(MyInportRegistrar.class)`的方式向容器中导入tomcat这个名字的bean
 
-## 1.4 @Lookup注解
+### 1.4 @Lookup注解
 
 如果我们让Person里面组合一个Cat类，然后让Cat的类型为`@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)`，原型模式，这样如果通过注解方式的容器来获取Cat实例，就会得到不一样的Cat实例对象
 
@@ -291,15 +291,15 @@ public class Person {
 }
 ```
 
-# 第二章 Spring整体架构
+## 第二章 Spring整体架构
 
-## 2.1 Spring整体流程
+### 2.1 Spring整体流程
 
 ![image-20211222142442575](IMG/image-20211222142442575.png)
 
 Spring暴露给程序员的，通过XML、注解、网络、磁盘等方式，将功能定义出来，最终生成一个组件或者功能 的配置清单。**比如我们在xml中写的bean配置都会在spring底层中对应一个BeanDefinition**，然后通过ResourceLoader（资源加载器）帮我们把这些Resources加载来，并交给BeanDefinitionReader（Bean定义信息的读取器），然后放在spring中的档案馆里面（也就是BeanDefinitionRegistry），其实就是一个BeanDefinitionMap，保存组件是咋定义的。接着就是将这些BeanDefinition创建成对象（车间流水线的工作）。创建完之后就可以从容器中拿取了。在对象创建过程中，有很多池，所有创建好的实例分类放到池中。
 
-## 2.2 Resource 和 ResourceLoader
+### 2.2 Resource 和 ResourceLoader
 
 在spring中，resource可以有很多种，可以来自于xml、注解，也可以来自于磁盘、网络
 
@@ -314,7 +314,7 @@ public interface Resource {
 }
 ```
 
-## 2.3 BeanFactory
+### 2.3 BeanFactory
 
 The root interface for accessing a Spring bean container。BeanFactory是根接口，整个访问容器的入口。这个接口可以保存很多的BeanDefinition信息，每一个信息都有一个唯一的名字。
 
@@ -335,7 +335,7 @@ AnnotationApplicationContext组合了档案馆，而档案馆有自动装配能�
 private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 ```
 
-## 2.4 BeanDefinition信息的注册流程
+### 2.4 BeanDefinition信息的注册流程
 
 根据前置分析，我们的总档案馆就存放在DefaultListableBeanFactory中的beanDefinitionMap中，就可以通过查看啥时候调用了beanDefinitionMap的put方法，就知道了生成的BeanDefinition是什么时候被存放在总档案馆里面了。
 
@@ -699,7 +699,7 @@ public void registerBeanDefinition(String beanName, BeanDefinition beanDefinitio
 
 最后总结来说，其实就是以XML方式注册BeanDefinition信息的时候，首先得刷新容器，在刷新容器的过程中将档案馆DefaultListableBeanFactory给创建出来，然后遍历所有的配置文件，再遍历所有配置文件中的资源，逐个节点进行解析。最后利用BeanDefinitionParserDelegate将节点解析成相应的BeanDefinition之后，就将该BeanDefinition给注册进总档案管中。
 
-## 2.5 BeanDefinition创建过程
+### 2.5 BeanDefinition创建过程
 
 经过上一节疏通的BeanDefinition信息注册流程，我们已经明白了BeanDefinition是怎么注册的了。本小节我们详细追踪一下BeanDefinition的创建过程。
 
@@ -781,7 +781,7 @@ try {
 }
 ```
 
-## 2.6 xxxAware
+### 2.6 xxxAware
 
 比如我们如果想要在Person类中有一个方法， 那就是能获取到Spring的IOC容器，可以通过@Autowired将IOC容器自动注入进来，也可以使用Aware。
 
@@ -1024,11 +1024,11 @@ private void invokeAwareInterfaces(Object bean) {
 - Bean的功能增强全都是由BeanPostProcessor + InitializingBean 
 - Person为什么能把ApplicationContext、MessageSource当作自己的参数传进来：通过接口的方式自动注入，由BeanPostProcessor + InitializingBean实现。
 
-## 2.7 BeanPostProcessor（后置处理器）
+### 2.7 BeanPostProcessor（后置处理器）
 
 **spring底层通过后置增强机制，增强很多功能**。就比如上述的给Person中注入ApplicationContext，其实是通过实现ApplicationContextAware接口来实现的，而这个接口会使用到ApplicationContextAwareProcessor类，注意的是这个Processer类其实就是实现了BeanPostProcessor接口，也就是后置处理器。
 
-## 2.8 @Autowire将Cat装配的具体流程再次体验BeanPostProcessor的作用
+### 2.8 @Autowire将Cat装配的具体流程再次体验BeanPostProcessor的作用
 
 那么自动装配是怎么完成的呢？
 
@@ -1187,9 +1187,9 @@ InjectedElement，装饰模式，通过分析所有方法或者属性找到标�
 
 上述方法会将找到的标注了@Autowired等注解的属性和方法包装成的InjectedElement，执行该element的inject方法，来到AutowiredAnnotationBeanPostProcessor，然后利用反射进行赋值。`method.invoke(bean, arguments);`这里的arguments其实就是Cat对象。
 
-## 2.9 Spring中各种后置增强器的执行顺序和流程（即Bean的生命周期）
+### 2.9 Spring中各种后置增强器的执行顺序和流程（即Bean的生命周期）
 
-### 0. 调试环境的搭建
+#### 0. 调试环境的搭建
 
 首先值得注意的是，在Spring中有三种增强器：
 
@@ -1392,7 +1392,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
 测试环境已经搭建好，接下来就是一步步调试，查看源码：
 
-### 1. invokeBeanFactoryPostProcessors
+#### 1. invokeBeanFactoryPostProcessors
 
 上述标题的方法其实就是容器刷新十二大步中的一步，在准备好BeanFactory之后，就得去调用这个方法对所有的BeanFactory进行后置增强。**配置类会在这里进行解析**
 
@@ -1621,7 +1621,7 @@ public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) 
 - 处理接口上的默认方法
 - 处理父类（如果有）
 
-### 2. 将所有的BeanPostProcessor给注册进容器
+#### 2. 将所有的BeanPostProcessor给注册进容器
 
 至于怎么去将所有的BeanPostProcessor给注册进容器，主要看容器刷新十二大步中的**registerBeanPostProcessors(beanFactory);**
 
@@ -1663,7 +1663,7 @@ protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFa
 
 ![image-20220417105843086](IMG/Spring源码分析.assets/image-20220417105843086.png)
 
-### 3. predictBeanType的执行时机
+#### 3. predictBeanType的执行时机
 
 当我们看到registerListeners方法的时候，首先肯定想到它是用来注册监听器的，Spring事件监听机制在这里开始初始化，那么它和我们的SmartInstantiationAwareBeanPostProcessor.predictBeanType( )，决定当前初始化的组件类型，有什么关系呢？
 
@@ -1716,7 +1716,7 @@ protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory b
 
 它会有一些前置操作，而其中就有一个，获取beanFactory中所有的**LoadTimeWeaverAware**类型的名字，然后依次进行创建。在这个步骤的执行过程中，同样也会去调用`doGetBeanNamesForType`，然后里面会再次对Cat和Dog进行一个类型检查。
 
-### 4. 其它的后置处理器对bean的生命周期的干预过程
+#### 4. 其它的后置处理器对bean的生命周期的干预过程
 
 在**finishBeanFactoryInitialization**中，执行完上述的一些基本流程之后，它会执行它里面的核心方法：
 
@@ -1820,7 +1820,7 @@ protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable O
 
 注意上图没有MergedBeanDefinitionPostProcessor的postProcessBeforeInitialization和postProcessAfterInitialization流程，因为这两个方法其实是MergedBeanDefinitionPostProcessor实现了BeanPostProcessor接口之后，BeanPostProcessor接口中的两个方法， 它们的执行流程就和BeanPostProcessor的执行流程完全一致。
 
-### 5. 小结
+#### 5. 小结
 
 在Spring中有很多的后置增强器，其中有工厂增强器和bean增强器。在Spring的启动过程中， 在他的工厂创建好了之后，就可以调用工厂增强器对创建好的工厂进行增强。接着Spring会在工厂中提前保存所有的Bean增强器，方便在后续的bean创建过程中直接使用。之后其实就是在bean的创建前后，各种PostProcessor发挥作用。
 
@@ -1828,7 +1828,7 @@ protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable O
 
 ![image-20220417151316059](IMG/Spring源码分析.assets/image-20220417151316059.png)
 
-## 2.10 Bean的初始化流程（GetBean的详细逻辑）
+### 2.10 Bean的初始化流程（GetBean的详细逻辑）
 
 我们以**finishBeanFactoryInitialization刷新步骤中的beanFactory.preInstantiateSingletons()，初始化所有的非懒加载的单实例Bean;**为起点，进行初始化流程分析：
 
@@ -2009,9 +2009,9 @@ protected void addSingleton(String beanName, Object singletonObject) {
 
 ![bean初始化流程](IMG/Spring源码分析.assets/bean初始化流程.jpg)
 
-## 2.11 注解版容器刷新12大步
+### 2.11 注解版容器刷新12大步
 
-### 0. 容器刷新的前置操作
+#### 0. 容器刷新的前置操作
 
 考虑到以后用SpringBoot，都是使用注解用的多，因此本次分析流程主要分析注解版容器的刷新流程。
 
@@ -2062,7 +2062,7 @@ public AnnotationConfigApplicationContext() {
 
 ![image-20220417202219613](IMG/Spring源码分析.assets/image-20220417202219613.png)
 
-### 1. prepareRefresh：准备上下文环境
+#### 1. prepareRefresh：准备上下文环境
 
 它其实并没有做什么，它里面先执行了一个`initPropertySources();`但是这个方法里面其实什么都没有实现，这是模板模式的体现，它会交给其它的子容器自行实现，自行在此处加载一些自己感兴趣的信息。
 
@@ -2070,7 +2070,7 @@ public AnnotationConfigApplicationContext() {
 
 后续就是存储子容器早期运行的一些监听器，比如earlyApplicationListeners，然后还会初始化earlyApplicationEvents。
 
-### 2. obtainFreshBeanFactory()：创建工厂
+#### 2. obtainFreshBeanFactory()：创建工厂
 
 ```java
 protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
@@ -2079,7 +2079,7 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 }
 ```
 
-### 3. prepareBeanFactory(beanFactory)：给工厂里面设置好必要的工具
+#### 3. prepareBeanFactory(beanFactory)：给工厂里面设置好必要的工具
 
 该方法给容器中注册了环境信息作为单实例Bean方便后续自动装配；放了一些后置处理器处理（监听、xxAware功能）
 
@@ -2087,11 +2087,11 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 
 ![image-20220417210033156](IMG/Spring源码分析.assets/image-20220417210033156.png)
 
-### 4. postProcessBeanFactory(beanFactory);
+#### 4. postProcessBeanFactory(beanFactory);
 
 同样也是留给子类的模板方法，允许子类继续对工厂执行一些处理。
 
-### 5. 【大核心】invokeBeanFactoryPostProcessors(beanFactory);
+#### 5. 【大核心】invokeBeanFactoryPostProcessors(beanFactory);
 
 执行所有的BeanFactory后置增强器，利用后置增强器对工厂进行修改或增强，**配置类会在这里进行解析**
 
@@ -2099,7 +2099,7 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 
 ![image-20220417210727525](IMG/Spring源码分析.assets/image-20220417210727525.png)
 
-### 6. 【核心】registerBeanPostProcessors：注册所有的Bean的后置处理器
+#### 6. 【核心】registerBeanPostProcessors：注册所有的Bean的后置处理器
 
 它会将所有的BeanPostProcessor给保存到容器中，上述有章节也讲过，这里再说一句的是：
 
@@ -2109,40 +2109,40 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));
 ```
 
-### 7. initMessageSource()：初始化国际化功能
+#### 7. initMessageSource()：初始化国际化功能
 
 1. 看容器中是否有MessageSource的定义信息
 2. 如果没有就注册一个默认的
 3. 把国际化组件（MessageSource）放到单例池中
 
-### 8. initApplicationEventMulticaster：初始化事件多播功能（事件派发）
+#### 8. initApplicationEventMulticaster：初始化事件多播功能（事件派发）
 
 1. 看容器中是否有applicationEventMulticaster的定义信息，按照id去找
 2. 如果没有就注册一个默认的
 3. 把事件多播器组件（ApplicationEventMulticaster）放到单例池中
 
-### 9. onRefresh（）
+#### 9. onRefresh（）
 
 留给子类继续增强处理逻辑
 
-### 10. registerListeners：注册监听器
+#### 10. registerListeners：注册监听器
 
 1. 获取容器中定义的所有ApplicationListener
 2. 把这些ApplicationListener保存起来
 
-### 11. 【大核心】finishBeanFactoryInitialization：完成工厂初始化
+#### 11. 【大核心】finishBeanFactoryInitialization：完成工厂初始化
 
 参考Bean的初始化流程，所有的BeanPostProcessor开始工作，进行单个组件的功能增强，也会去执行所有后初始化操作。
 
-### 12. finishRefresh：最后的一些清理、事件发送等
+#### 12. finishRefresh：最后的一些清理、事件发送等
 
-### 13. 完整流程图展示
+#### 13. 完整流程图展示
 
 ![image-20220417193438277](IMG/Spring源码分析.assets/image-20220417193438277.png)
 
-# 第三章 循环依赖
+## 第三章 循环依赖
 
-## 3.1 具体流程
+### 3.1 具体流程
 
 首先得知道的是，在Spring中，解决循环依赖问题，需要三级缓存。分别为：
 
@@ -2169,7 +2169,7 @@ private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 ![循环依赖](IMG/Spring源码分析.assets/循环依赖.jpg)
 
-## 3.2 为什么需要二级缓存earlySingletonObjects
+### 3.2 为什么需要二级缓存earlySingletonObjects
 
 > 如果只有一级缓存其实也能解决循环依赖问题
 
@@ -2199,11 +2199,11 @@ addSingleton(beanName, getEarlyBeanReference(beanName, mbd, bean));
 
 也可以看看这一篇博客：[(34条消息) 面试题：Spring 为何需要三级缓存解决循环依赖，而不是二级缓存？_公众号:肉眼品世界的博客-CSDN博客](https://blog.csdn.net/weixin_45727359/article/details/114696668)
 
-# 第四章 AOP源码分析
+## 第四章 AOP源码分析
 
-## 4.0 动态代理原理
+### 4.0 动态代理原理
 
-### JDKProxy
+#### JDKProxy
 
 测试源代码：
 
@@ -2323,7 +2323,7 @@ final class $Proxy0
 
 但其实对于JDK自带的动态代理来说，它其实并没有在运行期间生成这些代码，而是直接通过asm来生成字节码，上述代码是我们将字节码反编译得到的。
 
-## 4.1 配置调试环境
+### 4.1 配置调试环境
 
 ```java
 @EnableAspectJAutoProxy //开启自动代理
@@ -2401,7 +2401,7 @@ public static void main(String[] args) {
 }
 ```
 
-## 4.2 系统中如何添加AOP功能？
+### 4.2 系统中如何添加AOP功能？
 
 我们先点开@EnableAspectJAutoProxy，可以看到它其实导入了一个类：`@Import(AspectJAutoProxyRegistrar.class)`。在容器刷新十二大流程中的工厂增强环境，**ConfigurationClassPostProcessor**会进行工作，它解析所有的配置类，比如这里它开始解析AopOpenConfig，然后发现它上面有一个@Import注解，就会调用loadBeanDefinitionsFromRegistrars方法来处理@Import注解。**最终就会调用Import上的AspectJAutoProxyRegistrar中的registerBeanDefinitions方法**。因为AspectJAutoProxyRegistrar其实是实现了ImportBeanDefinitionRegistrar接口。
 
@@ -2413,7 +2413,7 @@ public static void main(String[] args) {
 
 ![image-20220418133651905](IMG/Spring源码分析.assets/image-20220418133651905.png)
 
-## 4.3 AnnotationAwareAspectJAutoProxyCreator运行流程
+### 4.3 AnnotationAwareAspectJAutoProxyCreator运行流程
 
 首先AnnotationAwareAspectJAutoProxyCreator是一个BeanPostProcessor，它会在容器刷新十二步中的registerBeaenPostProcessor中被创建出来。然后调用**initialBean**方法进行初始化的时候，正好这个后置处理器**实现了BeanClassLoaderAware、BeanFactoryAware接口，就会进行一个Aware执行：**
 
@@ -2554,7 +2554,7 @@ protected List<Advisor> findCandidateAdvisors() {
 3. 将每个通知方法都封装成Advisor即增强器。
 4. 每个增强器都是InstantiationModelAwarePointcutAdvisorImpl。
 
-## 4.4 如何创建需要被增强的方法所属的类？
+### 4.4 如何创建需要被增强的方法所属的类？
 
 在我们本次案例中，针对HelloService类中的sayHello进行了代理增强。那么在Spring的容器中，HelloService是以什么样的形式存在的呢？
 
@@ -2585,7 +2585,7 @@ public Object postProcessAfterInitialization(@Nullable Object bean, String beanN
 
 最终我们的Spring容器中的单例池中就保存了helloService，只不过它所对于的value是一个代理对象。
 
-## 4.5 AOP链式执行流程
+### 4.5 AOP链式执行流程
 
 对于我们创建好的helloService，它保存的是代理对象，于是我们在执行helloService.sayHello("zhangsan");方法的时候，整体流程和平时不太一样。
 
@@ -2601,9 +2601,9 @@ public Object postProcessAfterInitialization(@Nullable Object bean, String beanN
 
 ![AOP链式调用过程](IMG/Spring源码分析.assets/AOP链式调用过程.jpg)
 
-# 第五章 监听器（事件原理）
+## 第五章 监听器（事件原理）
 
-## 5.1 环境准备
+### 5.1 环境准备
 
 监听器使用：
 
@@ -2722,7 +2722,7 @@ public static void main(String[] args) {
 }
 ```
 
-## 5.2 源码分析
+### 5.2 源码分析
 
 首先IOC容器在this()阶段， 其实往容器的beanDefinitionMap中添加了一些原生的定义信息，这里面就包含了两个事件有关的后置处理器：**EventListenerMethodProcessor和DefaultEventListenerFactory**
 
@@ -2749,9 +2749,9 @@ public static void main(String[] args) {
 
 ![image-20220418213441154](IMG/Spring源码分析.assets/image-20220418213441154.png)
 
-# 第六章 事务
+## 第六章 事务
 
-## 6.1 环境准备
+### 6.1 环境准备
 
 引入依赖：
 
@@ -2776,7 +2776,7 @@ spring.datasource.url=jdbc:mysql://192.168.235.123:3306/enjoy_applet?serverTimez
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 ```
 
-## 6.2 EnableTransactionManagement
+### 6.2 EnableTransactionManagement
 
 使用该注解，就相当于引入了spring事务相关的功能，它内部其实是通过Import注解引入了**TransactionManagementConfigurationSelector**
 
