@@ -28,7 +28,7 @@ TinyLFU 采用了 Count-Min Sketch 算法来统计数据的访问频率。在该
 
 接下来为了解决第一个问题：难以应对突发的稀疏流量。Window-TinyLFU 的策略中，采用了两个 LRU。其中前端的小 LRU 叫做 Window LRU，它的容量只占用百分之一，它的目的就是用来存放短期的突发访问数据。而用于存放主要元素的 LRU 被称为 Cache LRU，它占内存的百分之九十九。其中它分为两个区域：Protected 和 Probation。其中 Protected 区域（我们将其称为 A1 段）占 Cache LRU 的 80%，而另一个区域 A2 段占 Cache LRU 的 20%。
 
-![img](IMG/TinyLFU：A Highly Efficient Cache Admission Policy.assets/image-84.png)
+![img](IMG/TinyLFU.assets/image-84.png)
 
 具体上，对于所有的数据都会存入 Window LRU，当 Window 缓存满了，记录淘汰的数据 data1，然后判断 SLRU 中有没有满，如果 SLRU 没有满，将 data1 给插入 SLRU 中的 A2 段。如果满了，就从 A1 中淘汰掉一个数据 data2。此时就需要通过 cmSketch 来判断两者的价值，输的一方将被彻底淘汰，赢的一方则插入到 A2 中。
 

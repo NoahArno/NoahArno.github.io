@@ -2,5 +2,5 @@
   - [MySQL高级](./数据库/MySQL高级.md)
 - Redis
   - [深入理解Redis](./数据库/Redis/深入理解Redis.md)
-- [HotRing：A Hotspot-Aware In-Memory Key-Value Store](./论文解读/HotRing：A%20Hotspot-Aware%20In-Memory%20Key-Value%20Store.md)
-- [TinyLFU：A Highly Efficient Cache Admission Policy](论文解读/TinyLFU：A%20Highly%20Efficient%20Cache%20Admission%20Policy.md)
+- [HotRing：A Hotspot-Aware In-Memory Key-Value Store](./数据库/HotRing：A%20Hotspot-Aware%20In-Memory%20Key-Value%20Store.md)
+- [TinyLFU：A Highly Efficient Cache Admission Policy](./数据库/TinyLFU：A%20Highly%20Efficient%20Cache%20Admission%20Policy.md)

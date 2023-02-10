@@ -15,7 +15,7 @@
 > 1. FASTER：A Concurrent Key-Value Store with In-Place Updates
 > 2. MICA：A Holistic Approach to Fast In-Memory Key-Value Storage
 
-![image-20221221194304667](IMG//image-20221221194304667.png)
+![image-20221221194304667](IMG/HotRing.assets/image-20221221194304667.png)
 
 > Figure 1：无热点感知的哈希结构
 
@@ -58,7 +58,6 @@ $$
 \begin{cases} \quad\space order_{i-1} < order_k < order_i \quad①\\
 or \space order_k < order_i < order_{i - 1} \quad ②\\
 or \space order_i < order_{i -1} < order_k \quad ③
-	
 \end{cases}
 $$
 
@@ -193,7 +192,7 @@ W~t~ 测量当项目 t 被选择为由头部指针指向时，环的平均内存
 
 随着新数据从插入中到达，环中冲突项的数量继续增加，导致每次访问遍历更多项。在这种情况下，KVS 的性能将严重下降。HotRing 中提出了一种无锁重新散列策略，该策略允许随着数据量的增加而灵活地重新散列。传统的重新散列策略由哈希表的负载因子（即平均链长度）触发。
 
-![image-20221222230106482](IMG//image-20221222230106482.png)
+![image-20221222230106482](IMG/HotRing.assets/image-20221222230106482.png)
 
 > Figure 7：The lock-free rehash strategy(The dotted line between (c) and (d) represents a transition period before deletion)
 
