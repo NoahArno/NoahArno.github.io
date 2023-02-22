@@ -135,10 +135,102 @@ boolean tryAcquire() {
 
 ## 第二章 初识 Sentinel
 
+### 2.1 基本的认识和使用
 
+Sentinel 是面向分布式、多语言异构化服务架构的流量治理组件，主要以流量为切入点，从流量路由、流量控制、流量整形、熔断降级、系统自适应过载保护、热点流量防护等多个维度来帮助开发者保障微服务的稳定性。
 
-## 引用
+在 Sentinel 中，资源是它的关键概念，只要通过 Sentinel 的 API 定义的代码，都可以被称作资源，能够被 Sentinel 给保护起来。
+
+如果只是想简单使用 Sentinel 的核心功能，而不需要和其他的框架，例如 SpringBoot 进行整合，就可以引入 sentinel-core 依赖，然后使用 Sentinel 提供的 API 对想要进行流控的代码进行保护，使其被定义为资源。
+
+在使用方面，一般主要分为如下三个步骤：
+
+1. 定义资源
+2. 定义规则
+3. 检验规则是否生效
+
+```java
+ContextUtil.enter("contextName", "origin");
+Entry entry = null;
+try {
+    entry = SphU.entry("resourceName");
+    // 业务代码
+} catch (BlockException e) {
+    // 进行限流的相关处理
+} catch (Throwable ex) {
+    // 进行其他的一些异常处理
+} finally {
+    if (entry != null) {
+        entry.exit(1);
+    }
+}
+```
+
+当然，在使用上述代码之前，可以使用纯 API 代码进行流控规则的设置。
+
+然而在大部分的使用场景中，都会将其与 SpringBoot 进行适配，只使用一个注解就能完成上述的功能，降低侵入性，在 Sentinel 中，使用的就是 @SentinelResource 注解，具体的注解原理在以后的章节进行详细介绍。
+
+同时，可以使用官方给定的 dashboard 控制台进行可视化的资源设定，可以随时更改和实时监控，在使用的复杂度方面也大大降低。然而，官方给定的 dashboard 控制台将所有的配置都存放在内存中，这在实际生产环境中肯定是不科学的，因此还需要规则配置的持久化。在实际中，一般都需要根据 Sentinel 和它提供的控制台进行二次开发。
+
+可以通过实现 `DataSource` 接口的方式，来自定义规则的存储数据源。
+
+1. 下载控制台相关 jar 包。
+
+2. 在客户端引入相应的依赖
+
+   ```xml
+   <dependency>
+       <groupId>com.alibaba.csp</groupId>
+       <artifactId>sentinel-transport-simple-http</artifactId>
+       <version>1.8.6</version>
+   </dependency>
+   ```
+
+3. 启动的时候添加 JVM 参数指定控制台地址和端口。
+
+   ```properties
+   -Dcsp.sentinel.dashboard.server=consoleIp:port
+   ```
+
+4. 确保客户端有访问量，只有第一次访问的时候两者之间才会建立链接。
+
+### 2.2 Sentinel 的基本流程
+
+在 Sentinel 中，最重要的可能就属 ProcessorSlotChain 了，它是 Sentinel 的核心骨架，使用责任链模式将不同的 Slot 按照指定的顺序串在一起，从而将不同的功能，比如限流、降级、系统保护等等，组合在一起。从总体上来说，slot chain 可以分为两部分：统计数据构建部分，以及规则判断部分，如下图所示：
+
+![sentinel-slot-chain](IMG/Sentinel分析01：什么是Sentinel限流.assets/sentinel-slot-chain-architecture.png)
+
+当然，上述图中的规则判断部分的顺序可能和代码中的不太一样，具体的顺序需要按照实际源码进行分析和判断。同时，Sentinel 还提供了相应的 SPI 机制保留了对该规则判断部分的自定义扩展。
+
+Sentinel 将 `ProcessorSlot` 作为 SPI 接口进行扩展（1.7.2 版本以前 `SlotChainBuilder` 作为 SPI），使得 Slot Chain 具备了扩展的能力。您可以自行加入自定义的 slot 并编排 slot 间的顺序，从而可以给 Sentinel 添加自定义的功能。
+
+```java
+public static final int ORDER_NODE_SELECTOR_SLOT = -10000;
+public static final int ORDER_CLUSTER_BUILDER_SLOT = -9000;
+public static final int ORDER_LOG_SLOT = -8000;
+public static final int ORDER_STATISTIC_SLOT = -7000;
+public static final int ORDER_AUTHORITY_SLOT = -6000;
+public static final int ORDER_SYSTEM_SLOT = -5000;
+public static final int ORDER_FLOW_SLOT = -2000;
+public static final int ORDER_DEGRADE_SLOT = -1000;
+```
+
+在接下来的章节中，笔者将会分析 Sentinel 客户端如何和 Dashboard 进行交互，并且按照 Sentinel 的基本流程进行逐个分析。
+
+## 第三章 如何在生产中使用Sentinel？
+
+Sentinel 毕竟是开源版本的，它的有些特殊的功能肯定无法给放出来开源，然而，Sentinel 本身是一个非常优秀的组件，而想要使用好 Sentinel，就需要对其进行二次开发和扩展， 使其符合我们的业务需求。
+
+但是，笔者作为一个学生，是断断没有资格和眼界去扩展 Sentinel 的，因为我也不知道在实际的企业中，究竟会遇到什么样的困难，但是，这里有一篇博客说的很不错，对当前 Sentinel 的缺点进行了指出，并结合实际环境提出了一些改进意见。
+
+[阿里巴巴开源限流降级神器Sentinel大规模生产级应用实践 (qq.com)](https://mp.weixin.qq.com/s/AjHCUmygTr78yo9yMxMEyg)
+
+获取以后工作之后，有时间会尝试着二次开发 Sentinel 吧。
+
+## 参考文献
 
 [阿里云二面：你对限流了解多少？](https://mp.weixin.qq.com/s?__biz=MzkxNTE3NjQ3MA==&mid=2247488795&idx=1&sn=7cc3377f2b6a3acf46c097cfb4213f1f&scene=21#wechat_redirect)
 
 [面试必备：4种经典限流算法讲解](https://z.itpub.net/article/detail/B049B6F216829EDD0827E97BC1AA9100)
+
+[introduction | Sentinel (sentinelguard.io)](https://sentinelguard.io/zh-cn/docs/introduction.html)
