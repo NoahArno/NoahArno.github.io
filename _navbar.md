@@ -4,8 +4,4 @@
 - 中间件
   - [Dubbo](./中间件/Dubbo/Dubbo一套解决.md)
   - [RabbitMQ](./中间件/RabbitMQ/RabbitMQ.md)
-- 面试题
-  - [面试话术](./面试话术/面试话术.md)
-  - [系统设计](./面试话术/系统设计.md)
-  - [hr面总结](./面试话术/hr面总结.md)
-  - [分布式理论基础](./DistributedSystem/DistributedTheoreticalBasis.md)
+- [面试相关](./面试话术/面试话术.md)

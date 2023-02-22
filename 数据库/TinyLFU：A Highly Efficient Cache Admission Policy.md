@@ -82,3 +82,4 @@ Redis 实现的 LRU 是一种近似的 LRU 算法，它在进行淘汰的时候�
 [Redis 过期删除策略和内存淘汰策略有什么区别？ | 小林coding (xiaolincoding.com)](https://xiaolincoding.com/redis/module/strategy.html#过期删除策略)
 
 [揭开 Buffer Pool 的面纱 | 小林coding (xiaolincoding.com)](https://xiaolincoding.com/mysql/buffer_pool/buffer_pool.html#如何提高缓存命中率)
+
