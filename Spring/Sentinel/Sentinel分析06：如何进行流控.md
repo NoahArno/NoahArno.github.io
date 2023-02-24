@@ -210,9 +210,126 @@ public boolean canPass(Node node, int acquireCount, boolean prioritized) {
 
 ### 3.2 WarmUpController
 
+该流控模式采用的是令牌桶算法，并且借鉴了 Google Guava 中的 RateLimiter。不过由于我水平有限，并且没有了解过 Guava 和它的预热模型，下面的源码分析其实我也看不太懂，但是参考文献中的几篇博客讲的都还不错，读者可以自行去扩展。
 
+```java
+public class WarmUpController implements TrafficShapingController {
+    // 【100】
+    protected double count;
+    // 3
+    private int coldFactor;
+    // 转折点的令牌数【500】
+    protected int warningToken = 0;
+    // 最大的令牌数【1000】
+    private int maxToken;
+    // 斜线斜率【1 / 25000】
+    protected double slope;
 
+    // 令牌桶中剩余的令牌数
+    protected AtomicLong storedTokens = new AtomicLong(0);
+    // 最后更新令牌的时间
+    protected AtomicLong lastFilledTime = new AtomicLong(0);
 
+    public WarmUpController(double count, int warmUpPeriodInSec, int coldFactor) {
+        construct(count, warmUpPeriodInSec, coldFactor);
+    }
+
+    private void construct(double count, int warmUpPeriodInSec, int coldFactor) {
+
+        if (coldFactor <= 1) {
+            throw new IllegalArgumentException("Cold factor should be larger than 1");
+        }
+        // 假设我们的 QPS 设置为 100，预热时间为 10s
+        this.count = count;
+        // 默认为 3
+        this.coldFactor = coldFactor;
+        // 10 * 100 / 2 = 500
+        warningToken = (int)(warmUpPeriodInSec * count) / (coldFactor - 1);
+        // maxToken = 500 + （2 * 10 * 100 / 4） = 1000
+        maxToken = warningToken + (int)(2 * warmUpPeriodInSec * count / (1.0 + coldFactor));
+
+        // slope = 2 / 100 / 500 = 1 / 25000
+        slope = (coldFactor - 1.0) / count / (maxToken - warningToken);
+
+    }
+
+    public boolean canPass(Node node, int acquireCount) {
+        return canPass(node, acquireCount, false);
+    }
+
+    public boolean canPass(Node node, int acquireCount, boolean prioritized) {
+        // 获取当前时间窗口的 QPS
+        long passQps = (long) node.passQps();
+        // 获取上一个窗口的 QPS，跨度为 1s
+        long previousQps = (long) node.previousPassQps();
+        // 去设置 storedTokens 和 lastFilledTime 到正确的值
+        syncToken(previousQps);
+
+        // 开始计算它的斜率
+        // 如果进入了警戒线，开始调整他的qps
+        long restToken = storedTokens.get();
+        if (restToken >= warningToken) {
+            // 当前令牌数超过了 warningToken，说明当期系统需要进行预热，或者说预热未结束，当前系统的流量较小
+            long aboveToken = restToken - warningToken;
+            // current interval = restToken*slope+1/count
+            // 计算出此时一秒内能够生成的 token 的数量
+            // 然后就需要比较令牌的生成速率 和 令牌的消耗速率
+            double warningQps = Math.nextUp(1.0 / (aboveToken * slope + 1.0 / count));
+            if (passQps + acquireCount <= warningQps) {
+                // 如果 token 的消费速度大于生成速度，就进行限流
+                return true;
+            }
+        } else {
+            // 当前令牌桶中剩余令牌数较小，说明预热结束，此时只需要判断是否超过设置的阈值就行
+            if (passQps + acquireCount <= count) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void syncToken(long passQps) {
+        long currentTime = TimeUtil.currentTimeMillis();
+        currentTime = currentTime - currentTime % 1000;
+        long oldLastFillTime = lastFilledTime.get();
+        if (currentTime <= oldLastFillTime) {
+            // 如果两个时间相等，说明还处于同一秒内，不进行令牌的计算，避免重复
+            return;
+        }
+
+        long oldValue = storedTokens.get();
+        long newValue = coolDownTokens(currentTime, passQps);
+        // 使用 CAS 重置令牌的数量
+        if (storedTokens.compareAndSet(oldValue, newValue)) {
+            // 减去上一个时间窗口的通过请求数
+            long currentValue = storedTokens.addAndGet(0 - passQps);
+            if (currentValue < 0) {
+                storedTokens.set(0L);
+            }// 更新 lastFilledTime
+            lastFilledTime.set(currentTime);
+        }
+    }
+
+    private long coolDownTokens(long currentTime, long passQps) {
+        long oldValue = storedTokens.get();
+        long newValue = oldValue;
+
+        // 添加令牌的判断前提条件:
+        // 当令牌的消耗程度远远低于警戒线的时候
+        if (oldValue < warningToken) {
+            // 此时说明当前没有处于预热阶段
+            newValue = (long)(oldValue + (currentTime - lastFilledTime.get()) * count / 1000);
+        } else if (oldValue > warningToken) {
+            // 处于预热阶段，如果消费速度小于冷却速度，就添加令牌
+            if (passQps < (int)count / coldFactor) {
+                newValue = (long)(oldValue + (currentTime - lastFilledTime.get()) * count / 1000);
+            }
+        }
+        return Math.min(newValue, maxToken);
+    }
+
+}
+```
 
 ### 3.3 RateLimiterController
 
@@ -287,3 +404,5 @@ public class RateLimiterController implements TrafficShapingController {
 [3. Sentinel源码分析— QPS流量控制是如何实现的？ - luozhiyun`s Blog](https://www.luozhiyun.com/archives/79)
 
 [RateLimiter 源码分析(Guava 和 Sentinel 实现)_Javadoop](https://www.javadoop.com/post/rate-limiter)
+
+[Sentinel中冷启动限流原理WarmUpController_@Kong的博客-CSDN博客_sentinel warm up](https://blog.csdn.net/qq_33811736/article/details/119453868)
