@@ -9,4 +9,5 @@
   - [Sentinel分析03：Sentinel客户端如何和控制台进行交互](./Spring/Sentinel/Sentinel分析03：Sentinel客户端如何和控制台进行交互.md)
   - [Sentinel分析04：总览Sentinel的核心流程](./Spring/Sentinel/Sentinel分析04：总览Sentinel的核心流程.md)
   - [Sentinel分析05：滑动窗口算法在Sentinel中的应用](./Spring/Sentinel/Sentinel分析05：滑动窗口算法在Sentinel中的应用.md)
+  - [Sentinel分析06：如何进行流控](./Spring/Sentinel/Sentinel分析06：如何进行流控.md)
 
