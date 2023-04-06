@@ -1,5 +1,0 @@
-- Redis
-  - [深入理解Redis](./数据库/Redis/深入理解Redis.md)
-  - [什么是BigKey和HotKey](./数据库/Redis/什么是BigKey和HotKey.md)
-- [HotRing：A Hotspot-Aware In-Memory Key-Value Store](./数据库/HotRing：A%20Hotspot-Aware%20In-Memory%20Key-Value%20Store.md)
-- [TinyLFU：A Highly Efficient Cache Admission Policy](./数据库/TinyLFU：A%20Highly%20Efficient%20Cache%20Admission%20Policy.md)
