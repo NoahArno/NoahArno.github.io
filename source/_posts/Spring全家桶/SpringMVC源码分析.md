@@ -168,7 +168,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 
 **可是我们并没有看到IOC容器的刷新步骤啊？**这就得说一说DispatcherServet的组成了：
 
-![image-20220423205416098](D:\JAVA\note\设计模式及源码分析\IMG\SpringMVC源码分析.assets\image-20220423205416098.png)
+![image-20220423205416098.png](SpringMVC源码分析/image-20220423205416098.png)
 
 **重点可以看到，DispatcherServlet其实是一个Servelt**
 
