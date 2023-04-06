@@ -1,0 +1,809 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../img/fluid.png">
+  <link rel="icon" href="../../img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="NoahArno">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Sentinel客户端如何和控制台进行交互为了简化使用的操作过程，Sentinel 提供了开源版本的 Dashboard 供我们基本使用和二次开发，如果想要在我们的系统中接入 Dashboard，我们需要下载相应的 jar 包，并且在我们的项目中添加相关依赖，然后添加一些参数来进行启动。 12345&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sentinel源码分析03：Sentinel客户端如何和控制台进行交互">
+<meta property="og:url" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/index.html">
+<meta property="og:site_name" content="NoahArno">
+<meta property="og:description" content="Sentinel客户端如何和控制台进行交互为了简化使用的操作过程，Sentinel 提供了开源版本的 Dashboard 供我们基本使用和二次开发，如果想要在我们的系统中接入 Dashboard，我们需要下载相应的 jar 包，并且在我们的项目中添加相关依赖，然后添加一些参数来进行启动。 12345&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.c">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/image-20230222155819931.png">
+<meta property="article:published_time" content="2023-04-06T15:39:30.000Z">
+<meta property="article:modified_time" content="2023-04-06T17:09:04.938Z">
+<meta property="article:author" content="NoahArno">
+<meta property="article:tag" content="Sentinel">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/image-20230222155819931.png">
+  
+  
+  
+  <title>Sentinel源码分析03：Sentinel客户端如何和控制台进行交互 - NoahArno</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="../../css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="../../css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="../../css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"noaharno.top","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="../../js/utils.js" ></script>
+  <script  src="../../js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="../../index.html">
+      <strong>NoahArno</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../index.html">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('../../img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">Sentinel源码分析03：Sentinel客户端如何和控制台进行交互</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-06 23:39" pubdate>
+          2023年4月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          121 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Sentinel"
+        id="heading-7b71dfec5c8dd524069eed634dc0a3a5" role="tab" data-toggle="collapse" href="#collapse-7b71dfec5c8dd524069eed634dc0a3a5"
+        aria-expanded="true"
+      >
+        Sentinel
+        <span class="list-group-count">(6)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-7b71dfec5c8dd524069eed634dc0a3a5"
+           role="tabpanel" aria-labelledby="heading-7b71dfec5c8dd524069eed634dc0a3a5">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9001%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AFSentinel%E9%99%90%E6%B5%81/" title="Sentinel源码分析01：什么是Sentinel限流"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析01：什么是Sentinel限流</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9002%EF%BC%9A@SentinelResource%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" title="Sentinel源码分析02：@SentinelResource注解的基本原理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析02：@SentinelResource注解的基本原理</span>
+        </a>
+      
+    
+      
+      
+        <a href="" title="Sentinel源码分析03：Sentinel客户端如何和控制台进行交互"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">Sentinel源码分析03：Sentinel客户端如何和控制台进行交互</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9004%EF%BC%9A%E6%80%BB%E8%A7%88Sentinel%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B/" title="Sentinel源码分析04：总览Sentinel的核心流程"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析04：总览Sentinel的核心流程</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9005%EF%BC%9A%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95%E5%9C%A8Sentinel%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" title="Sentinel源码分析05：滑动窗口算法在Sentinel中的应用"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析05：滑动窗口算法在Sentinel中的应用</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/" title="Sentinel源码分析06：如何进行流控"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析06：如何进行流控</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Sentinel源码分析03：Sentinel客户端如何和控制台进行交互</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Sentinel客户端如何和控制台进行交互"><a href="#Sentinel客户端如何和控制台进行交互" class="headerlink" title="Sentinel客户端如何和控制台进行交互"></a>Sentinel客户端如何和控制台进行交互</h2><p>为了简化使用的操作过程，Sentinel 提供了开源版本的 Dashboard 供我们基本使用和二次开发，如果想要在我们的系统中接入 Dashboard，我们需要下载相应的 jar 包，并且在我们的项目中添加相关依赖，然后添加一些参数来进行启动。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.csp<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>sentinel-transport-simple-http<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.8.6<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>在我们第一章中，或者说到现在为止的分析中，都还未接触到 Sentinel 的核心流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">entry = SphU.entry(resourceName, resourceType, entryType, pjp.getArgs());<br></code></pre></td></tr></table></figure>
+
+<p>点进去看，可以发现它使用的其实是 Env 中的 sph 进行相应的处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">return</span> Env.sph.entryWithType(name, resourceType, trafficType, <span class="hljs-number">1</span>, args);<br></code></pre></td></tr></table></figure>
+
+<p>我们来看看 Env 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Env</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Sph</span> <span class="hljs-variable">sph</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CtSph</span>();<br><br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-comment">// If init fails, the process will exit. 初始化工作</span><br>        <span class="hljs-comment">// 值得注意的是，在项目启动的时候，似乎该类并没有被加载，</span><br>        <span class="hljs-comment">// 因为打断点的时候，项目都启动完成了，该静态代码段一直没有执行</span><br>        <span class="hljs-comment">// 直到 sentinel 第一次请求的时候，该 Env 类才真正的被加载进来。</span><br>        InitExecutor.doInit();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，在静态代码块中，执行了 <code>InitExecutor.doInit</code> 方法，当我们的 Sentinel 客户端第一次执行请求的时候，该静态代码块被执行，然后这才是我们和控制台进行交互的开始。</p>
+<h2 id="第一章-从InitExecutor开始"><a href="#第一章-从InitExecutor开始" class="headerlink" title="第一章 从InitExecutor开始"></a>第一章 从InitExecutor开始</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * If one &#123;<span class="hljs-doctag">@link</span> InitFunc&#125; throws an exception, the init process</span><br><span class="hljs-comment"> * will immediately be interrupted and the application will exit.</span><br><span class="hljs-comment"> * 无论是 控制台，还是 sentinel 本身，都会调用这个方法</span><br><span class="hljs-comment"> * 对于 sentinel 来说，是在 Env 中自动初始化</span><br><span class="hljs-comment"> * 而对于控制台来说，则是在 DashboardApplication 中的 main 方法中主动调用</span><br><span class="hljs-comment"> * The initialization will be executed only once.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doInit</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">if</span> (!initialized.compareAndSet(<span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>)) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 使用 SPI 机制加载 InitFunc 的实现类</span><br>        <span class="hljs-comment">// 在包 sentinel-transport 下的 sentinel-transport-common 中，可以看到导入了</span><br>        <span class="hljs-comment">//      com.alibaba.csp.sentinel.transport.init.CommandCenterInitFunc</span><br>        <span class="hljs-comment">//      com.alibaba.csp.sentinel.transport.init.HeartbeatSenderInitFunc</span><br>        <span class="hljs-comment">// 这两个类，前者用来给 dashboard 提供接口去调用；</span><br>        <span class="hljs-comment">// 后者用来给 dashboard 发送心跳，将自己的 ip、port、sentinel 版本等信息告知 dashboard。</span><br>        <span class="hljs-comment">//      对于 dashboard 来说，有了这些信息，就可以对应用进行规则设置、到应用拉取数据用于页面展示等</span><br>        <span class="hljs-comment">// 除此之外，还通过 sentinel-core 中添加了 com.alibaba.csp.sentinel.metric.extension.MetricCallbackInit</span><br>        List&lt;InitFunc&gt; initFuncs = SpiLoader.of(InitFunc.class).loadInstanceListSorted();<br>        List&lt;OrderWrapper&gt; initList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;OrderWrapper&gt;();<br>        <span class="hljs-comment">// 以从小到达的顺序将加载的 InitFunc 包装成 OrderWrapper 并按 @InitOrder 从小到大的顺序进行排列</span><br>        <span class="hljs-keyword">for</span> (InitFunc initFunc : initFuncs) &#123;<br>            RecordLog.info(<span class="hljs-string">&quot;[InitExecutor] Found init func: &#123;&#125;&quot;</span>, initFunc.getClass().getCanonicalName());<br>            insertSorted(initList, initFunc);<br>        &#125;<br>        <span class="hljs-keyword">for</span> (OrderWrapper w : initList) &#123;<br>            w.func.init(); <span class="hljs-comment">// 调用 InitFunc 的初始化方法</span><br>            RecordLog.info(<span class="hljs-string">&quot;[InitExecutor] Executing &#123;&#125; with order &#123;&#125;&quot;</span>,<br>                           w.func.getClass().getCanonicalName(), w.order);<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123;<br>        RecordLog.warn(<span class="hljs-string">&quot;[InitExecutor] WARN: Initialization failed&quot;</span>, ex);<br>        ex.printStackTrace();<br>    &#125; <span class="hljs-keyword">catch</span> (Error error) &#123;<br>        RecordLog.warn(<span class="hljs-string">&quot;[InitExecutor] ERROR: Initialization failed with fatal error&quot;</span>, error);<br>        error.printStackTrace();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>值得注意的是，在我们的 Sentinel 客户端中，会通过 Env 中的静态代码块来执行 <code>InitExecutor</code> 的 <code>doInit</code> 方法；然而，在 Sentinel Dashboard 中，同样也会执行该 doInit 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DashboardApplication</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        triggerSentinelInit();<br>        SpringApplication.run(DashboardApplication.class, args);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">triggerSentinelInit</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; InitExecutor.doInit()).start();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当然，笔者现在暂时没搞明白为什么 DashBoard 也会调用该方法，不过这并不影响我们对两者之间如何交互进行分析，让我们将眼光重新放回 doInit 中：</p>
+<ol>
+<li>使用 SPI 机制加载 InitFunc 的实现类，并且按照以小到大的顺序将 InitFunc 的实现类包装成 OrderWrapper。</li>
+<li>挨个调用它们的 InitFunc 的初始化方法 init。</li>
+</ol>
+<p>在这一步中，其实一共加载了三个 InitFunc 实现类：<strong>CommandCenterInitFunc、HeartbeatSenderInitFunc 和 MetricCallbackInit</strong></p>
+<ul>
+<li><code>CommandCenterInitFunc</code>：内部嵌入服务器，提供给 Dashboard去使用。Dashboard会发送相关的请求，然后给服务器接受，并进行相关处理。</li>
+<li><code>HeartbeatSenterInitFunc</code>：给 Dashboard 发送心跳，并且将自己的 ip、port、sentinel 版本等信息告知 dashboard，<strong>对于 dashboard 来说，有了这些信息，就可以对应用进行规则设置，到应用拉去数据用于页面展示等等</strong>。</li>
+<li><code>MetricCallbackInit</code>：内部添加了两个回调方法，留到后续章节进行分析。</li>
+</ul>
+<h2 id="第二章-分析CommandCenterInitFunc"><a href="#第二章-分析CommandCenterInitFunc" class="headerlink" title="第二章 分析CommandCenterInitFunc"></a>第二章 分析CommandCenterInitFunc</h2><p>注意，在我们本次的分析中，采用的是 HTTP 进行通信，因此我们引入的包是 <code>sentinel-transport-simple-http</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@InitOrder(-1)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CommandCenterInitFunc</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">InitFunc</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">// 本次源码分析中，导入的包是 sentinel-transport-simple-http，因此该 CommandCenter 是</span><br>        <span class="hljs-comment">// SimpleHttpCommandCenter</span><br>        <span class="hljs-type">CommandCenter</span> <span class="hljs-variable">commandCenter</span> <span class="hljs-operator">=</span> CommandCenterProvider.getCommandCenter();<br><br>        <span class="hljs-keyword">if</span> (commandCenter == <span class="hljs-literal">null</span>) &#123;<br>            RecordLog.warn(<span class="hljs-string">&quot;[CommandCenterInitFunc] Cannot resolve CommandCenter&quot;</span>);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        <span class="hljs-comment">// 初始化工作：加载 CommandHandler 的相关实现类</span><br>        <span class="hljs-comment">// CommandHandler 的实现类用来和控制台进行交互，负责处理。</span><br>        commandCenter.beforeStart();<br>        commandCenter.start();<br>        RecordLog.info(<span class="hljs-string">&quot;[CommandCenterInit] Starting command center: &quot;</span><br>                       + commandCenter.getClass().getCanonicalName());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>CommandCenterProvider</code> 类中，会执行静态代码块，而在该静态代码块中，会使用 SPI 加载 <code>CommandCenter</code> 的相关实现类，不过如果系统中存在多个该类的实现类，只会取优先级最高的那个。而在本次分析中，使用的就是 <strong>SimpleHttpCommandCenter</strong>。</p>
+<p>有了 <code>CommandCenter</code> 之后，就可以执行它的 beforeStart 方法和 start 方法。</p>
+<h3 id="2-1-commandCenter-beforeStart-方法"><a href="#2-1-commandCenter-beforeStart-方法" class="headerlink" title="2.1 commandCenter.beforeStart 方法"></a>2.1 commandCenter.beforeStart 方法</h3><p>顾名思义，该方法的作用就是在 <code>commandCenter</code> 真正开始工作之前做一些准备工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">beforeStart</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-comment">// Register handlers</span><br>    <span class="hljs-comment">// 通过 spi 机制将 CommandHandler 实现类加载进来</span><br>    Map&lt;String, CommandHandler&gt; handlers = CommandHandlerProvider.getInstance().namedHandlers();<br>    <span class="hljs-comment">// 将 handlers 设置进 handlerMap 中</span><br>    registerCommands(handlers);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从总体上来说，在该方法中，会通过 SPI 机制将 CommandHandler 的实现类加载进来，不过也会通过 SPI 加载的 CommandHandlerInterceptor 去查看是否存在特殊的 CommandHandler 应该被拦截，然后将特殊的 Handler 封装成 InterceptingCommandHandler，并将其加入到 handlerMap 中（非特殊的 handler 也会被加入到该 map 中）。之后在执行 CommandHandler 的 handler 方法的时候，自然回去根据拦截器去处理特殊的逻辑。</p>
+<p>在上面的代码中，<code>CommandHandlerProvider.getInstance()</code> 其实使用的就是单例模式，而它的 namedHandler 方法就是通过 SPI 机制去寻找我们配置好了的 CommandHandler。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CommandHandlerProvider</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Iterable</span>&lt;CommandHandler&gt; &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> SpiLoader&lt;CommandHandler&gt; spiLoader = SpiLoader.of(CommandHandler.class);<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Get all command handlers annotated with &#123;<span class="hljs-doctag">@link</span> CommandMapping&#125; with command name.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> list of all named command handlers</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> Map&lt;String, CommandHandler&gt; <span class="hljs-title function_">namedHandlers</span><span class="hljs-params">()</span> &#123;<br>        Map&lt;String, CommandHandler&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;String, CommandHandler&gt;();<br>        List&lt;CommandHandler&gt; handlers = spiLoader.loadInstanceList();<br>        <span class="hljs-comment">// 用来拦截一些 特殊的 CommandHandler，Sentinel 默认没有实现，不过用户可以根据 SPI 机制自行扩展来自定义</span><br>        List&lt;CommandHandlerInterceptor&gt; commandHandlerInterceptors = SpiLoader.of(CommandHandlerInterceptor.class).loadInstanceListSorted();<br>        <span class="hljs-keyword">for</span> (CommandHandler handler : handlers) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> parseCommandName(handler);<br>            <span class="hljs-keyword">if</span> (StringUtil.isEmpty(name)) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (!commandHandlerInterceptors.isEmpty()) &#123;<br>                List&lt;CommandHandlerInterceptor&gt; interceptors = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>                <span class="hljs-keyword">for</span> (CommandHandlerInterceptor commandHandlerInterceptor : commandHandlerInterceptors) &#123;<br>                    <span class="hljs-comment">// 判断当前 handler 是否应该被拦截</span><br>                    <span class="hljs-keyword">if</span> (commandHandlerInterceptor.shouldIntercept(name)) &#123;<br>                        interceptors.add(commandHandlerInterceptor);<br>                    &#125;<br>                &#125;<br>                <span class="hljs-comment">// 如果该 CommandHandler 被拦截了，就将其包装成 InterceptingCommandHandler，</span><br>                <span class="hljs-comment">// 之后在执行 CommandHandler 的 handler 逻辑的时候，会进行特殊的处理</span><br>                <span class="hljs-keyword">if</span> (!interceptors.isEmpty()) &#123;<br>                    handler = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InterceptingCommandHandler</span>(handler, interceptors);<br>                &#125;<br>            &#125;<br>            map.put(name, handler);<br>        &#125;<br>        <span class="hljs-keyword">return</span> map;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> String <span class="hljs-title function_">parseCommandName</span><span class="hljs-params">(CommandHandler handler)</span> &#123;<br>        <span class="hljs-type">CommandMapping</span> <span class="hljs-variable">commandMapping</span> <span class="hljs-operator">=</span> handler.getClass().getAnnotation(CommandMapping.class);<br>        <span class="hljs-keyword">if</span> (commandMapping != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> commandMapping.name();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Iterator&lt;CommandHandler&gt; <span class="hljs-title function_">iterator</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> spiLoader.loadInstanceList().iterator();<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">CommandHandlerProvider</span> <span class="hljs-variable">INSTANCE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CommandHandlerProvider</span>();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> CommandHandlerProvider <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> INSTANCE;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里的 <code>CommandHandlerInterceptor</code> 机制其实也是 Sentinel 留给我们的扩展点，但是在当前简单的使用 SpringAOP 适配 Sentinel 的过程中，似乎并没有发现该拦截器的具体作用，官方给的它的实现类，比如 <code>AllCommandHandlerInterceptor, EchoCommandHandlerInterceptor, GetRulesCommandHandlerInterceptor</code>，都仅仅只是做了简单的控制台输出功能，并没有进行什么实质的拦截或者增强。</p>
+<p>在查看了 Sentinel 官方的 issue 之后，在 <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/issues/2677">csp.sentinel.api authentication | csp.sentinel.api 是否可以设置使用认证访问 · Issue #2677 · alibaba&#x2F;Sentinel (github.com)</a> 中，发现可以使用 <code>CommandHandlerInterceptor</code> 进行相应的授权校验，因为 Sentinel 开源版本提供给 dashboard 的这些 <code>CommandHandler</code> 一般都是裸露的，可以通过扩展该接口做授权认证。</p>
+<h3 id="2-2-commandCenter-start-方法"><a href="#2-2-commandCenter-start-方法" class="headerlink" title="2.2 commandCenter.start 方法"></a>2.2 commandCenter.start 方法</h3><p>在引入相应的 CommandHandler，做好相应的准备之后，接下来我们继续分析 start 方法，这也是我们的核心方法之一。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">start</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-comment">// 获取机器的线程数</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">nThreads</span> <span class="hljs-operator">=</span> Runtime.getRuntime().availableProcessors();<br>    <span class="hljs-built_in">this</span>.bizExecutor = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>        nThreads, nThreads, <span class="hljs-number">0L</span>, TimeUnit.MILLISECONDS,<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBlockingQueue</span>&lt;Runnable&gt;(<span class="hljs-number">10</span>),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">NamedThreadFactory</span>(<span class="hljs-string">&quot;sentinel-command-center-service-executor&quot;</span>, <span class="hljs-literal">true</span>),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">RejectedExecutionHandler</span>() &#123;<br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">rejectedExecution</span><span class="hljs-params">(Runnable r, ThreadPoolExecutor executor)</span> &#123;<br>                CommandCenterLog.info(<span class="hljs-string">&quot;EventTask rejected&quot;</span>);<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RejectedExecutionException</span>();<br>            &#125;<br>        &#125;);<br><br>    <span class="hljs-type">Runnable</span> <span class="hljs-variable">serverInitTask</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Runnable</span>() &#123;<br>        <span class="hljs-comment">// 获取端口号，默认 8719</span><br>        <span class="hljs-type">int</span> port;<br><br>        &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                port = Integer.parseInt(TransportConfig.getPort());<br>            &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>                port = DEFAULT_PORT;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>            <span class="hljs-type">boolean</span> <span class="hljs-variable">success</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>            <span class="hljs-comment">// 创建 Server Socket</span><br>            <span class="hljs-type">ServerSocket</span> <span class="hljs-variable">serverSocket</span> <span class="hljs-operator">=</span> getServerSocketFromBasePort(port);<br><br>            <span class="hljs-keyword">if</span> (serverSocket != <span class="hljs-literal">null</span>) &#123;<br>                CommandCenterLog.info(<span class="hljs-string">&quot;[CommandCenter] Begin listening at port &quot;</span> + serverSocket.getLocalPort());<br>                socketReference = serverSocket;<br>                <span class="hljs-comment">// executor 为 SingleThreadExecutor</span><br>                executor.submit(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ServerThread</span>(serverSocket));<br>                success = <span class="hljs-literal">true</span>;<br>                port = serverSocket.getLocalPort();<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                CommandCenterLog.info(<span class="hljs-string">&quot;[CommandCenter] chooses port fail, http command center will not work&quot;</span>);<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (!success) &#123;<br>                port = PORT_UNINITIALIZED;<br>            &#125;<br><br>            TransportConfig.setRuntimePort(port);<br>            executor.shutdown();<span class="hljs-comment">// 关闭线程池</span><br>        &#125;<br><br>    &#125;;<br><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(serverInitTask).start();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>通过上面的源码可以看到，我们一上来就先创建了一个 bizExecutor 线程池，该线程池是用来执行那些从 dashboard 发来的请求的，章节后续会具体分析。</li>
+<li>创建一个 Runnable 接口的 <code>serverInitTask</code>，于是我们就可以观看该 Task 的 run 方法，在这里面，可以发现我们的默认端口就是 8719，然后创建 <code>ServerSocket</code>，并将其封装成 <code>ServerThread</code> 之后交给单线程线程池去执行它的 run 方法。</li>
+<li>也就是上述代码中的 <code>executor.submit(new ServerThread(serverSocket));</code></li>
+</ol>
+<p>作为 <code>SimpleHttpCommandCenter</code> 的内部类，ServerThread 的源代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ServerThread</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Thread</span> &#123;<br><br>    <span class="hljs-keyword">private</span> ServerSocket serverSocket;<br><br>    ServerThread(ServerSocket s) &#123;<br>        <span class="hljs-built_in">this</span>.serverSocket = s;<br>        setName(<span class="hljs-string">&quot;sentinel-courier-server-accept-thread&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-type">Socket</span> <span class="hljs-variable">socket</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">// 接受来自 dashboard 的请求</span><br>                socket = <span class="hljs-built_in">this</span>.serverSocket.accept();<br>                setSocketSoTimeout(socket); <span class="hljs-comment">// 默认超时时间为 3s</span><br>                <span class="hljs-type">HttpEventTask</span> <span class="hljs-variable">eventTask</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HttpEventTask</span>(socket);<br>                <span class="hljs-comment">// 使用之前创建好的业务线程池进行异步处理 HttpEventTask</span><br>                bizExecutor.submit(eventTask);<br>            &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>                CommandCenterLog.info(<span class="hljs-string">&quot;Server error&quot;</span>, e);<br>                <span class="hljs-keyword">if</span> (socket != <span class="hljs-literal">null</span>) &#123;<br>                    <span class="hljs-keyword">try</span> &#123;<br>                        socket.close();<br>                    &#125; <span class="hljs-keyword">catch</span> (Exception e1) &#123;<br>                        CommandCenterLog.info(<span class="hljs-string">&quot;Error when closing an opened socket&quot;</span>, e1);<br>                    &#125;<br>                &#125;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-comment">// In case of infinite log.</span><br>                    Thread.sleep(<span class="hljs-number">10</span>);<br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e1) &#123;<br>                    <span class="hljs-comment">// Indicates the task should stop.</span><br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，它会接受来自 dashboard 的请求，并使用之前创建好的业务线程池 bizExecutor 异步处理 HttpEventTask。</p>
+<p>具体来说，<code>HttpEventTask</code> 会根据请求解析出它的 CommandName，并根据 name 去找到对应的 CommandHandler 进行处理。<strong>也就是通过这一步，在 dashboard 中设置好的一些流控规则啥的就可以实时的反应到 Sentinel 中了</strong>。当然本次博客后面的章节还会从 dashboard 的角度去查看两者之间的交互。</p>
+<h2 id="第三章-Sentinel-中关于控制台的心跳检测"><a href="#第三章-Sentinel-中关于控制台的心跳检测" class="headerlink" title="第三章 Sentinel 中关于控制台的心跳检测"></a>第三章 Sentinel 中关于控制台的心跳检测</h2><p>在经过上面两章节的分析中以及平时的使用过程中，难免发现一个问题：我们仅仅只在 Sentinel 客户端连接 dashboard 的时候，才会使用 JVM 参数来告知客户端 dashboard 的 ip 地址和端口号是什么，而 dashboard 却在表面层面上并不知道客户端的相关信息，那么这一切到底是怎么做的呢？这就需要我们的心跳检测了。</p>
+<p>在 InitFunc 中，除了引入 CommandCenterInitFunc 之外，还引入了 HeartbeatSenterInitFunc，而它的作用就是周期性的向控制台发送心跳检测。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-comment">// 返回 SimpleHttpHeartbeatSender</span><br>    <span class="hljs-type">HeartbeatSender</span> <span class="hljs-variable">sender</span> <span class="hljs-operator">=</span> HeartbeatSenderProvider.getHeartbeatSender();<br>    <span class="hljs-keyword">if</span> (sender == <span class="hljs-literal">null</span>) &#123;<br>        RecordLog.warn(<span class="hljs-string">&quot;[HeartbeatSenderInitFunc] WARN: No HeartbeatSender loaded&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 初始化 定时线程池</span><br>    initSchedulerIfNeeded();<br>    <span class="hljs-comment">// 获取间隔时间，默认是 10s</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">interval</span> <span class="hljs-operator">=</span> retrieveInterval(sender);<br>    setIntervalIfNotExists(interval);<br>    <span class="hljs-comment">// 周期性执行心跳检测</span><br>    scheduleHeartbeatTask(sender, interval);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同样的，Sentinel 会通过 SPI 机制加载系统中的 <code>HeartbeatSenter</code> 类的实现类，并选取优先级最高的那个，在我们本次分析中，也就是 <code>SimpleHttpHeartbeatSender</code>，接下来初始化定时线程池，然后获取我们配置好的间隔时间——如果没有配置则默认 10s，然后周期性的去执行心跳检测。</p>
+<p>至于为什么线程池要定义成两个核心线程数，我才是因为这里面需要使用网络传输，可能遇到网络波动问题，如果只有一个线程数，那么就无法实现心跳检测的周期性，因此需要另一个线程进行缓冲。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">ScheduledExecutorService</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initSchedulerIfNeeded</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">if</span> (pool == <span class="hljs-literal">null</span>) &#123;<br>        pool = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ScheduledThreadPoolExecutor</span>(<br>            <span class="hljs-number">2</span>,                                <br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">NamedThreadFactory</span>(<span class="hljs-string">&quot;sentinel-heartbeat-send-task&quot;</span>, <span class="hljs-literal">true</span>),                        <br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">DiscardOldestPolicy</span>());<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scheduleHeartbeatTask</span><span class="hljs-params">(<span class="hljs-comment">/*@NonNull*/</span> <span class="hljs-keyword">final</span> HeartbeatSender sender, <span class="hljs-comment">/*@Valid*/</span> <span class="hljs-type">long</span> interval)</span> &#123;<br>    pool.scheduleAtFixedRate(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Runnable</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">// 核心逻辑</span><br>                sender.sendHeartbeat();<br>            &#125; <span class="hljs-keyword">catch</span> (Throwable e) &#123;<br>                RecordLog.warn(<span class="hljs-string">&quot;[HeartbeatSender] Send heartbeat error&quot;</span>, e);<br>            &#125;<br>        &#125;<br>    &#125;, <span class="hljs-number">5000</span>, interval, TimeUnit.MILLISECONDS);<br>    RecordLog.info(<span class="hljs-string">&quot;[HeartbeatSenderInit] HeartbeatSender started: &quot;</span><br>                   + sender.getClass().getCanonicalName());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>而在 <code>SimpleHttpHeartbeatSender</code> 中：</p>
+<ol>
+<li>获取控制台的 ip 和 port 等信息</li>
+<li>设置 request，也就是控制台的 ip + 端口 + 请求路径，<strong>在这一步，就将 Sentinel 客户端的相关信息通过心跳检测的方式告知给了控制台，然后控制台就可以发送指令给客户端了</strong></li>
+<li>使用 httpClient 向控制台发送相应的 post 请求，而请求路径则是 <code>/registry/machine</code>，最终会被控制台的 <code>MachineRegistryController</code> 进行处理。</li>
+</ol>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">sendHeartbeat</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-keyword">if</span> (TransportConfig.getRuntimePort() &lt;= <span class="hljs-number">0</span>) &#123;<br>        RecordLog.info(<span class="hljs-string">&quot;[SimpleHttpHeartbeatSender] Command server port not initialized, won&#x27;t send heartbeat&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-comment">// 获取控制台的 ip 和 port 等信息</span><br>    <span class="hljs-type">Endpoint</span> <span class="hljs-variable">addrInfo</span> <span class="hljs-operator">=</span> getAvailableAddress();<br>    <span class="hljs-keyword">if</span> (addrInfo == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-comment">// 设置 request，也就是控制台的 ip + 端口 + 请求路径</span><br>    <span class="hljs-comment">// 在这一步，就将 sentinel 的相关信息通过心跳检测的方式告知给了 控制台，然后控制台就可以发送指令给 sentinel了</span><br>    <span class="hljs-comment">// 将 控制台 和 sentinel 给联系了起来。</span><br>    <span class="hljs-comment">// 在 dashboard 中，MachineRegistryController 会处理该 post 请求。</span><br>    <span class="hljs-type">SimpleHttpRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleHttpRequest</span>(addrInfo, TransportConfig.getHeartbeatApiPath());<br>    request.setParams(heartBeat.generateCurrentMessage());<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 向服务端发送 post 请求</span><br>        <span class="hljs-type">SimpleHttpResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> httpClient.post(request);<br>        <span class="hljs-keyword">if</span> (response.getStatusCode() == OK_STATUS) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (clientErrorCode(response.getStatusCode()) || serverErrorCode(response.getStatusCode())) &#123;<br>            RecordLog.warn(<span class="hljs-string">&quot;[SimpleHttpHeartbeatSender] Failed to send heartbeat to &quot;</span> + addrInfo<br>                           + <span class="hljs-string">&quot;, http status code: &quot;</span> + response.getStatusCode());<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        RecordLog.warn(<span class="hljs-string">&quot;[SimpleHttpHeartbeatSender] Failed to send heartbeat to &quot;</span> + addrInfo, e);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="第四章-从控制台的角度看交互"><a href="#第四章-从控制台的角度看交互" class="headerlink" title="第四章 从控制台的角度看交互"></a>第四章 从控制台的角度看交互</h2><p>在上一章节的最后我们说到，dashboard 中关于客户端的心跳的处理，是通过 <code>MachineRegistryController</code> 来实现的，而它的内部，其实就是将请求进行解析，然后将各种信息封装成 Machine 对象，并通过 <code>AppManagement</code> 进行相应的管理，具体流程就不细说了。</p>
+<p>在控制台中，存在一个实时监控功能，它能实时的查看当前客户端资源的访问量，并且只能展示五分钟的数据：</p>
+<p><img src="Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/image-20230222155819931.png" srcset="/img/loading.gif" lazyload alt="image-20230222155819931"></p>
+<p>该功能的实现需要关注 <code>MetricController</code>、<code>MetricFetcher</code> 类，其实总体的原理大致就是，控制台的前端不停的发送相应的请求给控制台后端，然后控制台后端就使用 http 请求和 Sentinel 客户端进行交互，使用对应的 <code>CommandHandler</code> 处理之后，得到相应的信息之后再交给前端进行展示。</p>
+<p>至于其他的规则配置，比如新增流控规则等等，流程都大差不差，只不过其中的实现有区别而已。</p>
+<p>当然，在了解了这些流程之后，就可以对控制台和客户端进行二次开发，一个是可以自定义请求协议，而不是使用 Sentinel 的 HTTP 请求；第二个就是扩展 CommandHandler 和 Controller，增强安全性和符合公司业务的功能。总体来说，Sentinel 的扩展性还是很强的。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="../../categories/Sentinel/" class="category-chain-item">Sentinel</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="../../tags/Sentinel/">#Sentinel</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Sentinel源码分析03：Sentinel客户端如何和控制台进行交互</div>
+      <div>https://noaharno.top/Sentinel/Sentinel源码分析03：Sentinel客户端如何和控制台进行交互/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>NoahArno</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9004%EF%BC%9A%E6%80%BB%E8%A7%88Sentinel%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B/" title="Sentinel源码分析04：总览Sentinel的核心流程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sentinel源码分析04：总览Sentinel的核心流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9002%EF%BC%9A@SentinelResource%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" title="Sentinel源码分析02：@SentinelResource注解的基本原理">
+                        <span class="hidden-mobile">Sentinel源码分析02：@SentinelResource注解的基本原理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="../../js/events.js" ></script>
+<script  src="../../js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="../../js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="../../js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="../../js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

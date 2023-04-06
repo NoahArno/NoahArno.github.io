@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../img/fluid.png">
+  <link rel="icon" href="../../img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="NoahArno">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="HotRing：A Hotspot-Aware In-Memory Key-Value Store 一种热点可感知的内存 KV 存储结构  1. 背景在真实场景中经常会造成热点数据的出现，比如双十一的时候，会给缓存系统带来巨大的访问量；比如微博的热点事件，大多数的访问都集中在少量的数据上，也就是存在访问倾斜。为了解决这些问题，针对集群系统，一般都会采用一致性哈希、数据迁移、前端数据缓存等等。而对于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HotRing: A Hotspot-Aware In-Memory Key-Value Store">
+<meta property="og:url" content="https://noaharno.top/HotRing/HotRing/index.html">
+<meta property="og:site_name" content="NoahArno">
+<meta property="og:description" content="HotRing：A Hotspot-Aware In-Memory Key-Value Store 一种热点可感知的内存 KV 存储结构  1. 背景在真实场景中经常会造成热点数据的出现，比如双十一的时候，会给缓存系统带来巨大的访问量；比如微博的热点事件，大多数的访问都集中在少量的数据上，也就是存在访问倾斜。为了解决这些问题，针对集群系统，一般都会采用一致性哈希、数据迁移、前端数据缓存等等。而对于">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221194304667.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221211049084.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221214644376.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222134518866.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222152043979.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222152307144.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222230106482.png">
+<meta property="article:published_time" content="2023-04-06T15:48:37.000Z">
+<meta property="article:modified_time" content="2023-04-06T17:09:04.292Z">
+<meta property="article:author" content="NoahArno">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="PaperReading">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221194304667.png">
+  
+  
+  
+  <title>HotRing: A Hotspot-Aware In-Memory Key-Value Store - NoahArno</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="../../css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="../../css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="../../css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"noaharno.top","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="../../js/utils.js" ></script>
+  <script  src="../../js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="../../index.html">
+      <strong>NoahArno</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../index.html">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('../../img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">HotRing: A Hotspot-Aware In-Memory Key-Value Store</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-06 23:48" pubdate>
+          2023年4月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          74 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">HotRing: A Hotspot-Aware In-Memory Key-Value Store</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="HotRing：A-Hotspot-Aware-In-Memory-Key-Value-Store"><a href="#HotRing：A-Hotspot-Aware-In-Memory-Key-Value-Store" class="headerlink" title="HotRing：A Hotspot-Aware In-Memory Key-Value Store"></a>HotRing：A Hotspot-Aware In-Memory Key-Value Store</h1><blockquote>
+<p>一种热点可感知的内存 KV 存储结构</p>
+</blockquote>
+<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>在真实场景中经常会造成热点数据的出现，比如双十一的时候，会给缓存系统带来巨大的访问量；比如微博的热点事件，大多数的访问都集中在少量的数据上，也就是存在访问倾斜。为了解决这些问题，针对集群系统，一般都会采用一致性哈希、数据迁移、前端数据缓存等等。而对于单体应用而言，计算机体系结构能够利用分层存储布局，比如我们最常见的 CPU 三级缓存，将频繁访问的数据给缓存在低延时的存储介质中。</p>
+<p>基于内存的 KV 存储结构（KVS， key-value stores）通常被广泛应用于缓存热数据，以解决基于磁盘的存储或分布式系统中的热点问题。许多的索引结构其实都可以实现 KVS，比如 skiplist、balanced&#x2F;trie trees、hash 等等。我们最常用的索引结构是哈希，因为它的快速查找功能具备大家喜爱，尤其是上层应用在不需要范围查找的时候。但是对于传统的 KVS 来说，它们所使用的底层结构对数据的冷热没有进行区分，都是统一进行管理，因而对于内存中的热点问题没有得到一个很好的解决。</p>
+<p>如Figure 1 所示，这种结构作为底层的 KVS 将无法感知热点数据。如果我们想找到一个热点数据，例如 Item3，就必须遍历整个 Collision Chaining，这样带来的内存访问次数无疑是很高的，所造成的性能影响是很大的。虽然会存在某些机制来减少内存访问次数，比如采用 CPU 缓存，但是 CPU 的大小是有限制的。或者采用 rehash 扩大哈希表来减少每个碰撞链的长度，但是这样会显著增加内存占用（HashMap 的 rehash 会扩容成原来的两倍）。</p>
+<blockquote>
+<p>PS：下列两篇论文都介绍了各自设计的能更好利用 CPU 缓存的缓存友好型索引结构：</p>
+<ol>
+<li>FASTER：A Concurrent Key-Value Store with In-Place Updates</li>
+<li>MICA：A Holistic Approach to Fast In-Memory Key-Value Storage</li>
+</ol>
+</blockquote>
+<p><img src="HotRing/image-20221221194304667.png" srcset="/img/loading.gif" lazyload alt="image-20221221194304667"></p>
+<blockquote>
+<p>Figure 1：无热点感知的哈希结构</p>
+</blockquote>
+<p>出于上述的考虑，在本次的 paper 中，作者探索了 KVS 中内存索引结构的热点感知设计，讨论了热点转移和并发访问问题，最终设计了一种新的热点感知 KVS，即 HotRing。</p>
+<ul>
+<li>热点转移：在实际应用中，热点肯定是动态变化的，比如微博的热搜是每时每刻都会变化。因此就需要有一种轻量级的方法来跟踪热度的变化。<ul>
+<li>底层实现基于有序哈希索引结构，通过将头指针移动到更靠近热点项的位置来实现快速访问热点项的功能。同时，它还采用了一种轻量级策略来检测运行时的热点转移。</li>
+</ul>
+</li>
+<li>并发访问：既然是热点数据，肯定存在大量并发请求，为了保证性能，需要支持读&#x2F;写操作的高并发性<ul>
+<li>HotRing在其设计中全面采用了无锁结构来解决并发访问问题 ，用于常见操作（即读取、更新）和特定于 HotRing 的操作（即热点移动检测、头指针移动和 ordered-ring rehash ）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-设计原理"><a href="#2-设计原理" class="headerlink" title="2. 设计原理"></a>2. 设计原理</h2><h3 id="2-1-基于有序环的哈希索引设计"><a href="#2-1-基于有序环的哈希索引设计" class="headerlink" title="2.1 基于有序环的哈希索引设计"></a>2.1 基于有序环的哈希索引设计</h3><p>前面提到，一般的 KVS 都采用链表来解决哈希冲突，为了让热点项更快地被访问到，就需要将热点项给放到链表的头部，可是在并发情况下，想要保证该操作的原子性比较麻烦，因此我们就可以从另一个角度思考：不移动热点项到头部，而是直接移动 Head 的指针，使其指向热点项，并且该操作可以使用 CAS 来保证原子性。</p>
+<p>不过这就又引出一个新问题，由于链表是单向的，如果 Head 的指针不再指向头部了，就会导致一部分的节点无法被访问到。为了确保无论头部指针怎么移动，bucket 中的所有 item 始终能访问，就需要将链表设计成环状。</p>
+<p>同时，环形链表没有终结点，为了更好的进行值的查找，需要将环形链表设计成有序的，这样就可以根据前后项的关系判断是否终结本次查询。注意，将头指针指向的第一个 item 作为停止信号是不合适的，因为它可以被并发请求修改。</p>
+<p>此外，比较两个较长的 Key 所带来的开销可能比较昂贵，我们将首先使用 Tag 字段进行比较。也就是说，我们的环的有序性根据其 Tag 和 Key 这一字段进行的, $order_k &#x3D; (tag_k, key_k)$</p>
+<p>至此，我们的 HashRing 就被设计成了一个基于有序环的哈希索引了。</p>
+<p><img src="HotRing/image-20221221211049084.png" srcset="/img/loading.gif" lazyload alt="image-20221221211049084"></p>
+<blockquote>
+<p>Figure 2：基于有序环的哈希索引</p>
+</blockquote>
+<p>现在来详细的说一说第三点：环的有序性。如果我们想要查找 item k，并且我们此时正在访问的是 item i，有如下所示的查找规则：</p>
+<ul>
+<li>找到 item k：</li>
+</ul>
+<p>$$<br>order_i &#x3D; order_k<br>$$</p>
+<ul>
+<li>未找到 item k:</li>
+</ul>
+<p>$$<br>\begin{cases} \quad\space order_{i-1} &lt; order_k &lt; order_i \quad①\<br>or \space order_k &lt; order_i &lt; order_{i - 1} \quad ②\<br>or \space order_i &lt; order_{i -1} &lt; order_k \quad ③<br>\end{cases}<br>$$</p>
+<p><img src="HotRing/image-20221221214644376.png" srcset="/img/loading.gif" lazyload alt="image-20221221214644376"></p>
+<blockquote>
+<p>Figure 3：Find operation in HotRing</p>
+</blockquote>
+<ul>
+<li>当查找指针指向 C 的时候，发现 C 的值要比 B 大，同时 C 的前项 A 要比 B 小，因此 B miss，对应情况①。</li>
+<li>当查找指针指向 I 的时候，发现 I 的值要比 G 大，同时 I 的前项 F 也大于 G，并且 I 小于 F，因此 G miss，对应情况②。</li>
+<li>H 的 miss 原因对应于情况③。</li>
+</ul>
+<h3 id="2-2-热点转移问题"><a href="#2-2-热点转移问题" class="headerlink" title="2.2 热点转移问题"></a>2.2 热点转移问题</h3><p>采用有序环的哈希索引，在查找过程中能很轻易的判断当前查找项是否命中，剩下的问题就是当热点移动的时候如何识别热点并调整头部指针。由于哈希值的分布非常均匀，热点项在所有桶中均匀分布。在这里，我们专注于独立地识别每个存储桶中的热点。实际上，每个桶中的冲突项的数量相对较少（例如，5 到 10 个项目），因此每个冲突环中通常有一个热点（热点比率低于10%-20%）。我们可以通过将头部指针指向唯一的热点来改进热点访问，这避免了重新组织数据并减少了内存开销。</p>
+<p>为了获得良好的性能，必须考虑两个指标，即识别精度和反应延迟。</p>
+<ul>
+<li>热点识别的准确性通过所识别的热点的比例来衡量。</li>
+<li>反应延迟是新热点发生的时间和我们成功检测到它的时间之间的时间跨度。</li>
+</ul>
+<p>考虑到这两个指标，我们首先引入一种随机移动策略，以识别反应延迟极低的热点。然后，我们提出了一种统计采样策略，该策略在相对较高的反应延迟下提供了更高的识别精度。</p>
+<p>首先，我们定义了本节中使用的几个术语。头指针指向的第一个项目称为热项目，其余项目为冷项目。它们对它们的访问分别定义为热访问和冷访问。</p>
+<h4 id="随机移动策略"><a href="#随机移动策略" class="headerlink" title="随机移动策略"></a>随机移动策略</h4><p>该策略适合于高度倾斜的数据访问，能带来较少的反应延迟，但是相对较低的精度。其基本思想是，头指针从即时决策中周期性地移动到潜在热点，而不记录任何历史元数据。特别是，为每个线程分配了一个线程本地参数，以记录它执行的请求数。在每个R请求之后，线程确定是否执行头指针移动操作。</p>
+<ul>
+<li>如果第 R 次访问是热访问，则头指针的位置不受影响。</li>
+<li>否则，指针将移动到该冷访问访问的项目，该项目将成为新的热项目。</li>
+</ul>
+<p>参数 R 影响反应延迟和识别精度。如果使用小的 R，则实现稳定性能的反应延迟将很低。然而，这也可能导致频繁且无效的头部指针移动。在我们的场景中，数据访问是高度倾斜的，因此头部指针的移动往往很少。默认情况下，参数 R 根据经验设置为 5，这已被证明可提供低反应延迟和可忽略的性能影响。</p>
+<p>注：也就是说在随机移动策略下，由于大部分的请求访问的都是热点数据，因此在大量的请求之后，该环的头部指针会偏向于指向热项目。不过如果一个环中存在不止一个热项目，那么就会导致头部指针的频繁移动，造成性能的丢失，因此该策略无法处理环中多个热点项的情况。</p>
+<h4 id="统计采样策略"><a href="#统计采样策略" class="headerlink" title="统计采样策略"></a>统计采样策略</h4><p>为了实现更高的性能，我们设计了一种统计采样策略，该策略旨在提供更准确的热点识别，并具有略高的反应延迟。在详细解释该策略之前，我们先来介绍一下 HotRing 中的一些结构的内部实现：</p>
+<p><img src="HotRing/image-20221222134518866.png" srcset="/img/loading.gif" lazyload alt="image-20221222134518866"></p>
+<blockquote>
+<p>Figure 4：HotRing Index Format.</p>
+</blockquote>
+<ul>
+<li>Index Format</li>
+</ul>
+<p>如 Figure 4 所示，对于我们的头部指针而言，由于物理地址占 48 位，因此可以使用 48位来表示头部指针指向的地址，至于剩下的 16位（计算机可以对 64 位进行原子的 CAS），就可以用来记录一些元数据信息。</p>
+<p>其中 Active：1 bit，用于控制热点识别的统计采样的标志。Total Counter：15 bits，表示访问对应桶中的环中的数据项的总访问次数。</p>
+<p>同时，对于环中的一个数据项的结构而言，除了一些元数据、Tag、Key 和 Value，最重要要的是指向下一个数据项的指针：Next Item Address，同样的，它使用 48 位来表示地址，剩余的 16 位表示一些额外信息。Rehash：控制 Rehash 过程的标志；Occupied：用于确保并发正确性；Counter：记录当前数据项的访问次数。</p>
+<ul>
+<li>Statistical Sample</li>
+</ul>
+<p>在介绍了相关结构之后，接下来的问题就是如何以低开销来动态识别热点。为了在保持精度的同时最小化开销，我们每个线程都为已处理的请求维护一个线程本地计数器，来记录执行了多少次请求。每完成 R 个请求之后线程就需要决定是否移动头部指针。</p>
+<ol>
+<li>如果第 R 个请求是热访问，则意味着当前热点识别仍然准确，不需要触发采样。</li>
+<li>否则需要移动头指针，开启统计采用，采其中 Sample 的次数等于桶中环的数据项个数。<ol>
+<li>使用 CAS 来开启 Active 标志</li>
+<li>对环后续的访问请求将被记录在 head.totalCounter 和 next.counter 上，同样使用 CAS。</li>
+</ol>
+</li>
+</ol>
+<p>根据收集的统计数据，我们能够确定新的热点项目，并根据项目的访问频率移动头部指针。采样过程完成后，最后一个访问线程负责频率计算和热点调整。首先，线程使用 CAS 原语自动重置 Active 位，这确保只有一个线程将执行后续任务。</p>
+<p>然后，该线程计算环中每个项目的访问频率。项目 k 的访问频率是 n<del>k</del>&#x2F;N，其中 N 是环的总计数器，n<del>k</del> 是第 k 个项目的计数器。接下来，我们计算每个项目的头指针的收入。当项目 t（0&lt;t&lt;k)被头指针指向时，相应的收入 W<del>t</del>通过以下公式计算：<br>$$<br>W_t&#x3D;\sum_{i&#x3D;1}^{k} \frac{n_i}{N} * [(i - t) \space mod \space k]<br>$$<br>环中总共有 k 个节点，其中 ni&#x2F;N 表示访问第 i 个节点的概率，i - t 表示当头指针指向节点 t 的时候，移动到 i 需要的内存访问次数。</p>
+<p>W<del>t</del> 测量当项目 t 被选择为由头部指针指向时，环的平均内存访问次数。因此，选择具有最小值（Wt）的项目作为热项目可确保更快地访问热点。如果计算的位置与前一个头部不同，则应使用 CAS 原语移动头部指针。</p>
+<p>注意，该策略不仅处理单个热点，还适用于多个热点。它有助于找出避免热点之间频繁移动的最佳位置（例如，可能不一定是最热的项目）。热点调整完成后，该线程将重置所有计数器，为将来的下一轮采样做准备。</p>
+<ul>
+<li>Write-Intensive Hotspot with RCU</li>
+</ul>
+<p>对于更新操作，HotRing 为那些小于 8 字节的值提供了一种就地更新方法（即，现代机器支持最多8字节的原子操作）。在这种情况下，read 和 update 数据项在热度方面是相同的。然而，对于较大的值，情况完全不同，如图5所示。为了获得高性能，必须应用 read-copy-update（RCU）协议。在这种情况下，需要修改前一项的指针，以在更新期间指向新项。如果修改了头中的写入密集型热点，则必须遍历整个冲突环才能到达其前一项。也就是说，写密集型热项也会使其前一项变热。根据这一见解，我们稍微修改了统计抽样策略。对于RCU下，更新的是其前一项的计数器。这有助于指出写入密集型热点的先例，使整个RCU更新操作快速（This helps to point the head to the precedent of a write-intensive hotspot, making the entire RCU update operation fast.）</p>
+<p>由于在 RCU 下，更新的是前一项的计数器，头指针就会趋向于指向写入项的前一项，在写密集型的热点时，可以直接定位到热点的前一项，更新时就不需要遍历链表。</p>
+<p><img src="HotRing/image-20221222152043979.png" srcset="/img/loading.gif" lazyload alt="image-20221222152043979"></p>
+<blockquote>
+<p>Figure 5：Updating hot item A with RCU makes item F hot</p>
+<p>热点是 A，RCU 下，修改 A 需要前一项 F，这就需要遍历整个环。所以 RCU 下，更新的是 F 的计数器，从而让头指针指向 F（写入热点依然是 A），之后写入 A 时，不需要遍历环了。</p>
+</blockquote>
+<ul>
+<li>Hotspot Inheritance</li>
+</ul>
+<p>在头节点上执行 RCU 更新或删除时，我们需要将头指针指向其余的数据项。然而，如果头指针被随机移动，它可能以高概率指向冷项目，这将导致热点识别策略被频繁触发。此外，由于识别策略的频繁触发，系统的性能将严重下降。</p>
+<p>首先，如果碰撞环只有一个项目（即下一个项目地址与头指针的位置相同），则 CAS 会修改头指针以完成更新或删除。如果有多个项，HotRing 使用现有的热点信息（即，头部指针位置）来继承热点。我们为 RCU 更新和删除操作设计了不同的头部指针移动策略，以确保热点调整的有效性：对于头节点的 RCU 更新，由于访问的时间局部性，最近更新的项目很有可能立即被访问。因此，头指针指向新版本的头。对于头节点的删除，只需将头指针移动到下一项，这是一个简单有效的解决方案。</p>
+<h3 id="2-3-并发操作设计"><a href="#2-3-并发操作设计" class="headerlink" title="2.3 并发操作设计"></a>2.3 并发操作设计</h3><p>头部指针的移动使无锁设计更加复杂。这主要体现在以下几个方面：一方面，头部指针的移动可能与其他线程并行。因此，我们需要考虑头部指针移动和其他修改操作的并发性，防止指针指向无效项。</p>
+<p>另一方面，当我们删除或更新项目时，我们需要检查头部指针是否指向该项目。如果是这样，我们需要正确而巧妙地移动头部指针。在本节中，我们主要介绍并发访问的控制方法，以解决 HotRing 中的并发问题。</p>
+<p>为了实现高访问并发性并确保高吞吐量，我们实现了一套完整的无锁设计，这在之前的工作中得到了严格的介绍。原子 CAS 操作用于确保两个线程不会同时修改同一个Next Item Address。如果多个线程试图更新同一个Next Item Address，则只有一个线程成功，其他线程失败。失败的线程必须重新执行其操作。</p>
+<p><img src="HotRing/image-20221222152307144.png" srcset="/img/loading.gif" lazyload alt="image-20221222152307144"></p>
+<blockquote>
+<p>Figure 6：Different concurrency issues that involve RCU operations.</p>
+</blockquote>
+<ul>
+<li>Read</li>
+</ul>
+<p>无需任何同步，它本身就是安全的</p>
+<ul>
+<li>Insertion</li>
+</ul>
+<p>创建一个新项目并插入到环中，并修改前面的数据的 Next Item Address。两个并发操作可能会竞争相同的 Next Item Address。而 CAS 操作确保只有一个成功，其余的只能失败重试。</p>
+<ul>
+<li>Update</li>
+</ul>
+<p>我们针对不同的价值大小设计了两种更新策略。就地更新操作（针对8字节值）不会影响其他操作，这是通过CAS保证的。</p>
+<p>然而，RCU 操作（对于较长的值）需要创建一个新项，这对其他操作的并发性提出了挑战。以 RCU 更新和插入为例，如上图 a 所示：一个线程尝试通过修改 item B 的 next 指针（Next item Address）来插入 数据 C，另一个线程尝试同时使用 B‘ 更新 B。两个操作都会成功，因为它们使用 CAS 修改了不同的指针。然而由于环看不到 B，因此即使 C 插入成功，也无法被访问到，从而导致不正确。</p>
+<p>图 b 中也存在这样的问题。为了解决这种问题，HotRing 使用 Occupied 来保证正确性。将分为两部进行更新操作。例如在 update &amp; insert 的情况下：首先我们想要更新 B，它的 next 指针被原子的设置为已占用。一旦设置了 Occupied，C 的插入将失败，并且必须重试。其次，A 的下一个项目地址被原子的改变为 B’，B‘ 的 Occupied 将被重置。</p>
+<ul>
+<li>Deletion</li>
+</ul>
+<p>通过将指向已删除项目的指针修改为其下一个项目来实现删除。因此，必须确保在操作过程中未更改已删除项目的下一个项目地址。类似地，我们使用 Occupied 来确保并发操作的正确性。</p>
+<p>对于如图6（c）所示的 RCU 更新和删除的情况，当项目 B 当前被删除时，通过更新转发项目 B 的指针来处理项目 D 的更新。无法正确遍历更新的项目 D’，导致数据丢失。如果项目 B 的占用位设置为删除，则项目 D 的更新将无法修改项目 B 的下一个项目地址，必须重试。一旦项目 B 的删除完成，就可以成功执行更新操作。</p>
+<ul>
+<li>Head Pointer Movement</li>
+</ul>
+<p>头部指针的移动是 HotRing 中的一个特殊动作。为了确保头部指针移动与其他操作（尤其是更新和删除）的正确性，我们需要额外的管理。有两个主要问题需要解决：（1）如何处理正常操作的并发性和标识策略导致的头指针移动？（2） 如何处理头部项目更新或删除导致的头部指针移动？</p>
+<p>对于由识别策略引起的头部指针移动，我们还使用占用位来确保正确性。当将头指针移动到新项目时，我们设置其占用位，以确保在移动过程中不会更新或删除该项目。对于头项更新，HotRing将头指针移动到此项的新版本。在移动头指针之前，我们需要确保新版本项不会被其他线程更改（即，更新或删除）。因此，在更新项目时，HotRing会先设置新版本项目的占用位，直到移动完成。对于头部项目删除，HotRing不仅需要占用准备删除的项目，还需要占用其下一个项目。因为如果在删除操作期间下一个项目未被占用，则下一个节点可能已被更改，这使得头部指针指向无效项目。</p>
+<h3 id="2-4-无锁化的-rehash"><a href="#2-4-无锁化的-rehash" class="headerlink" title="2.4 无锁化的 rehash"></a>2.4 无锁化的 rehash</h3><p>随着新数据从插入中到达，环中冲突项的数量继续增加，导致每次访问遍历更多项。在这种情况下，KVS 的性能将严重下降。HotRing 中提出了一种无锁重新散列策略，该策略允许随着数据量的增加而灵活地重新散列。传统的重新散列策略由哈希表的负载因子（即平均链长度）触发。</p>
+<p><img src="HotRing/image-20221222230106482.png" srcset="/img/loading.gif" lazyload alt="image-20221222230106482"></p>
+<blockquote>
+<p>Figure 7：The lock-free rehash strategy(The dotted line between (c) and (d) represents a transition period before deletion)</p>
+</blockquote>
+<p>然而，这没有考虑热点的影响，因此不适合 HotRing。为了使索引适应热点项目的增长，HotRing使用访问开销（即检索项目的平均内存访问次数）来触发重新散列。我们的无锁重新散列策略包括三个步骤：</p>
+<ul>
+<li>Initialization</li>
+</ul>
+<p>首先，HotRing 创建一个后端 rehash 线程。线程通过共享标记的最高位来初始化新哈希表，该哈希表的大小是旧哈希表的两倍。如图7（a）所示，旧表的存储桶中有一个旧的头指针，相应地，新表中有两个新的头指针。旧表采用哈希值的 k 位作为哈希地址，新表取 k + 1 位。HotRing 根据标记范围划分数据。</p>
+<p>假设哈希值有 n 位，标记范围为 [0，T) (T&#x3D;2^（n-k）^)，两个新的头指针分别管理 [0，T&#x2F;2) 和 [T&#x2F;2，T) 中的项。同时，rehash 线程创建由两个子 rehash 项组成的 rehash 节点，它们分别对应于两个新的头指针。除了没有存储有效的KV对之外，每个重新散列项具有与数据项相同的格式。HotRing 通过每个项中的 rehash 位标识 rehash 项。在初始化阶段，两个子 rehash 项的标记设置不同。如图9（b）所示，相应的 rehash 项分别将标记设置为 0 和 T&#x2F;2。</p>
+<ul>
+<li>Split</li>
+</ul>
+<p>在拆分阶段，rehash 线程通过将两个 rehash 项插入到环中来拆分环。如图 7（c）所示，reash 项分别插入到项 B 和项 E 之前，成为标记范围的边界以划分环。两个插入操作完成后，“新建表”将激活。之后，后续访问（来自新表）需要通过比较标记来选择相应的头指针，而之前的访问（来自旧表）则通过标识 rehash 节点来继续。可以正确访问所有数据，而不影响并发读写。到目前为止，对项目的访问在逻辑上分为两条路径。当我们查找目标项目时，最多需要扫描环的一半。例如，访问项 F 的遍历路径是 Head<del>1</del> -&gt; E -&gt; F</p>
+<ul>
+<li>Deletion</li>
+</ul>
+<p>在此阶段，rehash 线程删除 rehash 节点（如图 7（d）所示）。在此之前，rehash 线程必须保持一个过渡期，以确保从旧表启动的所有访问都已完成，例如读取副本更新同步原语的宽限期。</p>
+<p>当所有访问结束时，重新散列线程可以安全地删除旧表，然后重新散列节点。请注意，过渡期只阻塞 rehash 线程，而不阻塞访问线程。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>本篇论文展示了一种全新的优化角度：关注内存中的热点数据问题。为了能够内存感知，该论文设计了一种全新的数据结构 – HotRing。它以我们常见的 HashMap 为模板，进行了一系列改进：将链表设计成环，并且通过移动头指针来保证移动的并发安全性。同时环还是有序的，方便在环中快速查找到对应数据是否存在。同时考虑到热点转移问题，给出了两种热点策略，随机移动策略和统计采样策略。其中随机策略在单桶中多热点情况下表现不佳，而统计采用策略又需要一定量的计算而造成延迟，因此两种策略的选择得视情况而定。</p>
+<p>而在并发性这一方面，HotRing 在设计的时候采用了无锁结构来解决并发访问问题，使用了 RCU 机制和 Occupied 占位符进行限制，并将该无锁结构使用在常见的操作上，即读取、更新、热点移动检测、头指针移动和无锁化的 rehash。</p>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://hardcore.feishu.cn/mindnotes/bmncnt6dBr8eAb9swqLz8L7KJih">硬核课堂：HotRing 论文解读</a></p>
+<p>HotRing 原论文：<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast20/presentation/chen-jiqiang">https://www.usenix.org/conference/fast20/presentation/chen-jiqiang</a></p>
+<p><a target="_blank" rel="noopener" href="https://keys961.github.io/2020/02/28/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-HotRing-A-Hotspot-Aware-In-Memory-Key-Value-Store/">论文阅读-HotRing: A Hotspot-Aware In-Memory Key-Value Store - keys961 | keys961 Blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0777755969ab">HotRing: A Hotspot-Aware In-Memory Key-Value Store - 简书 (jianshu.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="../../tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
+      
+        <a href="../../tags/PaperReading/">#PaperReading</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>HotRing: A Hotspot-Aware In-Memory Key-Value Store</div>
+      <div>https://noaharno.top/HotRing/HotRing/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>NoahArno</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="../../TinyLFU/TinyLFU/" title="TinyLFU：A Highly Efficient Cache Admission Policy">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TinyLFU：A Highly Efficient Cache Admission Policy</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="../../Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/" title="Sentinel源码分析06：如何进行流控">
+                        <span class="hidden-mobile">Sentinel源码分析06：如何进行流控</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="../../js/events.js" ></script>
+<script  src="../../js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="../../js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="../../js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="../../js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

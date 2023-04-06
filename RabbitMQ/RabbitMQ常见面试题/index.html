@@ -1,0 +1,925 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../img/fluid.png">
+  <link rel="icon" href="../../img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="NoahArno">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、基础知识1.1 springboot整合1、添加依赖 1234&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;spring-boot-starter-amqp&lt;&#x2F;artifactId&gt;&lt;&#x2F;dependency&gt;  2、配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ常见面试题">
+<meta property="og:url" content="https://noaharno.top/RabbitMQ/RabbitMQ%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:site_name" content="NoahArno">
+<meta property="og:description" content="一、基础知识1.1 springboot整合1、添加依赖 1234&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;spring-boot-starter-amqp&lt;&#x2F;artifactId&gt;&lt;&#x2F;dependency&gt;  2、配置">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-06T15:27:30.000Z">
+<meta property="article:modified_time" content="2023-04-06T17:09:04.922Z">
+<meta property="article:author" content="NoahArno">
+<meta property="article:tag" content="RabbitMQ">
+<meta property="article:tag" content="面试话术">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>RabbitMQ常见面试题 - NoahArno</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="../../css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="../../css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="../../css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"noaharno.top","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="../../js/utils.js" ></script>
+  <script  src="../../js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="../../index.html">
+      <strong>NoahArno</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../index.html">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('../../img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">RabbitMQ常见面试题</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-06 23:27" pubdate>
+          2023年4月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="RabbitMQ"
+        id="heading-7eaa993723e57b3bfc99923c196e2e17" role="tab" data-toggle="collapse" href="#collapse-7eaa993723e57b3bfc99923c196e2e17"
+        aria-expanded="true"
+      >
+        RabbitMQ
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-7eaa993723e57b3bfc99923c196e2e17"
+           role="tabpanel" aria-labelledby="heading-7eaa993723e57b3bfc99923c196e2e17">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="" title="RabbitMQ常见面试题"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">RabbitMQ常见面试题</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="面试话术"
+        id="heading-af7d64e5c1281936846a15f146da0d45" role="tab" data-toggle="collapse" href="#collapse-af7d64e5c1281936846a15f146da0d45"
+        aria-expanded="true"
+      >
+        面试话术
+        <span class="list-group-count">(4)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-af7d64e5c1281936846a15f146da0d45"
+           role="tabpanel" aria-labelledby="heading-af7d64e5c1281936846a15f146da0d45">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="" title="RabbitMQ常见面试题"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">RabbitMQ常见面试题</span>
+        </a>
+      
+    
+      
+      
+        <a href="../../%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/" title="一些常见面试题的回答"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">一些常见面试题的回答</span>
+        </a>
+      
+    
+      
+      
+        <a href="../../%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/" title="分布式系统理论知识"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统理论知识</span>
+        </a>
+      
+    
+      
+      
+        <a href="../../%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" title="常见的系统设计题"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">常见的系统设计题</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">RabbitMQ常见面试题</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="一、基础知识"><a href="#一、基础知识" class="headerlink" title="一、基础知识"></a>一、基础知识</h2><h3 id="1-1-springboot整合"><a href="#1-1-springboot整合" class="headerlink" title="1.1 springboot整合"></a>1.1 springboot整合</h3><p>1、添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>2、配置文件中进行相关配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span> <br>  <span class="hljs-attr">rabbitmq:</span><br>    <span class="hljs-attr">host:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.118</span><span class="hljs-number">.128</span><br>    <span class="hljs-attr">virtual-host:</span> <span class="hljs-string">/</span><br>    <span class="hljs-attr">publisher-returns:</span> <span class="hljs-literal">true</span> <span class="hljs-comment">#开启发送端消息抵达队列的确认</span><br>    <span class="hljs-attr">template:</span><br>      <span class="hljs-attr">mandatory:</span> <span class="hljs-literal">true</span> <span class="hljs-comment">#只要抵达队列，以异步发送优先回调我们这个returnconfirm</span><br>    <span class="hljs-attr">listener:</span><br>      <span class="hljs-attr">simple:</span><br>        <span class="hljs-attr">acknowledge-mode:</span> <span class="hljs-string">manual</span> <span class="hljs-comment">#手动ack消息</span><br>    <span class="hljs-attr">publisher-confirm-type:</span> <span class="hljs-string">correlated</span> <span class="hljs-comment">#开启发送端确认</span><br></code></pre></td></tr></table></figure>
+
+<p>3、添加注解@EnableRabbit</p>
+<h2 id="二、面试题"><a href="#二、面试题" class="headerlink" title="二、面试题"></a>二、面试题</h2><h3 id="2-1-为什么你的项目要使用RabbitMQ？"><a href="#2-1-为什么你的项目要使用RabbitMQ？" class="headerlink" title="2.1 为什么你的项目要使用RabbitMQ？"></a>2.1 为什么你的项目要使用RabbitMQ？</h3><p>商品支付之后，要创建订单，要物流信息，要发送通知等，需要异步</p>
+<h3 id="2-2-MQ的优点"><a href="#2-2-MQ的优点" class="headerlink" title="2.2 MQ的优点"></a>2.2 MQ的优点</h3><ol>
+<li><p><strong>异步处理：</strong>相比于传统的串行、并行方式，提高了系统的吞吐量。（<strong>异步就是你可以不用等到你要执行的任务执行完，而是直接执行下一个任务，最后再执行它的回调函数</strong>）</p>
+<p>从业务上来说，A发送一个请求，需要将数据写入BCD三个系统进行保存，如果不是异步的话，就得等待它们都执行完才返回结果，这无疑是非常耗时的，因此就可以使用MQ的异步，在A处理了请求之后，可以发送三个消息分别发给BCD，去异步的处理它们接下来的业务，这样无疑快得多。</p>
+</li>
+<li><p><strong>应用解耦</strong>：A系统发送数据给BCD三个系统，如果是通过接口调用的方式也不是不可以，但是如果另一个系统E也想要A的这些数据，或者BCD其中有系统不想要这个数据了，那么负责A系统的团队就得忙活死了，以后如果还要有变更，就得继续修改代码。这就是所谓的<strong>耦合严重</strong>。如果采用MQ的话，就可以让A系统将数据发送到MQ中，其余的系统只需要去消费这些消息就行。</p>
+</li>
+<li><p><strong>流量削峰：</strong>如果A系统会有一段时间突然产生大量的流量，那么可能会造成MySQL服务器扛不住这么大的请求。就可以接入MQ的方式，将请求发到MQ中，然后A系统会根据自己的承受能力去MQ中处理请求，一般而言，这种大流量持续的时间不会很久，等到系统稳定之后，就可以让积压在MQ中的请求逐步被处理。</p>
+</li>
+<li><p>作为发布&#x2F;订阅系统实现一个微服务级别系统间的观察者模式</p>
+</li>
+<li><p>连接流计算任务和数据</p>
+</li>
+<li><p>用于将消息广播给大量接收者。</p>
+</li>
+</ol>
+<p><strong>应用场景】</strong>：秒杀、发邮件、高并发订单。但是不适合银行转账、电信开户，因为这些场景的数据一致性要求极高。</p>
+<h3 id="2-3-MQ的缺点"><a href="#2-3-MQ的缺点" class="headerlink" title="2.3 MQ的缺点"></a>2.3 MQ的缺点</h3><p>虽然系统中引入了MQ能带来一定的好处，但是同样也会带来坏处：</p>
+<ol>
+<li>首先引入了新的中间件，会造成<strong>系统的可用性降低</strong>，因为本来系统运行的好好的，突然加了个中间件过来，还得去考虑MQ，如果MQ挂了怎么办？如果消息丢失了怎么办？</li>
+<li><strong>系统复杂性降低</strong>：比如加入了MQ，你应该如何去处理<strong>消息是否重复消费？</strong>，<strong>怎么处理消息丢失的情况？消息的顺序性该如何保证？</strong></li>
+<li><strong>一致性问题：</strong>比如系统A请求成功了，将消息发送到MQ之后就返回成功。但是此时BCD系统去消费这个消息，如果其中有一个系统消费失败了，那么该怎么办？<strong>这就造成了数据的一致性问题</strong></li>
+<li>引入MQ，会增加系统调用链环节，导致总体的响应时延变长。</li>
+</ol>
+<p><strong>衍生：RabbitMQ的缺点】</strong></p>
+<ol>
+<li>RabbitMQ对消息堆积的支持并不好，在他的设计理念中，消息队列是一个管道，大量的消息积压是一种不正常的现象。当大量消息积压的时候，会导致RabbitMQ的性能急剧下降。</li>
+<li>RabbitMQ相对于Kafka、RocketMQ来说，性能是他们之中最差的</li>
+<li>底层用的Erlang，非常小众。非常难扩展和二次开发。</li>
+</ol>
+<h3 id="2-4-各种MQ的区别（为什么选择RabbitMQ？）"><a href="#2-4-各种MQ的区别（为什么选择RabbitMQ？）" class="headerlink" title="2.4 各种MQ的区别（为什么选择RabbitMQ？）"></a>2.4 各种MQ的区别（为什么选择RabbitMQ？）</h3><p>相对于其余的几种MQ来说，RabbitMQ拥有开源的活跃社区，它的时效性很高，延迟最低，拥有良好的消息可靠性。并且基于erlang语言开发，并发能力强，性能极好。</p>
+<ul>
+<li>如果你的系统使用消息队列主要场景是处理在线业务，比如在交易系统中用消息队列传递订单，那么RocketMQ的低延迟和金融级别的稳定性。</li>
+<li>如果需要处理海量的消息，比如收集日志、监控信息，或者应用场景大量使用了大数据、流计算相关的开源产品，选择Kafka</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>ActiveMQ</th>
+<th>RabbitMQ</th>
+<th>RocketMQ</th>
+<th>Kafka</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单机吞吐量</td>
+<td>万级</td>
+<td>万级</td>
+<td>十万级，支持高吞吐</td>
+<td>十万级，高吞吐</td>
+</tr>
+<tr>
+<td>topic数量对吞吐量的影响</td>
+<td></td>
+<td></td>
+<td>topic可以达到几百&#x2F;几千的级别，吞吐量会有较小幅度的下降，在同等机器下，可以支撑大量的topic</td>
+<td>topic从几十到几百个时候，吞吐量会有较大的下降。Kafka尽量保证topic数量不要太多</td>
+</tr>
+<tr>
+<td>时效性</td>
+<td>ms</td>
+<td>微秒级，延迟最低</td>
+<td>ms</td>
+<td>ms以内</td>
+</tr>
+<tr>
+<td>可用性</td>
+<td>高，基于主从架构实现高可用</td>
+<td>同Active</td>
+<td>非常高，分布式架构</td>
+<td>非常高，分布式，一个数据多个副本，少数机器宕机不会丢失数据，不会导致不可用</td>
+</tr>
+<tr>
+<td>消息可靠性</td>
+<td>较低的概率丢失</td>
+<td>基本不丢</td>
+<td>经过参数优化配置，可以做到0丢失</td>
+<td>同rocketmq</td>
+</tr>
+<tr>
+<td>功能支持</td>
+<td>MQ领域的功能及其完备</td>
+<td>基于erlang开发，并发能力强，性能极好，延时很低</td>
+<td>MQ功能较为完善，分布式，扩展性好</td>
+<td>功能简单，在大数据领域的实时计算以及日志采集被大规模使用</td>
+</tr>
+</tbody></table>
+<h3 id="2-5-如何防止消息的重复提交"><a href="#2-5-如何防止消息的重复提交" class="headerlink" title="2.5 如何防止消息的重复提交"></a>2.5 如何防止消息的重复提交</h3><p>如果MQ由于某种因素导致消费端收到了两条一模一样的消息，该如何处理？其实就是保证<strong>幂等性</strong></p>
+<p>就以固定的业务来说，比如我们有一种商品它只能每个用户购买一次。</p>
+<ol>
+<li>在每次插入订单的时候，就可以查看MySQL中是否有该用户关于该商品Id的订单，如果有了， 就不让它插入。但是这样无疑效率会很低，这时候也可以选择使用Redis来进行这种判重，当我们创建订单时，可以同时将该用户购买了哪个商品记录在redis中，每次插入的时候可以先判断redis是否存在该记录。</li>
+<li>也可以使用唯一性约束，如果插入了相同的数据，就会报错。</li>
+</ol>
+<h3 id="2-6-如何保证消息的消费顺序（不懂）"><a href="#2-6-如何保证消息的消费顺序（不懂）" class="headerlink" title="2.6 如何保证消息的消费顺序（不懂）"></a>2.6 如何保证消息的消费顺序（不懂）</h3><p>比如系统A发送了两个消息，M1和M2，并且必须要M1先于M2执行。如果这两个数据被不同的消费者消费掉了，就可能会M2先执行，M1后执行。</p>
+<p>对于有顺序要求的消息，可以将其都发送到同一个Queue中，然后依次消费。</p>
+<ul>
+<li>拆分多个 queue(消息队列)，每个 queue(消息队列) 一个 consumer(消费者)，就是多一些 queue(消息队列)而已，确实是麻烦点；</li>
+<li>或者就一个 queue (消息队列)但是对应一个 consumer(消费者)，然后这个 consumer(消费者)内部用内存队列做排队，然后分发给底层不同的 worker 来处理。</li>
+</ul>
+<h2 id="2-7-如何保证消息的可靠传输"><a href="#2-7-如何保证消息的可靠传输" class="headerlink" title="2.7 如何保证消息的可靠传输"></a>2.7 如何保证消息的可靠传输</h2><p><strong>什么情况会导致消费的传输不可靠呢？</strong></p>
+<ol>
+<li>生产者在向MQ传送消息的过程中，消息丢失。</li>
+<li>MQ收到消息，暂时存在内存中，还没消费，但是此时MQ宕机了，内存中的消息就丢失了。</li>
+<li>消费者还没来得及去消费这个消息，就宕机了，而MQ会以为该消息被消费了。</li>
+</ol>
+<p><strong>怎么去解决这些不可靠的传输呢？</strong></p>
+<ol>
+<li>对于生产者，开启RabbitMQ事务（同步，不推荐）或者开启confirm模式（异步，推荐）</li>
+<li>对MQ，开启RabbitMQ持久化</li>
+<li>对于消费者：关闭RabbitMQ自动ACK</li>
+</ol>
+<p><strong>针对于生产者来说：</strong></p>
+<ul>
+<li>将信道设置成confirm模式（发送方确认模式），则所有在信道上发布的消息都会被指派一个唯一的ID。</li>
+<li>一旦消息被投递到目的队列之后，或者消息被写入磁盘之后，信道会发送一个确认给生产者。 （包含唯一的ID），就可以知道消息正确到达目的队列了。</li>
+<li>如果MQ发生内部错误而导致消息丢失，会发送一条nack（notacknowledged，未确认）消息。这时你可以进行重试等操作。</li>
+<li>发送方确认模式是<strong>异步的</strong>，生产者应用程序在等待确认的同时，可以继续发送消息。当确认消息到达生产者应用程序，生产者应用程序的回调方法就会被触发来处理确认消息。</li>
+</ul>
+<p><strong>针对MQ来说：</strong></p>
+<ul>
+<li>一般而言都是开启持久化磁盘的配置。</li>
+<li>这个可以配合生产者的confirm模式使用，可以在消息持久化到磁盘之后再给生产者发送一个ACK信号。这样，如果MQ宕机了，而消息此时未被持久化， 那么生产者就收不到ACK信号，生产者就会自动重发。</li>
+<li>将Queue的持久化标识设置为true，表示持久化该队列。然后设置消息的<code>deliveryMode</code>为2，就表示将消息设置为可持久化的，此时MQ就会自动的将消息持久化到磁盘上。</li>
+</ul>
+<p><strong>针对于消费者来说：</strong></p>
+<ul>
+<li>将自动确认消息改为手动确认消息即可。不过这样有可能消费者ACK的时机慢了导致消息重复发送，不过这时候只要保证幂等性就可以了。</li>
+</ul>
+<h3 id="2-8-消息基于什么传输？"><a href="#2-8-消息基于什么传输？" class="headerlink" title="2.8 消息基于什么传输？"></a>2.8 消息基于什么传输？</h3><p>由于TCP连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。RabbitMQ采用<strong>信道</strong>的方式来传输数据。<strong>信道是建立在真实的TCP连接内的虚拟连接，且每条TCP连接上的信道数量没有限制</strong>。</p>
+<h3 id="2-9-如何解决MQ消息积压问题"><a href="#2-9-如何解决MQ消息积压问题" class="headerlink" title="2.9 如何解决MQ消息积压问题"></a>2.9 如何解决MQ消息积压问题</h3><p><strong>先定位消费者消息慢的原因</strong>：看看是不是有bug，或者优化一下消费逻辑，批量处理等等。</p>
+<p>如果消费者宕机了，就会导致消息大量的积压。这时候只能进行<strong>紧急扩容</strong>了。</p>
+<ul>
+<li>首先得看消费者为什么宕机，并且修复好它。</li>
+<li>新建一个topic，然后临时建立好原先十倍的Queue数量。</li>
+<li>写一个临时的分发数据的consumer程序，这个程序部署上去消费积压的数据，<strong>但是消费之后不做耗时的处理</strong>，直接均匀轮询写入临时建立好的十倍数量的Queue中。</li>
+<li>临时征用十倍的机器来部署consumer，每一批consumer去消费一个临时Queue中的数据。</li>
+<li>等快速消费完积压的消息之后，<strong>恢复到原先的架构</strong>，重新用修复好的原先的consumer机器来消费消息。</li>
+</ul>
+<p>但是上述治标不治本，还是得找到为什么消息会积压。</p>
+<ol>
+<li>临时扩容，增加消费端，用硬件提升消费速度</li>
+<li>可能硬件不够了，就可以进行服务降级，关闭一些非核心业务，减少消息生产。</li>
+<li>通过日志分析、监控等找到挤压原因，消息队列三部分，上游生产者是否异常生产大量数据，中游消息队列存储层是否出现问题，下游消费速度是否变慢就能确定哪个环节出了问题。</li>
+<li>根据排查解决异常部分</li>
+<li>等待积压的消息被消费，恢复到正常状态，撤掉扩容服务器。</li>
+</ol>
+<h3 id="2-10-如何解决数据一致性问题"><a href="#2-10-如何解决数据一致性问题" class="headerlink" title="2.10 如何解决数据一致性问题"></a>2.10 如何解决数据一致性问题</h3><p>比如系统A发送了两个消息分别给订单服务和库存服务。然后订单服务成功了，库存服务失败了这时候该怎么办？</p>
+<p>如果库存服务失败了，就给MQ返回处理失败的ACK，然后MQ会进行重试，当重试达到一定次数的时候就可以投入到死信队列中，进行人工处理或者定时任务进行相应的补偿。</p>
+<p>当然也可以放弃MQ架构，采用分布式事务。</p>
+<h2 id="2-11-说一说死信队列"><a href="#2-11-说一说死信队列" class="headerlink" title="2.11 说一说死信队列"></a>2.11 说一说死信队列</h2><p>所谓的死信就是无法被消费的消息。</p>
+<ol>
+<li>消息设置的TTL过期了。</li>
+<li>队列达到了最大长度，无法再添加消息到MQ中（声明队列的时候可以设置队列长度）</li>
+<li>消费者拒绝消费该消息并且设置了requeue &#x3D; false（表示拒绝重新入队）</li>
+</ol>
+<p>上述三种就是消息成为死信的情况。</p>
+<p><strong>应用场景：</strong>为了保证订单业务的数据不丢失，就可以使用到死信队列机制，当消费发生异常，或者指定时间未支付等，就会将消息发送到对应的死信队列中，然后由消费者去监听这个死信队列去处理这些死信。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="../../categories/RabbitMQ/" class="category-chain-item">RabbitMQ</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="../../categories/%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/" class="category-chain-item">面试话术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="../../tags/RabbitMQ/">#RabbitMQ</a>
+      
+        <a href="../../tags/%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF/">#面试话术</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>RabbitMQ常见面试题</div>
+      <div>https://noaharno.top/RabbitMQ/RabbitMQ常见面试题/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>NoahArno</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="../../JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/" title="深入理解Java虚拟机">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">深入理解Java虚拟机</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="../../Dubbo/Dubbo%E4%B8%80%E5%A5%97%E8%A7%A3%E5%86%B3/" title="Dubbo源码分析">
+                        <span class="hidden-mobile">Dubbo源码分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="../../js/events.js" ></script>
+<script  src="../../js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="../../js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="../../js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="../../js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

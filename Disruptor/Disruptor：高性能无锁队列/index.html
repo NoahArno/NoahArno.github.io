@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../img/fluid.png">
+  <link rel="icon" href="../../img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="NoahArno">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Disruptor：高性能无锁队列从数据结构上来看，Disruptor 是一个支持生产者消费者模型的高性能无锁队列，它内部利用 RingBuffer 环形数组存储数据，能够让消费者按照它们之间的依赖关系对 event 进行消费。不过现在 Disruptor 的官方更新已经不那么频繁了。一个是因为它的性能已经足够优秀而导致难以变化；二来是它的作用范围只支持单机，在如今分布式的时代已经逐渐用处不大了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Disruptor：高性能无锁队列">
+<meta property="og:url" content="https://noaharno.top/Disruptor/Disruptor%EF%BC%9A%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97/index.html">
+<meta property="og:site_name" content="NoahArno">
+<meta property="og:description" content="Disruptor：高性能无锁队列从数据结构上来看，Disruptor 是一个支持生产者消费者模型的高性能无锁队列，它内部利用 RingBuffer 环形数组存储数据，能够让消费者按照它们之间的依赖关系对 event 进行消费。不过现在 Disruptor 的官方更新已经不那么频繁了。一个是因为它的性能已经足够优秀而导致难以变化；二来是它的作用范围只支持单机，在如今分布式的时代已经逐渐用处不大了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-07T15:00:14.000Z">
+<meta property="article:modified_time" content="2023-04-06T17:09:04.241Z">
+<meta property="article:author" content="NoahArno">
+<meta property="article:tag" content="Disruptor">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Disruptor：高性能无锁队列 - NoahArno</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="../../css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="../../css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="../../css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"noaharno.top","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="../../js/utils.js" ></script>
+  <script  src="../../js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="../../index.html">
+      <strong>NoahArno</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../index.html">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('../../img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">Disruptor：高性能无锁队列</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-07 23:00" pubdate>
+          2023年4月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          59 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Disruptor：高性能无锁队列</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Disruptor：高性能无锁队列"><a href="#Disruptor：高性能无锁队列" class="headerlink" title="Disruptor：高性能无锁队列"></a>Disruptor：高性能无锁队列</h1><p>从数据结构上来看，Disruptor 是一个支持生产者消费者模型的高性能无锁队列，它内部利用 RingBuffer 环形数组存储数据，能够让消费者按照它们之间的依赖关系对 event 进行消费。不过现在 Disruptor 的官方更新已经不那么频繁了。一个是因为它的性能已经足够优秀而导致难以变化；二来是它的作用范围只支持单机，在如今分布式的时代已经逐渐用处不大了。然而，它内部的一些实现还是值得我们去借鉴。</p>
+<h2 id="1-基本使用"><a href="#1-基本使用" class="headerlink" title="1. 基本使用"></a>1. 基本使用</h2><p>在依赖上，引入 Disruptor 相关依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- https://mvnrepository.com/artifact/com.lmax/disruptor --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.lmax<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>disruptor<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.4.4<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><code>Disruptor</code> 的核心是 RingBuffer，甚至来说，我们完全可以不使用 Disruptor 而直接使用 RingBuffer 就能完成所有的操作。不过官方给 RingBuffer 包装了一层 Disruptor，在使用方面还是较之前简便不少。</p>
+<p>一般而言，使用 Disruptor 需要如下步骤：</p>
+<ol>
+<li>创建 Disruptor 实例对象：指定 RingBuffer 的大小、事件工厂、线程池、生产者策略和等待策略。</li>
+<li>根据消费需求，使用 <code>handlerEventsWith</code> 或 <code>handleEventsWithWorkerPool</code> 增加消费者。</li>
+<li>调用 <code>Disruptor#start</code> 方法启动 Disruptor。</li>
+<li>在启动之后，就可以往 Disruptor 生产数据了。在生产中，一定得根据创建 Disruptor 时指定的生产者策略进行，不能指定单生产者模式下启动多个生产者并行生产。</li>
+</ol>
+<p>示例如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;  <br>    Disruptor&lt;Trade&gt; disruptor = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Disruptor</span>&lt;Trade&gt;(<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">EventFactory</span>&lt;Trade&gt;() &#123;<br>            <span class="hljs-keyword">public</span> Trade <span class="hljs-title function_">newInstance</span><span class="hljs-params">()</span> &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Trade</span>();<br>            &#125;<br>        &#125;,<br>        <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>,<br>        Executors.defaultThreadFactory(),<br>        ProducerType.SINGLE,<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">BusySpinWaitStrategy</span>());<br><br>    <span class="hljs-comment">// 并行操作</span><br>    disruptor.handleEventsWith(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Handler1</span>(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Handler2</span>(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Handler3</span>());<br><br>    <span class="hljs-comment">// 多消费者竞争，对于 eventHandler 而言需要实现 WorkHandler 接口</span><br>    disruptor.handleEventsWithWorkerPool(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Handler1</span>(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Handler2</span>());<br><br>    <span class="hljs-comment">// 启动disruptor</span><br>    RingBuffer&lt;Trade&gt; ringBuffer = disruptor.start();<br>    <span class="hljs-comment">// 生产 event</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">sequence</span> <span class="hljs-operator">=</span> ringBuffer.next();	<span class="hljs-comment">//0	</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-type">Trade</span> <span class="hljs-variable">event</span> <span class="hljs-operator">=</span> ringBuffer.get(sequence);<br>        <span class="hljs-comment">//3 进行实际的赋值处理</span><br>        event.setValue(data.getLong(<span class="hljs-number">0</span>));			<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-comment">//4 提交发布操作</span><br>        ringBuffer.publish(sequence);			<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于 Disruptor 而言，使用限制其实比较低，对于生产者和消费者的配合较为灵活，得益于它内部设计的 EventHandlerGroup 和 SequencerBarrier 机制。</p>
+<h2 id="2-Disruptor的实现优点"><a href="#2-Disruptor的实现优点" class="headerlink" title="2. Disruptor的实现优点"></a>2. Disruptor的实现优点</h2><p>Disruptor 的性能优越，它在多个方面进行了细致的优化：</p>
+<ul>
+<li><p>不使用锁，而是使用的 CAS，并且对于单生产者而言用 long 来保存序号，而多生产者用的是 AtomicLong，因为单生产者不涉及到竞争。不过这里的 AtomicLong 其实是类 AtomicLong，原因是 Sequence 类其实也是用的 Unsafe 保证原子更新。</p>
+<blockquote>
+<p>由于 Java8 中新增了 LongAdder 类，它在多线程竞争下的性能比 AtomicLong 还要高，我们似乎可以用其对 Sequence 进行优化。</p>
+</blockquote>
+</li>
+<li><p>使用 RingBuffer 设计。对于传统的队列而言，需要维护 tail、head、size 等变量，入队的时候需要对 tail 进行竞争，出队的时候要对 head 进行竞争，同时还得维护 size 来确认队列的 empty or full。而 RingBuffer 只维护序号来保存下一个可用空间，减小竞争。</p>
+</li>
+<li><p>使用额外的变量，以空间换时间的策略来解决伪共享问题。对于 RingBuffer 存放真正数据的数组也进行了缓存行优化。</p>
+</li>
+<li><p>RingBuffer 在初始化的时候就对环中的数据进行了预填充，详情见 RingBuffer#fill，解决频繁创建和回收对象的垃圾回收问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 内存预加载机制的实现，也就是在创建的时候，就将环中的数据填充为空对象</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fill</span><span class="hljs-params">(EventFactory&lt;E&gt; eventFactory)</span> &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; bufferSize; i++) &#123;   <span class="hljs-comment">// 由于数组左边遭受到填充，因此在设置元素的时候，需要跳过</span><br>        entries[BUFFER_PAD + i] = eventFactory.newInstance();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="3-缓存行优化最佳实战"><a href="#3-缓存行优化最佳实战" class="headerlink" title="3. 缓存行优化最佳实战"></a>3. 缓存行优化最佳实战</h2><p>在读取数据的时候，CPU 会将内存中的一块连续的数据读取到 CPU 缓存中，该连续的数据被称为缓存块，也就是 CPU Cache Line，一般是 64 字节大小。不过假如存在两个 CPU 核心，并且存在变量 A 和变量 B 位于同一缓存块中。当 CPU1 想要读取 A 的时候，会将 AB 一起读取到它的缓存当中，同时 CPU2 想要读取 B，也会进行相同的操作。这时候 CPU1 和 CPU2 各自的缓存行处于共享状态。</p>
+<p>此时 CPU1 想要更新 A，就必须通过总线将 CPU2 对应的缓存行标记为失效。而 CPU2 想要更新 B，发现缓存行被标记为失效了，就得重新从内存中读取，并且更新之前还得将 CPU1 的缓存行给标记失效。</p>
+<p>如果两个 CPU 核心反复执行更新操作，就会造成缓存失效，也就是伪共享问题。</p>
+<h3 id="3-1-对于普通变量的伪共享解决方案"><a href="#3-1-对于普通变量的伪共享解决方案" class="headerlink" title="3.1 对于普通变量的伪共享解决方案"></a>3.1 对于普通变量的伪共享解决方案</h3><p>在 Sequence 类当中，对于变量 value 而言，由于需要频繁更新，消除伪共享就显得额外重要。并且 value 属性是 long 类型，它占 8字节，而一个缓存行一般都是 64 字节大小，因此就需要在 value 的左右两边分别填充 56 字节，也就是分别填充7 个 long 类型变量。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LhsPadding</span>&#123;<br>    <span class="hljs-keyword">protected</span> <span class="hljs-type">long</span> p1, p2, p3, p4, p5, p6, p7;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Value</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">LhsPadding</span>&#123;<br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">long</span> value;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RhsPadding</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Value</span>&#123;<br>    <span class="hljs-keyword">protected</span> <span class="hljs-type">long</span> p9, p10, p11, p12, p13, p14, p15;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>不过在 Disruptor 当中，并没有写一个从来都不会被调用的方法去使用这些额外填充的无用变量。我们不清楚编译器会不会将这些填充变量给优化掉，因此在自己的实现中，还是添加这么一个方法比较保险。</p>
+<p>同时 JDK1.8 中提供了 <code>@sun.misc.Contended</code> 注解用于将变量自动独占缓存行，不过需要添加 <code>-XX: -RestrictContended</code> 参数才能够生效。</p>
+<h3 id="3-2-针对数组的伪共享解决方案"><a href="#3-2-针对数组的伪共享解决方案" class="headerlink" title="3.2 针对数组的伪共享解决方案"></a>3.2 针对数组的伪共享解决方案</h3><p>对于变量而言，它的伪共享解决方案其实较为简单，因为变量的内存占用大小一般都是固定的。不过针对于数组而言，它的内存占用并不确定，因此无法极限利用空间，而是可以选择在数组的两侧额外填充 64 字节或者 128 字节。</p>
+<p>在 Disruptor 中，对它的处理倒是显得较为复杂，在 <code>RingBuffer.class</code> 中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RingBufferFields</span>&lt;E&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RingBufferPad</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> BUFFER_PAD;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> REF_ARRAY_BASE;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> REF_ELEMENT_SHIFT;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Unsafe</span> <span class="hljs-variable">UNSAFE</span> <span class="hljs-operator">=</span> Util.getUnsafe();<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 通过 Unsafe 的 arrayBaseOffset 和 arrayIndexScale</span><br><span class="hljs-comment">     * 分别获取数组首元素的偏移地址 和 单个元素大小因子</span><br><span class="hljs-comment">     * 后续的相关操作，就可以用这个来确定</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-comment">// 在 JVM 知识当中，对象是真正被分配到堆中，然后用指针引用，这里使用 Object数组来判断对象的大小，</span><br>        <span class="hljs-comment">// 其实说的是数组中指针的大小，就是 4 字节，所以不必纠结这里用的是 Object 而实际的 entries 可以是 Object 的子类</span><br>        <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">scale</span> <span class="hljs-operator">=</span> UNSAFE.arrayIndexScale(Object[].class); <span class="hljs-comment">// 4</span><br>        <span class="hljs-comment">// 如果开启指针压缩，指针就是 4 字节，没压缩就是 8 字节</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-number">4</span> == scale) &#123;<br>            REF_ELEMENT_SHIFT = <span class="hljs-number">2</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-number">8</span> == scale) &#123;<br>            REF_ELEMENT_SHIFT = <span class="hljs-number">3</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;Unknown pointer size&quot;</span>);<br>        &#125;<br>        <span class="hljs-comment">// 将数组的前后都填充 128 字节，不过不知道为啥不填充 64 字节</span><br>        BUFFER_PAD = <span class="hljs-number">128</span> / scale; <span class="hljs-comment">// 32</span><br>        <span class="hljs-comment">// Including the buffer pad in the array base offset</span><br>        <span class="hljs-comment">// 由于我们在数组的前面填充了 128 字节，因此数组的有效元素偏移量就需要往后推</span><br>        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD &lt;&lt; REF_ELEMENT_SHIFT);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在创建和填充 entires 数组的时候，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-built_in">this</span>.entries = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[sequencer.getBufferSize() + <span class="hljs-number">2</span> * BUFFER_PAD];<br>entries[BUFFER_PAD + i] = eventFactory.newInstance();<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>elementAt</code> 方法获取元素：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> E <span class="hljs-title function_">elementAt</span><span class="hljs-params">(<span class="hljs-type">long</span> sequence)</span> &#123; <br>    <span class="hljs-comment">// 位运算，这就需要 entries 的长度大小为 2 的幂次方，</span><br>    <span class="hljs-comment">// sequence &amp; indexMask：将 sequence 进行截断</span><br>    <span class="hljs-keyword">return</span> (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence &amp; indexMask) &lt;&lt; REF_ELEMENT_SHIFT));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如上所示，它的使用还是较为复杂的，并且还使用了 UnSafe 类。并且它采用数组真实起始地址和元素偏移量的方式获取元素的设计。如果直接使用数组下标倒是会显得更加麻烦，因为数组是存在两侧的填充的，很难通过下标真实的确定位置。</p>
+<h2 id="4-生产者原理"><a href="#4-生产者原理" class="headerlink" title="4. 生产者原理"></a>4. 生产者原理</h2><p>Disruptor 支持单生产者和多生产者模式，并且使用 Sequencer 管理 Sequence。并且它们都使用了二阶段提交机制。</p>
+<p>对于单生产者而言，也就是 SingleProducerSequencer，使用 long 类型的 nextValue 表示占位，因为它并不涉及到竞争。同时对于表示真正的生产进度的 Sequencer 类型的 cursor 来说，也就是真实填充了数据的指针，当数据在 nextValue 指定的位置填充好之后，就会更新 cursor 的值。</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs tap">// 1. 一开始的状态<br>1   <span class="hljs-number"> 2 </span> <span class="hljs-number"> 3 </span> <span class="hljs-number"> 4 </span> <span class="hljs-number"> 5 </span>  6<br>     ^<br>nextValue、cursor<br><br>// 2. next 方法去申请1个位置<br>1   <span class="hljs-number"> 2 </span>        <span class="hljs-number"> 3 </span> <span class="hljs-number"> 4 </span> <span class="hljs-number"> 5 </span>  6<br>     ^          ^<br>   cursor    nextValue<br><br>// 3. 调用 publish 发布之后<br>1   <span class="hljs-number"> 2 </span> <span class="hljs-number"> 3 </span> <span class="hljs-number"> 4 </span> <span class="hljs-number"> 5 </span>  6<br>         ^<br>  nextValue、cursor<br></code></pre></td></tr></table></figure>
+
+<p>对于多生产者而言，也就是 MultiProducerSequencer，为了防止多个线程重复写同一个元素，Disruptor 为每个线程使用 CAS 获取不同的一段数组空间进行操作，只需要在分配元素的时候通过 CAS 判断一下这段空间是否已经被分配出去即可。然而为了防止读取的时候读取到还未写入的元素，就需要一个简单的二阶段提交：它使用了 availableBuffer 辅助数组，当某个位置写成功的时候就会将 availableBuffer 相应的位置标记为写入成功。消费者想要读取元素的时候就会遍历 availableBuffer 来判断元素是否已经就绪。</p>
+<p>availableBuffer 中的值默认为 -1。在设置 availableBuffer 的时候，也就是调用 publish 发布的时候，就需要计算出当前 sequence 是处于哪一轮的，从而设置对应的标志位。这样是因为数组是循环使用的，使用固定特殊值作为标记的方法不可取。</p>
+<p>多生产者模式下大致步骤如下：</p>
+<ol>
+<li><p>当前生产者先看 RingBuffer 中空间是否充足，如果空间不够不停循环判断。</p>
+<blockquote>
+<p>这里的判断会查看消费者的进度，获取消费进度最小的那个消费者的序号。看当前生产进度是否超过。</p>
+</blockquote>
+</li>
+<li><p>如果空间足够就使用 CAS 操作获取指定的空间。</p>
+<blockquote>
+<p>这里注意的是，多生产者模式下的 cursor 变量也会用作占位：<code>cursor.compareAndSet(current, next)</code></p>
+</blockquote>
+</li>
+<li><p>获取成功之后就可以开始往里面写入数据了，同时也会去更新 availableBuffer 中的标志位。</p>
+</li>
+</ol>
+<h2 id="5-消费者原理"><a href="#5-消费者原理" class="headerlink" title="5. 消费者原理"></a>5. 消费者原理</h2><p>Disruptor 支持多个消费者对同一个消息进行并行获取有依赖关系的消费，也支持多个消息去竞争消息消费。</p>
+<ul>
+<li>消费者实现 EventHandler 接口，并且调用 <code>disruptor.handleEventsWith</code> 方法添加消费者，多个 handler 就会对同一个消息进行重复消费，也可以结合 then、after 等方法对数据进行多边形计算。<strong>场景上适用于链路计算，和 CompletableFuture 结合线程池的方法相类似</strong>。</li>
+<li>消费者实现 WorkerHandler 接口，并且调用 <code>disruptor.handleEventsWithWorkerPool</code>，将多个 WorkerHandler 的实现类传入该方法，就可以看作有一个叫做 WorkerPool 的消费者，消息会被它内部的多个 workerHandler 给竞争消费，也就是消息无法被重复消费。<strong>场景上适用于传统的生产者消费者模型</strong>。</li>
+</ul>
+<p>前面也说了，消费者支持依赖关系，也就是消费者 A 需要等待消费者 B 消费完某个消息之后才能消费。在实现原理上面，其实是通过 SequenceBarrier 内部的 dependentSequence，比如 A 想要消费序号 N 中的消息，它就会去看 B 的消费进度是否超过了 N，如果没有超过就只能等待。</p>
+<p>对于 WorkerHandler 模式下的消费者竞争安全性问题，通过 WorkerPool（WorkerPool 中包含了多个 WorkerHandler）中的 workSequence 属性来进行的，也就是多个 WorkerHandler 去通过 CAS 修改该变量，如果能修改成功表示自己获取到了消费该消息的资格，然后进一步消费，也可以理解为一个二阶段。</p>
+<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h2><p>在看完 Disruptor 的源码之后，对于一些细节上的优化有了进一步的了解。在听到 Disruptor 号称高性能无锁队列之后，一开始我还以为它能够在不使用锁和 CAS 的情况下也能保证线程安全性，不过后来就有点小失望——它内部还是需要 CAS 机制。</p>
+<p>它在多生产者模式下的二阶段机制较为新颖，将抢占位置和填充数据给分离开来。不过似乎用处不是很大：按照正常的逻辑也是先 CAS 成功再填充数据，也是个二阶段。反倒是它的代码分离导致使用上还复杂了一点，因为需要调用 next 方法获取到可用序号之后，才从 RingBuffer 中获取到序号指定的元素再进行填充。甚至于 Disruptor 官方也提供了 EventTranslator 接口去帮助我们屏蔽掉这些细节，只关注于消息填充。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="../../tags/Disruptor/">#Disruptor</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Disruptor：高性能无锁队列</div>
+      <div>https://noaharno.top/Disruptor/Disruptor：高性能无锁队列/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>NoahArno</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="../../TinyLFU/TinyLFU/" title="TinyLFU：A Highly Efficient Cache Admission Policy">
+                        <span class="hidden-mobile">TinyLFU：A Highly Efficient Cache Admission Policy</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="../../js/events.js" ></script>
+<script  src="../../js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="../../js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="../../js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="../../js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

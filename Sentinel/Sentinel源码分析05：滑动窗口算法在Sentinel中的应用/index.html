@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../img/fluid.png">
+  <link rel="icon" href="../../img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="NoahArno">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="滑动窗口算法在Sentinel中的应用在 Sentinel 中，采用高性能的滑动窗口数据结构 LeapArray 来统计实时的秒级指标数据，可以很好的支撑写多于读的高并发场景。 在介绍滑动窗口之前，先来看看 StatisticSlot 究竟做了什么事情。 第一章 StatisticSlot在官方给的解释中，StatisticSlot 是 Sentinel 中最为重要的类之一，用于根据规则判断结果进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sentinel源码分析05：滑动窗口算法在Sentinel中的应用">
+<meta property="og:url" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9005%EF%BC%9A%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95%E5%9C%A8Sentinel%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="NoahArno">
+<meta property="og:description" content="滑动窗口算法在Sentinel中的应用在 Sentinel 中，采用高性能的滑动窗口数据结构 LeapArray 来统计实时的秒级指标数据，可以很好的支撑写多于读的高并发场景。 在介绍滑动窗口之前，先来看看 StatisticSlot 究竟做了什么事情。 第一章 StatisticSlot在官方给的解释中，StatisticSlot 是 Sentinel 中最为重要的类之一，用于根据规则判断结果进">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-06T15:41:18.000Z">
+<meta property="article:modified_time" content="2023-04-06T17:09:04.938Z">
+<meta property="article:author" content="NoahArno">
+<meta property="article:tag" content="Sentinel">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Sentinel源码分析05：滑动窗口算法在Sentinel中的应用 - NoahArno</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="../../css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="../../css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="../../css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"noaharno.top","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="../../js/utils.js" ></script>
+  <script  src="../../js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="../../index.html">
+      <strong>NoahArno</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../index.html">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../../about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('../../img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">Sentinel源码分析05：滑动窗口算法在Sentinel中的应用</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-06 23:41" pubdate>
+          2023年4月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          92 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Sentinel"
+        id="heading-7b71dfec5c8dd524069eed634dc0a3a5" role="tab" data-toggle="collapse" href="#collapse-7b71dfec5c8dd524069eed634dc0a3a5"
+        aria-expanded="true"
+      >
+        Sentinel
+        <span class="list-group-count">(6)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-7b71dfec5c8dd524069eed634dc0a3a5"
+           role="tabpanel" aria-labelledby="heading-7b71dfec5c8dd524069eed634dc0a3a5">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9001%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AFSentinel%E9%99%90%E6%B5%81/" title="Sentinel源码分析01：什么是Sentinel限流"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析01：什么是Sentinel限流</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9002%EF%BC%9A@SentinelResource%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" title="Sentinel源码分析02：@SentinelResource注解的基本原理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析02：@SentinelResource注解的基本原理</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9003%EF%BC%9ASentinel%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E5%92%8C%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92/" title="Sentinel源码分析03：Sentinel客户端如何和控制台进行交互"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析03：Sentinel客户端如何和控制台进行交互</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9004%EF%BC%9A%E6%80%BB%E8%A7%88Sentinel%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B/" title="Sentinel源码分析04：总览Sentinel的核心流程"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析04：总览Sentinel的核心流程</span>
+        </a>
+      
+    
+      
+      
+        <a href="" title="Sentinel源码分析05：滑动窗口算法在Sentinel中的应用"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">Sentinel源码分析05：滑动窗口算法在Sentinel中的应用</span>
+        </a>
+      
+    
+      
+      
+        <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/" title="Sentinel源码分析06：如何进行流控"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Sentinel源码分析06：如何进行流控</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Sentinel源码分析05：滑动窗口算法在Sentinel中的应用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="滑动窗口算法在Sentinel中的应用"><a href="#滑动窗口算法在Sentinel中的应用" class="headerlink" title="滑动窗口算法在Sentinel中的应用"></a>滑动窗口算法在Sentinel中的应用</h1><p>在 Sentinel 中，采用高性能的滑动窗口数据结构 <code>LeapArray</code> 来统计实时的秒级指标数据，可以很好的支撑写多于读的高并发场景。</p>
+<p>在介绍滑动窗口之前，先来看看 <code>StatisticSlot</code> 究竟做了什么事情。</p>
+<h2 id="第一章-StatisticSlot"><a href="#第一章-StatisticSlot" class="headerlink" title="第一章 StatisticSlot"></a>第一章 StatisticSlot</h2><p>在官方给的解释中，<code>StatisticSlot</code> 是 Sentinel 中最为重要的类之一，用于根据规则判断结果进行相应的统计操作。</p>
+<p>entry 的时候：依次执行后面的判断 slot。每个 slot 触发流控的话就会抛出异常。如果有 BlockException 抛出，则记录 block 数据；若无异常抛出则算作可通过，记录 pass 数据。</p>
+<p>exit 的时候：若无 error，无论是业务异常还是流控异常，记录 complete（success）以及 RT，线程数 -1.</p>
+<p>记录数据的维度：线程数 + 1、记录当前 DefaultNode 数据、记录对应的 originNode 数据（若存在 origin）、累计 IN 统计数据（若流量类型为 IN）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">entry</span><span class="hljs-params">(Context context, ResourceWrapper resourceWrapper, DefaultNode node, <span class="hljs-type">int</span> count,</span><br><span class="hljs-params">                  <span class="hljs-type">boolean</span> prioritized, Object... args)</span> <span class="hljs-keyword">throws</span> Throwable &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// Do some checking.</span><br>        <span class="hljs-comment">// 向后传递：调用 SlotChain 中后续的所有 Slot，完成所有规则检测（执行过程中可能会抛出异常）</span><br>        fireEntry(context, resourceWrapper, node, count, prioritized, args);<br><br>        <span class="hljs-comment">// Request passed, add thread count and pass count.</span><br>        <span class="hljs-comment">// 如果检测通过，就对 node 增加线程数和 通过的请求</span><br>        node.increaseThreadNum();<br>        node.addPassRequest(count); <span class="hljs-comment">// 涉及到滑动窗口，计算qps</span><br><br>        <span class="hljs-comment">// 对于整个应用来说，去增加相应的数据</span><br>        <span class="hljs-keyword">if</span> (context.getCurEntry().getOriginNode() != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// Add count for origin node.</span><br>            context.getCurEntry().getOriginNode().increaseThreadNum();<br>            context.getCurEntry().getOriginNode().addPassRequest(count);<br>        &#125;<br><br>        <span class="hljs-comment">// 什么是入口流量：一般就代表我们的接口对外提供服务，那么通常就是控制入口流量</span><br>        <span class="hljs-comment">// 如果我们在用户服务中使用 getOrderInfo 方法，而 getOrderInfo 会去调用订单服务，</span><br>        <span class="hljs-comment">// 那么对于 getOrderInfo 来说，压力都在订单服务当中，我们就可以指定它为出口流量。</span><br>        <span class="hljs-keyword">if</span> (resourceWrapper.getEntryType() == EntryType.IN) &#123;<br>            <span class="hljs-comment">// 全局的，用于 SystemRule 检查</span><br>            <span class="hljs-comment">// Sentinel 针对所有的入口流量，使用了一个全局的 ENTRY_NODE，进行统计</span><br>            <span class="hljs-comment">// Add count for global inbound entry node for global statistics.</span><br>            Constants.ENTRY_NODE.increaseThreadNum();<br>            Constants.ENTRY_NODE.addPassRequest(count);<br>        &#125;<br><br>        <span class="hljs-comment">// Handle pass event with registered entry callback handlers.</span><br>        <span class="hljs-comment">// MetricEntryCallback，也就是在 MetricCallbackInit 中引入的</span><br>        <span class="hljs-keyword">for</span> (ProcessorSlotEntryCallback&lt;DefaultNode&gt; handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) &#123;<br>            handler.onPass(context, resourceWrapper, node, count, args);<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (PriorityWaitException ex) &#123;<br>        <span class="hljs-comment">// 只有在 DefaultController 中才会有机会抛出该异常</span><br>        node.increaseThreadNum();<br>        <span class="hljs-keyword">if</span> (context.getCurEntry().getOriginNode() != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// Add count for origin node.</span><br>            context.getCurEntry().getOriginNode().increaseThreadNum();<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (resourceWrapper.getEntryType() == EntryType.IN) &#123;<br>            <span class="hljs-comment">// Add count for global inbound entry node for global statistics.</span><br>            Constants.ENTRY_NODE.increaseThreadNum();<br>        &#125;<br>        <span class="hljs-comment">// Handle pass event with registered entry callback handlers.</span><br>        <span class="hljs-keyword">for</span> (ProcessorSlotEntryCallback&lt;DefaultNode&gt; handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) &#123;<br>            handler.onPass(context, resourceWrapper, node, count, args);<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (BlockException e) &#123;<br>        <span class="hljs-comment">// Blocked, set block exception to current entry.</span><br>        context.getCurEntry().setBlockError(e);<br><br>        <span class="hljs-comment">// Add block count.</span><br>        node.increaseBlockQps(count);<br>        <span class="hljs-keyword">if</span> (context.getCurEntry().getOriginNode() != <span class="hljs-literal">null</span>) &#123;<br>            context.getCurEntry().getOriginNode().increaseBlockQps(count);<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (resourceWrapper.getEntryType() == EntryType.IN) &#123;<br>            <span class="hljs-comment">// Add count for global inbound entry node for global statistics.</span><br>            Constants.ENTRY_NODE.increaseBlockQps(count);<br>        &#125;<br><br>        <span class="hljs-comment">// Handle block event with registered entry callback handlers.</span><br>        <span class="hljs-keyword">for</span> (ProcessorSlotEntryCallback&lt;DefaultNode&gt; handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) &#123;<br>            handler.onBlocked(e, context, resourceWrapper, node, count, args);<br>        &#125;<br><br>        <span class="hljs-keyword">throw</span> e;<br>    &#125; <span class="hljs-keyword">catch</span> (Throwable e) &#123;<br>        <span class="hljs-comment">// Unexpected internal error, set error to current entry.</span><br>        context.getCurEntry().setError(e);<br><br>        <span class="hljs-keyword">throw</span> e;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们先来看 entry 方法：</p>
+<ol>
+<li>先直接向后传递，先看看规则判断部分的 slot 中，经过检查之后，是否会抛出相应的异常。</li>
+<li>如果检测通过<ol>
+<li>增加对应 DefaultNode 的线程数和请求通过数。不过同时也会对资源相对应的 ClusterNode 进行相同的统计数据增加。</li>
+<li>对于整个应用来说，也就是我们之前通过 ContextUtil 配置的 origin，它也会存在一个 originNode，也对它进行相应的统计。不过如果是默认的，也就是 “”，将不会存在 originNode。</li>
+<li>同时还会判断当前资源是否是入口流量，如果是，就使用一个关于系统全局的 <code>ENTRY_NODE</code>，也就是一个 ClusterNode，去统计相应的数据，该 node 的主要作用是留着给 <code>SystemRule</code> 进行检查。</li>
+</ol>
+</li>
+<li>如果抛出了 <code>PriorityWaitException</code> 异常，我们也算该请求是通过的，同样进行相应的数据统计，但是不对上面第二点所操作的节点进行 <code>addPassRequest</code> 操作。</li>
+<li>如果发现是 <code>BlockException</code> 异常，就添加 blockQps、setBlockError等等。</li>
+</ol>
+<blockquote>
+<p>什么是入口流量：一般而言就代表我们的接口对外提供服务，那么通常就是控制入口流量。如果我们在用户服务中使用 getOrderInfo 方法，而该方法会去调用订单服务，那么对于该方法来说，压力都在订单服务当中，我们就可以指定它为出口流量。</p>
+</blockquote>
+<p>对于整个 <code>StatisticSlot</code> 的基本流程而言，就如上面分析的那样，不过还是有几个细节的地方需要进一步分析：</p>
+<ol>
+<li>可以看到，当规则校验通过的时候，会有 <code>ProcessorSlotEntryCallback</code> 的实现类去执行相应的 <code>onPass</code> 方法，而如果失败了也会去执行 <code>onBlocked</code> 方法，那么这些操作的作用究竟是什么呢？</li>
+<li>我们在进行数据统计的时候，它的详细过程究竟是怎么样的呢？滑动窗口算法的具体实现是什么呢？</li>
+</ol>
+<h2 id="第二章-关于规则检验之后通过或失败的回调函数"><a href="#第二章-关于规则检验之后通过或失败的回调函数" class="headerlink" title="第二章 关于规则检验之后通过或失败的回调函数"></a>第二章 关于规则检验之后通过或失败的回调函数</h2><p>我们将目光放在下列代码上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (ProcessorSlotEntryCallback&lt;DefaultNode&gt; handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) &#123;<br>    handler.onPass(context, resourceWrapper, node, count, args);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到我们是使用 <code>StatisticSlotCallbackRegistry</code> 去获取我们的回调，而它的内部又是使用 <code>Map&lt;String, ProcessorSlotEntryCallback&lt;DefaultNode&gt;&gt; entryCallbackMap</code> 去存放我们的回调，于是我们通过查看它的 add 方法，可以发现，我们可以使用两个类去向该注册中心添加相应的回调：<code>MetricCallbackInit</code> 和 <code>ParamFlowStatisticSlotCallbackInit</code>，其中后者是需要额外引入一个依赖，也就是热点规则判断，我们不进行分析；而前者就是我们所熟悉的了，在分析 Sentinel 和控制台进行交互的时候，除了 CommandCenterInitFunc 和 心跳检测之外，还引入了一个 InitFunc，就是我们的 <code>MetricCallbackInit</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    StatisticSlotCallbackRegistry.addEntryCallback(MetricEntryCallback.class.getCanonicalName(),<br>                                                   <span class="hljs-keyword">new</span> <span class="hljs-title class_">MetricEntryCallback</span>());<br>    StatisticSlotCallbackRegistry.addExitCallback(MetricExitCallback.class.getCanonicalName(),<br>                                                  <span class="hljs-keyword">new</span> <span class="hljs-title class_">MetricExitCallback</span>());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，就是该 InitFunc 引入了 <code>MetricEntryCallback</code>。</p>
+<p>然而，从实际调试结果来看，该 MetricEntryCallback 似乎只是提供给我们的一个扩展点，并没有什么实质的作用，当然，可能 Sentinel 在和其他的组件在适配过程中添加了新的作用也不一定。不过我们也暂且知道了 <code>MetricCallbackInit</code> 的作用是什么样的了。</p>
+<h2 id="第三章-滑动窗口算法的体现"><a href="#第三章-滑动窗口算法的体现" class="headerlink" title="第三章 滑动窗口算法的体现"></a>第三章 滑动窗口算法的体现</h2><p>我们就以 <code>DefaultNode</code> 为例，在它新增通过的请求数量的时候，调用的其实是父类的方法，也就是 <code>StatisticNode</code> ，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addPassRequest</span><span class="hljs-params">(<span class="hljs-type">int</span> count)</span> &#123;<br>    rollingCounterInSecond.addPass(count);<br>    rollingCounterInMinute.addPass(count);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>至于这两个类究竟是什么呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 存储最近 1000 ms 的统计数据，并将 1000 ms 划分成 2 部分</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">Metric</span> <span class="hljs-variable">rollingCounterInSecond</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayMetric</span>(SampleCountProperty.SAMPLE_COUNT, IntervalProperty.INTERVAL);<br><br><span class="hljs-comment">// 存储最近一分钟的统计数据，然后该 window 被划分成 60 个 bucket，</span><br><span class="hljs-comment">// 这也就意味着我们可以准确的获取每秒的统计数据</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> <span class="hljs-type">Metric</span> <span class="hljs-variable">rollingCounterInMinute</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayMetric</span>(<span class="hljs-number">60</span>, <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>, <span class="hljs-literal">false</span>);<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，它们其实是 <code>ArrayMetric</code> 实例对象，我们查看它的 addPass 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addPass</span><span class="hljs-params">(<span class="hljs-type">int</span> count)</span> &#123;<br>    <span class="hljs-comment">// 获取当前属于的 bucket，并将其 value 增加 count 值</span><br>    <span class="hljs-comment">// WindowWrap：包装类，包装了 MetricBucket，也就是时间窗口的内容，以及 window 的时间长度，还有该 window 的起始时间</span><br>    WindowWrap&lt;MetricBucket&gt; wrap = data.currentWindow();<br>    wrap.value().addPass(count);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其实 ArrayMetric 是没有相关滑动窗口的能力的，它的核心能力来源与 data 实例变量，也就是 <code>LeapArray&lt;MetricBucket&gt;</code>。现在我们知道了，所谓的滑动时间窗口算法，其实就是一个 LeapArray，你可以将其想象成一个环形数组。举个例子，当我们只需要对最近一分钟的数据进行限流，于是我们就需要保留该请求一分钟之前的统计信息，因此该 LeapArray 的总长度应该是一分钟。但是为了方便统计（具体的原因在第一篇博客介绍传统的限流算法的时候有介绍到），就需要将一分钟给划分成多个小格，我们这里是 60 个 bucket，也就是说，LeapArray 数组的每一个空位的长度应该是一秒钟，这其实就是我们的 <code>MetricBucket</code>。</p>
+<p><strong>在使用过程中，就可以根据请求的当前时间戳，计算出它在 LeapArray 中的具体的位置，然后取出对应的 MetricBucket，对其进行数据的统计。</strong></p>
+<p>然而，我们上述分析的都是基于分钟的，也就是我们有六十个小格，所造成的误差其实是非常小的。但是，<strong>对于 <code>rollingCounterInSecond</code> 来说，我们只会存储最近的 1000 ms 的数据，并且只会将其划分成两部分，这样的误差其实就非常大</strong>。 </p>
+<p>基于这样的疑问，我们来看 <code>ArrayMetric</code> 的构造函数，也就是初始化 LeapArray 的地方，可以发现，它提供了下列这两个构造函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-title function_">ArrayMetric</span><span class="hljs-params">(<span class="hljs-type">int</span> sampleCount, <span class="hljs-type">int</span> intervalInMs)</span> &#123;<br>    <span class="hljs-comment">// rollingCounterInSecond 使用的</span><br>    <span class="hljs-comment">// 如果对于秒级别的维度统计数据采用 BucketLeapArray 的话，会有较大的误差</span><br>    <span class="hljs-comment">// 因为对于秒级别的来说，array 中只有两个 bucket，精度太低</span><br>    <span class="hljs-comment">// 因而需要使用 OccupiableBucketLeapArray</span><br>    <span class="hljs-built_in">this</span>.data = <span class="hljs-keyword">new</span> <span class="hljs-title class_">OccupiableBucketLeapArray</span>(sampleCount, intervalInMs);<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-title function_">ArrayMetric</span><span class="hljs-params">(<span class="hljs-type">int</span> sampleCount, <span class="hljs-type">int</span> intervalInMs, <span class="hljs-type">boolean</span> enableOccupy)</span> &#123;<br>    <span class="hljs-keyword">if</span> (enableOccupy) &#123;<br>        <span class="hljs-built_in">this</span>.data = <span class="hljs-keyword">new</span> <span class="hljs-title class_">OccupiableBucketLeapArray</span>(sampleCount, intervalInMs);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// rollingCounterInMinute 使用的，enableOccupy 为 false</span><br>        <span class="hljs-built_in">this</span>.data = <span class="hljs-keyword">new</span> <span class="hljs-title class_">BucketLeapArray</span>(sampleCount, intervalInMs);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在我们知道了，对于秒级别的维度来说，使用的是 <code>OccupiableBucketLeapArray</code>，而对于分钟级别的来说，使用的就是 <code>BucketLeapArray</code>。正是 LeapArray 的实现类不同，正是由于对于秒级维度的统计采用特殊的处理，才能够减少它的误差。不过我们这里只是去分析分钟维度的滑动窗口的做法，也就是分析 <code>BucketLeapArray</code>。</p>
+<p>于是我们来看 LeapArray 的 <code>currentWindow</code> 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> WindowWrap&lt;T&gt; <span class="hljs-title function_">currentWindow</span><span class="hljs-params">(<span class="hljs-type">long</span> timeMillis)</span> &#123;<br>    <span class="hljs-keyword">if</span> (timeMillis &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br>    <span class="hljs-comment">// 获得当前请求的时间 在 array 中的索引位置</span><br>    <span class="hljs-comment">// long timeId = timeMillis / windowLengthInMs; </span><br>    <span class="hljs-comment">// return (int)(timeId % array.length());</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">idx</span> <span class="hljs-operator">=</span> calculateTimeIdx(timeMillis);<br>    <br>    <span class="hljs-comment">// Calculate current bucket start time.</span><br>    <span class="hljs-comment">// 计算当前的 bucket 的开始的时间</span><br>    <span class="hljs-comment">// return timeMillis - timeMillis % windowLengthInMs;</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">windowStart</span> <span class="hljs-operator">=</span> calculateWindowStart(timeMillis); <br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">         * Get bucket item at given time from the array.</span><br><span class="hljs-comment">         *</span><br><span class="hljs-comment">         * (1) Bucket is absent, then just create a new bucket and CAS update to circular array.</span><br><span class="hljs-comment">         * (2) Bucket is up-to-date, then just return the bucket.</span><br><span class="hljs-comment">         * (3) Bucket is deprecated, then reset current bucket and clean all deprecated buckets.</span><br><span class="hljs-comment">         */</span><br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>        <span class="hljs-comment">// 根据索引 idx，在采用窗口数组中取得一个时间窗口 old</span><br>        WindowWrap&lt;T&gt; old = array.get(idx);<br>        <span class="hljs-keyword">if</span> (old == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">/*</span><br><span class="hljs-comment">                 *     B0       B1      B2    NULL      B4</span><br><span class="hljs-comment">                 * ||_______|_______|_______|_______|_______||___</span><br><span class="hljs-comment">                 * 200     400     600     800     1000    1200  timestamp</span><br><span class="hljs-comment">                 *                             ^</span><br><span class="hljs-comment">                 *                          time=888</span><br><span class="hljs-comment">                 *            bucket is empty, so create new and update</span><br><span class="hljs-comment">                 *</span><br><span class="hljs-comment">                 * If the old bucket is absent, then we create a new bucket at &#123;@code windowStart&#125;,</span><br><span class="hljs-comment">                 * then try to update circular array via a CAS operation. Only one thread can</span><br><span class="hljs-comment">                 * succeed to update, while other threads yield its time slice.</span><br><span class="hljs-comment">                 */</span><br>            WindowWrap&lt;T&gt; window = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WindowWrap</span>&lt;T&gt;(windowLengthInMs, windowStart, newEmptyBucket(timeMillis));<br>            <span class="hljs-keyword">if</span> (array.compareAndSet(idx, <span class="hljs-literal">null</span>, window)) &#123;<br>                <span class="hljs-comment">// Successfully updated, return the created bucket.</span><br>                <span class="hljs-keyword">return</span> window;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// Contention failed, the thread will yield its time slice to wait for bucket available.</span><br>                Thread.<span class="hljs-keyword">yield</span>();<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (windowStart == old.windowStart()) &#123;<br>            <span class="hljs-comment">/*</span><br><span class="hljs-comment">                 *     B0       B1      B2     B3      B4</span><br><span class="hljs-comment">                 * ||_______|_______|_______|_______|_______||___</span><br><span class="hljs-comment">                 * 200     400     600     800     1000    1200  timestamp</span><br><span class="hljs-comment">                 *                             ^</span><br><span class="hljs-comment">                 *                          time=888</span><br><span class="hljs-comment">                 *            startTime of Bucket 3: 800, so it&#x27;s up-to-date</span><br><span class="hljs-comment">                 *</span><br><span class="hljs-comment">                 * If current &#123;@code windowStart&#125; is equal to the start timestamp of old bucket,</span><br><span class="hljs-comment">                 * that means the time is within the bucket, so directly return the bucket.</span><br><span class="hljs-comment">                 */</span><br>            <span class="hljs-keyword">return</span> old;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (windowStart &gt; old.windowStart()) &#123;<br>            <span class="hljs-comment">/*</span><br><span class="hljs-comment">                 *   (old)</span><br><span class="hljs-comment">                 *             B0       B1      B2    NULL      B4</span><br><span class="hljs-comment">                 * |_______||_______|_______|_______|_______|_______||___</span><br><span class="hljs-comment">                 * ...    1200     1400    1600    1800    2000    2200  timestamp</span><br><span class="hljs-comment">                 *                              ^</span><br><span class="hljs-comment">                 *                           time=1676</span><br><span class="hljs-comment">                 *          startTime of Bucket 2: 400, deprecated, should be reset</span><br><span class="hljs-comment">                 *</span><br><span class="hljs-comment">                 * If the start timestamp of old bucket is behind provided time, that means</span><br><span class="hljs-comment">                 * the bucket is deprecated. We have to reset the bucket to current &#123;@code windowStart&#125;.</span><br><span class="hljs-comment">                 * Note that the reset and clean-up operations are hard to be atomic,</span><br><span class="hljs-comment">                 * so we need a update lock to guarantee the correctness of bucket update.</span><br><span class="hljs-comment">                 *</span><br><span class="hljs-comment">                 * The update lock is conditional (tiny scope) and will take effect only when</span><br><span class="hljs-comment">                 * bucket is deprecated, so in most cases it won&#x27;t lead to performance loss.</span><br><span class="hljs-comment">                 */</span><br>            <span class="hljs-keyword">if</span> (updateLock.tryLock()) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-comment">// Successfully get the update lock, now we reset the bucket.</span><br>                    <span class="hljs-keyword">return</span> resetWindowTo(old, windowStart);<br>                &#125; <span class="hljs-keyword">finally</span> &#123;<br>                    updateLock.unlock();<br>                &#125;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// Contention failed, the thread will yield its time slice to wait for bucket available.</span><br>                Thread.<span class="hljs-keyword">yield</span>();<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (windowStart &lt; old.windowStart()) &#123;<br>            <span class="hljs-comment">// Should not go through here, as the provided time is already behind.</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">WindowWrap</span>&lt;T&gt;(windowLengthInMs, windowStart, newEmptyBucket(timeMillis));<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>先根据当前请求的时间计算出它在 array 中的索引位置，并计算出当前的 bucket 的开始时间，然后取得该位置的之前的窗口 old。</li>
+<li>如果该 old 窗口根本就不存在，就只需要创建一个新的窗口给放到该位置上。</li>
+<li>如果该 old 窗口的开始时间和我们的请求计算出来的开始时间相同，就直接返回，因为该 old 就是我们需要找的窗口。</li>
+<li>如果发现 old 过期了，就将其替换成一个新的就行。</li>
+</ol>
+<p>最后在说一下 <code>MetricBucket</code> 是如何存储数据的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-title function_">MetricBucket</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-comment">// 将所有的 Metric 采用 LongAdder 进行计数</span><br>    MetricEvent[] events = MetricEvent.values();<br>    <span class="hljs-built_in">this</span>.counters = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LongAdder</span>[events.length];<br>    <span class="hljs-keyword">for</span> (MetricEvent event : events) &#123;<br>        counters[event.ordinal()] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LongAdder</span>();<br>    &#125;<br>    <span class="hljs-comment">// Get the max RT value that Sentinel could accept for system BBR strategy.</span><br>    <span class="hljs-comment">// 默认是 5000</span><br>    initMinRt();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，其实它的内部就是通过 LongAdder 去进行计数</p>
+<p>到这里就把如何使用滑动窗口统计数据就讲明白了，之后的一些流控规则的操作就是根据这里面的数据进行统计分析了。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="../../categories/Sentinel/" class="category-chain-item">Sentinel</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="../../tags/Sentinel/">#Sentinel</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Sentinel源码分析05：滑动窗口算法在Sentinel中的应用</div>
+      <div>https://noaharno.top/Sentinel/Sentinel源码分析05：滑动窗口算法在Sentinel中的应用/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>NoahArno</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/" title="Sentinel源码分析06：如何进行流控">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sentinel源码分析06：如何进行流控</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="../Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9004%EF%BC%9A%E6%80%BB%E8%A7%88Sentinel%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B/" title="Sentinel源码分析04：总览Sentinel的核心流程">
+                        <span class="hidden-mobile">Sentinel源码分析04：总览Sentinel的核心流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="../../js/events.js" ></script>
+<script  src="../../js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="../../js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="../../js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="../../js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
