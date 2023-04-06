@@ -23,104 +23,104 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="开篇 为什么要学习并发编程？并发编程其实我们一直都在用，只是并发问题都被tomcat之类的中间件给解决了。除了处理网络问题之外，一些批处理为了提高性能也会用。主要看业务的并发量和数据量。有性能要求了，就自然而然需要技术支持。 第一章 线程基础知识1.1 基础知识1.1、为什么多线程及其重要？  硬件摩尔定律失效，在主频不再提高且核数在不断增加的情况下， 更想让程序更快就要用到并行或并发编程。 高并">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141447740.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141837176.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124111743340.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124115730172.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121354189.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121515897.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121848015.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128211625979.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128214911864.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128220519739.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128224551893.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128225358749.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220130212634934.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/a32472fe38386792db568898579c8a9ba8cad630.png@903w_917h_progressive.webp">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220201223742035.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911143513939.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911180726641.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181359988.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203143709073.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144527688.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144601489.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144627544.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203155841704.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203164803880.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203165011738.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181631789.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181636446.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/64c955c65010aae3902ec918412827d8.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911203702980.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211528787.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211532186.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211535551.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103406684.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103423934.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206113432949.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206114644660.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134057810.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134940151.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135334565.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135356216.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135838869.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/%E5%9B%BE%E7%89%87.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204659299.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204712443.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204716485.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204721049.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204805772.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205242031.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205314265.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205342462.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211522791.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211544806.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211555812.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211615943.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211624502.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211632200.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211645742.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211930658.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125505913.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125656777.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205130518985.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132040145.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132454203.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132832941.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132859119.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133200557.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133206455.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133815247.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205134512658.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205141630791.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205144231834.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152216749.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20221109214027087.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152510684.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213034003.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213144978.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215228013.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923185707622.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923113321814.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923201402008.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923203705089.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923210904175.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923211027125.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923213116201.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214430039.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214444508.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214500823.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215707623.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221301989.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221840288.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221856490.png">
-<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205222241508.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141447740.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141837176.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124111743340.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124115730172.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121354189.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121515897.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121848015.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128211625979.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128214911864.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128220519739.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128224551893.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128225358749.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220130212634934.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/a32472fe38386792db568898579c8a9ba8cad630.png@903w_917h_progressive.webp">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220201223742035.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911143513939.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911180726641.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181359988.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203143709073.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144527688.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144601489.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144627544.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203155841704.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203164803880.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203165011738.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181631789.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181636446.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/64c955c65010aae3902ec918412827d8.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911203702980.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211528787.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211532186.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211535551.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103406684.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103423934.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206113432949.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206114644660.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134057810.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134940151.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135334565.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135356216.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135838869.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/%E5%9B%BE%E7%89%87.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204659299.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204712443.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204716485.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204721049.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204805772.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205242031.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205314265.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205342462.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211522791.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211544806.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211555812.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211615943.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211624502.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211632200.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211645742.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211930658.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125505913.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125656777.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205130518985.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132040145.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132454203.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132832941.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132859119.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133200557.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133206455.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133815247.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205134512658.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205141630791.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205144231834.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152216749.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20221109214027087.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152510684.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213034003.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213144978.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215228013.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923185707622.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923113321814.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923201402008.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923203705089.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923210904175.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923211027125.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923213116201.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214430039.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214444508.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214500823.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215707623.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221301989.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221840288.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221856490.png">
+<meta property="og:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205222241508.png">
 <meta property="article:published_time" content="2023-04-06T14:45:50.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:04.677Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:26.000Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141447740.png">
+<meta name="twitter:image" content="https://noaharno.top/Java/JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141447740.png">
   
   
   
@@ -614,14 +614,14 @@
 <p>信号量的主要用户有两个目的，一个是用于多和共享资源的相互排斥使用，另一个用于并发资源数的控制</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Description</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> veliger@163.com</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@version</span> 1.0</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2019-04-13 11:08</span><br><span class="hljs-comment"> **/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SemaphoreDemo</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-comment">//模拟3个停车位</span><br>        <span class="hljs-type">Semaphore</span> <span class="hljs-variable">semaphore</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Semaphore</span>(<span class="hljs-number">3</span>);<br>        <span class="hljs-comment">//模拟6部汽车</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">6</span>; i++) &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-comment">//抢到资源</span><br>                    semaphore.acquire();<br>                    System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;\t抢到车位&quot;</span>);<br>                    <span class="hljs-keyword">try</span> &#123;<br>                        TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>);<br>                    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                        e.printStackTrace();<br>                    &#125;<br>                    System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;\t 停3秒离开车位&quot;</span>);<br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                    e.printStackTrace();<br>                &#125; <span class="hljs-keyword">finally</span> &#123;<br>                    <span class="hljs-comment">//释放资源</span><br>                    semaphore.release();<br>                &#125;<br>            &#125;, String.valueOf(i)).start();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="1-5-阻塞队列"><a href="#1-5-阻塞队列" class="headerlink" title="1.5 阻塞队列"></a>1.5 阻塞队列</h3><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141447740.png" srcset="/img/loading.gif" lazyload alt="image-20210918141447740"></p>
+<h3 id="1-5-阻塞队列"><a href="#1-5-阻塞队列" class="headerlink" title="1.5 阻塞队列"></a>1.5 阻塞队列</h3><p><img src="image-20210918141447740.png" srcset="/img/loading.gif" lazyload alt="image-20210918141447740"></p>
 <p>上图所示，线程1往阻塞队列中添加元素，线程二从队列中移除元素</p>
 <p>当阻塞队列是空时，从队列中获取元素的操作将会被阻塞</p>
 <p>当阻塞队列是满时，往队列中添加元素的操作将会被阻塞</p>
 <p><strong>有什么好处？</strong></p>
 <p>在多线程领域：所谓阻塞，在某些情况下会挂起线程（即线程阻塞），一旦条件满足，被挂起的线程会被自动唤醒。使用阻塞队列后我们不需要关心什么时候需要阻塞线程，什么时候需要唤醒线程，因为阻塞队列都给你一手包办好了。</p>
 <p><strong>核心方法</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210918141837176.png" srcset="/img/loading.gif" lazyload alt="image-20210918141837176"></p>
+<p><img src="image-20210918141837176.png" srcset="/img/loading.gif" lazyload alt="image-20210918141837176"></p>
 <table>
 <thead>
 <tr>
@@ -769,7 +769,7 @@
 </ol>
 <h3 id="3-2-Java8锁事"><a href="#3-2-Java8锁事" class="headerlink" title="3.2 Java8锁事"></a>3.2 Java8锁事</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs JAVA"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Phone</span> &#123;<span class="hljs-comment">//资源类</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendEmail</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">//暂停几秒钟线程</span><br>        <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br>        System.out.println(<span class="hljs-string">&quot;-------sendEmail&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendSMS</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;-------sendSMS&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">hello</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;-------hello&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123; <span class="hljs-comment">//一切程序的入口，主线程</span><br>        <span class="hljs-type">Phone</span> <span class="hljs-variable">phone</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phone</span>();<span class="hljs-comment">//资源类1</span><br>        <span class="hljs-type">Phone</span> <span class="hljs-variable">phone2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phone</span>();<span class="hljs-comment">//资源类2</span><br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            phone.sendEmail();<br>        &#125;,<span class="hljs-string">&quot;a&quot;</span>).start();<br><br>        <span class="hljs-comment">//暂停毫秒</span><br>        <span class="hljs-keyword">try</span> &#123; TimeUnit.MILLISECONDS.sleep(<span class="hljs-number">300</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            <span class="hljs-comment">//phone.sendSMS();</span><br>            <span class="hljs-comment">//phone.hello();</span><br>            phone2.sendSMS();<br>        &#125;,<span class="hljs-string">&quot;b&quot;</span>).start();<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124111743340.png" srcset="/img/loading.gif" lazyload alt="image-20220124111743340"></p>
+<p><img src="image-20220124111743340.png" srcset="/img/loading.gif" lazyload alt="image-20220124111743340"></p>
 <p>其实就是考的sync锁的是对象还是整个类，就会明白了这个。</p>
 <ul>
 <li>作用于实例方法，当前实例加锁，进入同步代码前要获得当前实例的锁；</li>
@@ -779,20 +779,20 @@
 <h3 id="3-3-反编译查看synchronized实现"><a href="#3-3-反编译查看synchronized实现" class="headerlink" title="3.3 反编译查看synchronized实现"></a>3.3 反编译查看synchronized实现</h3><p><strong>1、反编译同步代码块</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">objectLock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m1</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (objecctLock) &#123;<br>        System.out.println(<span class="hljs-string">&quot;------hello synchronized&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124115730172.png" srcset="/img/loading.gif" lazyload alt="image-20220124115730172"></p>
+<p><img src="image-20220124115730172.png" srcset="/img/loading.gif" lazyload alt="image-20220124115730172"></p>
 <p>可以看到，synchronized实际上使用的是monitorenter和monitorexit两个指令，但是可以看到，上述的代码，两者居然不配对，这是因为得sync的底层会保证该锁最后一定会被释放。</p>
 <p>可以手动给m1方法抛出异常</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121354189.png" srcset="/img/loading.gif" lazyload alt="image-20220124121354189"></p>
+<p><img src="image-20220124121354189.png" srcset="/img/loading.gif" lazyload alt="image-20220124121354189"></p>
 <p><strong>2、反编译普通同步方法</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m2</span><span class="hljs-params">()</span> &#123;<br>    System.out.println(<span class="hljs-string">&quot;------&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121515897.png" srcset="/img/loading.gif" lazyload alt="image-20220124121515897"></p>
+<p><img src="image-20220124121515897.png" srcset="/img/loading.gif" lazyload alt="image-20220124121515897"></p>
 <p>可以看到，调用指令将会检查方法的ACC_SYNCHRONIZED访问标志是否被设置。</p>
 <p>如果设置了，执行线程会先持有monitor然后再执行方法，最后在方法完成（无论是正常完成还是非正常完成）时释放monitor。</p>
 <p><strong>3、反编译静态同步方法</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m3</span><span class="hljs-params">()</span> &#123;<br><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220124121848015.png" srcset="/img/loading.gif" lazyload alt="image-20220124121848015"></p>
+<p><img src="image-20220124121848015.png" srcset="/img/loading.gif" lazyload alt="image-20220124121848015"></p>
 <p>ACC_STATIC, ACC_SYNCHRONIZED访问标志区分该方法是否静态同步方法</p>
 <p><strong>4、什么是管程monitor</strong></p>
 <p><strong>面试题：</strong>synchronized实现原理，monitor对象什么时候生产的？知道monitor的monitorenter和monitorexit吗？这两个是怎么保证同步的，或者说，这两个操作计算机底层是如何执行的？</p>
@@ -810,7 +810,7 @@
 <p><strong>5、C++源码解读</strong></p>
 <p>在HotSpot虚拟机中，monitor采用ObjectMonitor实现。</p>
 <p>objectMonitor.hpp文件中：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128211625979.png" srcset="/img/loading.gif" lazyload alt="image-20220128211625979"></p>
+<p><img src="image-20220128211625979.png" srcset="/img/loading.gif" lazyload alt="image-20220128211625979"></p>
 <table>
 <thead>
 <tr>
@@ -875,7 +875,7 @@
 <li>当执行monitorexit时，Java虚拟机则需将锁对象的计数器减1，计数器为零代表锁已被释放。</li>
 </ul>
 <h3 id="3-6-死锁"><a href="#3-6-死锁" class="headerlink" title="3.6 死锁"></a>3.6 死锁</h3><p>死锁是指两个或两个以上的线程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力干涉那它们都将无法推进下去，如果系统资源足够，进程的资源请求都能够得到满足，死锁出现的概率很低，否则就会因争夺有限的资源而陷入死锁。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128214911864.png" srcset="/img/loading.gif" lazyload alt="image-20220128214911864"></p>
+<p><img src="image-20220128214911864.png" srcset="/img/loading.gif" lazyload alt="image-20220128214911864"></p>
 <p>原因：</p>
 <ol>
 <li>系统资源不足</li>
@@ -944,7 +944,7 @@
 <li>永远只在访问可变的成员变量的时候加锁</li>
 <li>永远不要在调用其它对象方法的时候加锁</li>
 </ol>
-<h2 id="第四章-LockSupport与线程中断"><a href="#第四章-LockSupport与线程中断" class="headerlink" title="第四章 LockSupport与线程中断"></a>第四章 LockSupport与线程中断</h2><h3 id="4-1-线程中断机制"><a href="#4-1-线程中断机制" class="headerlink" title="4.1 线程中断机制"></a>4.1 线程中断机制</h3><h4 id="4-1-1、阿里蚂蚁金服面试题"><a href="#4-1-1、阿里蚂蚁金服面试题" class="headerlink" title="4.1.1、阿里蚂蚁金服面试题"></a><strong>4.1.1、阿里蚂蚁金服面试题</strong></h4><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128220519739.png" srcset="/img/loading.gif" lazyload alt="image-20220128220519739"></p>
+<h2 id="第四章-LockSupport与线程中断"><a href="#第四章-LockSupport与线程中断" class="headerlink" title="第四章 LockSupport与线程中断"></a>第四章 LockSupport与线程中断</h2><h3 id="4-1-线程中断机制"><a href="#4-1-线程中断机制" class="headerlink" title="4.1 线程中断机制"></a>4.1 线程中断机制</h3><h4 id="4-1-1、阿里蚂蚁金服面试题"><a href="#4-1-1、阿里蚂蚁金服面试题" class="headerlink" title="4.1.1、阿里蚂蚁金服面试题"></a><strong>4.1.1、阿里蚂蚁金服面试题</strong></h4><p><img src="image-20220128220519739.png" srcset="/img/loading.gif" lazyload alt="image-20220128220519739"></p>
 <p><strong>如何停止、中断一个运行中的线程？</strong></p>
 <h4 id="4-1-2、什么是中断？"><a href="#4-1-2、什么是中断？" class="headerlink" title="4.1.2、什么是中断？"></a><strong>4.1.2、什么是中断？</strong></h4><ul>
 <li>首先一个线程不应该由其他线程赖强制中断或停止，而是应该由线程自己自行停止。所以Thread.stop, Thread.suspend, Thread.resume都已经被废弃了。</li>
@@ -973,11 +973,11 @@
 <td>判断当前线程是否被中断（通过检查中断标志位）</td>
 </tr>
 </tbody></table>
-<h5 id="4-1-3-1-interrupt源码分析"><a href="#4-1-3-1-interrupt源码分析" class="headerlink" title="4.1.3.1 interrupt源码分析"></a>4.1.3.1 interrupt源码分析</h5><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128224551893.png" srcset="/img/loading.gif" lazyload alt="image-20220128224551893"></p>
+<h5 id="4-1-3-1-interrupt源码分析"><a href="#4-1-3-1-interrupt源码分析" class="headerlink" title="4.1.3.1 interrupt源码分析"></a>4.1.3.1 interrupt源码分析</h5><p><img src="image-20220128224551893.png" srcset="/img/loading.gif" lazyload alt="image-20220128224551893"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">interrupt</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span> != Thread.currentThread())<br>        checkAccess();<br><br>    <span class="hljs-keyword">synchronized</span> (blockerLock) &#123;<br>        <span class="hljs-type">Interruptible</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> blocker;<br>        <span class="hljs-keyword">if</span> (b != <span class="hljs-literal">null</span>) &#123;<br>            interrupt0();           <span class="hljs-comment">// Just to set the interrupt flag</span><br>            b.interrupt(<span class="hljs-built_in">this</span>);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>    &#125;<br>    interrupt0();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>如上图注释所示，如果该线程被wait、join、sleep方法给阻塞了，调用该方法就会爆出异常。</p>
-<h5 id="4-1-3-2-isInterrupted源码分析"><a href="#4-1-3-2-isInterrupted源码分析" class="headerlink" title="4.1.3.2 isInterrupted源码分析"></a>4.1.3.2 isInterrupted源码分析</h5><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220128225358749.png" srcset="/img/loading.gif" lazyload alt="image-20220128225358749"></p>
+<h5 id="4-1-3-2-isInterrupted源码分析"><a href="#4-1-3-2-isInterrupted源码分析" class="headerlink" title="4.1.3.2 isInterrupted源码分析"></a>4.1.3.2 isInterrupted源码分析</h5><p><img src="image-20220128225358749.png" srcset="/img/loading.gif" lazyload alt="image-20220128225358749"></p>
 <p>调用的是本地方法。</p>
 <h4 id="4-1-4、如何使用中断标识停止线程"><a href="#4-1-4、如何使用中断标识停止线程" class="headerlink" title="4.1.4、如何使用中断标识停止线程"></a>4.1.4、如何使用中断标识停止线程</h4><p>在需要中断的线程中<strong>不断监听中断状态</strong>，一旦发生中断，就执行相应的中断处理业务逻辑。</p>
 <h5 id="4-1-4-1-使用volatile来实现"><a href="#4-1-4-1-使用volatile来实现" class="headerlink" title="4.1.4.1 使用volatile来实现"></a>4.1.4.1 使用volatile来实现</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InterruptDemp</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">isStop</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thead</span>(() -&gt; &#123;<br>            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>                <span class="hljs-keyword">if</span> (isStop) &#123;<br>                    System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;线程自己退出了&quot;</span>);<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                System.out.println(<span class="hljs-string">&quot; ------ Hello Interrupt&quot;</span>);<br>            &#125;<br>        &#125;, <span class="hljs-string">&quot;t1&quot;</span>).start();<br><br>        <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br><br>        isStop = <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -1001,7 +1001,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m5</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-keyword">if</span> (Thread.currentThread().isInterrupted()) &#123;<br>                System.out.println(<span class="hljs-string">&quot;-----isInterrupted() = true，程序结束。&quot;</span>);<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">500</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                Thread.currentThread().interrupt();<br>                <span class="hljs-comment">//线程的中断标志位为false,无法停下，需要再次掉interrupt()设置true</span><br>                e.printStackTrace();<br>            &#125;<br>            System.out.println(<span class="hljs-string">&quot;------hello Interrupt&quot;</span>);<br>        &#125;<br>    &#125;, <span class="hljs-string">&quot;t1&quot;</span>);<br>    t1.start();<br><br>    <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br><br>    <span class="hljs-comment">//修改t1线程的中断标志位为true</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(t1::interrupt,<span class="hljs-string">&quot;t2&quot;</span>).start();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>需要注意的是<strong>sleep方法抛出异常后，中断标识也会被清空重置为false</strong>，我们在catch如果没有调用th.interrupt方法再次将中断标识设置为true，这就导致无限循环了。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220130212634934.png" srcset="/img/loading.gif" lazyload alt="image-20220130212634934"></p>
+<p><img src="image-20220130212634934.png" srcset="/img/loading.gif" lazyload alt="image-20220130212634934"></p>
 <h4 id="4-1-6、小总结"><a href="#4-1-6、小总结" class="headerlink" title="4.1.6、小总结"></a>4.1.6、小总结</h4><p>中断只是一种协同机制，修改中断标识位而已，不是立即stop打断该线程。</p>
 <h3 id="4-2-线程等待唤醒机制"><a href="#4-2-线程等待唤醒机制" class="headerlink" title="4.2 线程等待唤醒机制"></a>4.2 线程等待唤醒机制</h3><p>JUC中有三种线程等待唤醒机制：</p>
 <ol>
@@ -1063,14 +1063,14 @@
 </ol>
 <p>高速缓存的出现是为了解决CPU运算速度与内存读写速度不匹配的矛盾，因为CPU运算速度要比内存读写速度快很多，这样会使CPU花费很长时间等待数据到来或把数据写入内存。在缓存中的数据是内存中的一小部分，但是这一小部分是短时间内CPU即将访问的，当CPU调用大量数据时，就可以先在缓存中调用，从而加快读取速度。</p>
 <p>距离CPU最近的是三级高速缓存，L1最快，读取的是内存的100倍左右，可以理解为2-4个时钟周期（内存读取200-300时钟周期），L2是10-20个时钟周期左右，L1和L2是核心<strong>隔离</strong>的，L3为20-60时钟周期，是核心<strong>共享</strong>的，大小方面L1&lt;L2&lt;L3。而CPU缓存、寄存器以及内存也是JMM的硬件基础。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/a32472fe38386792db568898579c8a9ba8cad630.png@903w_917h_progressive.webp" srcset="/img/loading.gif" lazyload alt="电脑CPU中的三级缓存是越大越好吗？三级缓存到底有什么用？"></p>
+<p><img src="a32472fe38386792db568898579c8a9ba8cad630.png@903w_917h_progressive.webp" srcset="/img/loading.gif" lazyload alt="电脑CPU中的三级缓存是越大越好吗？三级缓存到底有什么用？"></p>
 <ul>
 <li><strong>一级缓存</strong>都内置在CPU内部并与CPU同速运行，可以有效的提高CPU的运行效率。一级缓存越大CPU的运行效率越高，但是受到CPU内部结构的限制，一级缓存的容量都很小。</li>
 <li><strong>二级缓存</strong>是为了协调一级缓存和内存之间的速度。CPU调用缓存首先是一级缓存，当处理器的速度逐渐提升，会导致一级缓存供不应求，这样就得使用到二级缓存了。二级缓存它比一级缓存的速度相对来说会慢，但是它比一级缓存的空间容量要大。主要是做一级缓存和内存之间数据临时交换的地方用。</li>
 <li><strong>三级缓存</strong>为了读取二级缓存后未命中的数据设计的一种缓存，在拥有三级缓存的CPU中，只有约5%的数据需要从内存中调用，这进一步提高了CPU的效率。原理其实就是如果二级缓存未命中，就去三级缓存中查找，如果三级缓存未命中再去内存中查找。</li>
 </ul>
 <p>因为有这么多级的缓存（CPU和物理主内存的速度不一致的），<strong>CPU的运行并不是直接操作内存，而是先把内存里边的数据读到缓存</strong>，而内存的读和写操作的时候就会造成不一致的问题，比如<strong>一致性、可见性、原子性等问题</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220201223742035.png" srcset="/img/loading.gif" lazyload alt="image-20220201223742035"></p>
+<p><img src="image-20220201223742035.png" srcset="/img/loading.gif" lazyload alt="image-20220201223742035"></p>
 <p>Java虚拟机规范中试图定义一种Java内存模型（Java Memory Model，简称JMM）来屏蔽掉各种硬件和操作系统的内存访问差异，以实现让Java程序在各种平台下都能达到一致的内存访问效果。</p>
 <h3 id="5-3-JMM相关基本概念"><a href="#5-3-JMM相关基本概念" class="headerlink" title="5.3 JMM相关基本概念"></a>5.3 JMM相关基本概念</h3><p>Java内存模型，Java Memory Model，简称JMM，本身是一种抽象的概念，并不真实存在，它描述的是一组规则或规范。通过规范定制了程序各个变量（包括实例字段、静态字段和构成数组对象的元素）的读写访问方式并决定一个线程对共享变量的写入何时以及如何变成对另一个线程可见，关键技术都是围绕多线程的<strong>原子性、可见性和有序性</strong>展开的。</p>
 <p><strong>原则</strong>：JMM的关键技术点都是围绕多线程的原子性、可见性和有序性展开的</p>
@@ -1081,7 +1081,7 @@
 </ol>
 <h3 id="5-4-三大特性"><a href="#5-4-三大特性" class="headerlink" title="5.4 三大特性"></a>5.4 三大特性</h3><p>JMM关于同步规定：①、线程解锁前， 必须把共享变量​的值刷新回主内存；②、线程加锁前， 必须读取主内存的最新值到自己的工作内存；③、加锁解锁是同一把锁</p>
 <p>由于JVM运行程序的实体是线程，而每个线程创建时JVM都会为其创建一个工作内存（有些地方称为栈空间），工作内存是每个线程的私有数据区域，而Java内存模型中规定所有变量都存储在<strong>主内存</strong>（电脑装的内存条，硬件）中，主内存是共享内存区域，所有线程都可以访问，<strong>但是线程对变量的操作（读取赋值等）必须在工作内存中进行，首先要将变量从主内存拷贝到自己的工作空间，然后对变量进行操作，操作完成再将变量写回主内存中，不能直接操作主内存中的变量</strong>，各个线程中的工作内存储着主内存中的变量副本拷贝，因此不同的线程无法访问对方的工作内存，此案成间的通讯（传值）必须通过主内存来完成</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911143513939.png" srcset="/img/loading.gif" lazyload alt="image-20210911143513939"></p>
+<p><img src="image-20210911143513939.png" srcset="/img/loading.gif" lazyload alt="image-20210911143513939"></p>
 <p><strong>1、JMM可见性</strong></p>
 <p>通过前面对JMM的介绍，我们知道各个线程对主内存中共享变量的操作都是各个线程各自拷贝到自己的工作内存中，操作后再写回主内存中的。</p>
 <p>这就可能存在一个线程AAA修改了共享变量X的值，还未写回主内存中时，另外一个线程BBB又对内存中的一个共享变量X进行操作，但此时AAA线程工作内存中的共享变量X对BBB来说并不可见，这种工作内存与主内存同步延迟现象就造成了<strong>可见性的问题</strong>。</p>
@@ -1099,7 +1099,7 @@
 <p>在以前的操作系统，是基于进程来调度CPU的，但是不同进程之间是不共享内存空间的，所以进程要做任务切换就需要切换内存映射地址，而<strong>一个进程创建的所有的线程都是共享一个内存空间的，所以线程做内存切换的成本就很低了</strong>。现代的操作系统都基于更加轻量的线程来调度，所以“任务切换”都是指“线程切换”。</p>
 <p><strong>正是这种线程间的切换，导致了并发编程中的诡异BUG出现，也就是没有保证原子性</strong></p>
 <p>JMM要求保证原子性，但是volatile是不保证原子性的。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911180726641.png" srcset="/img/loading.gif" lazyload alt="image-20210911180726641"></p>
+<p><img src="image-20210911180726641.png" srcset="/img/loading.gif" lazyload alt="image-20210911180726641"></p>
 <p>number++在多线程的情况下是非线程安全的，除了加synchronized以外，还能通过AtomicInteger来解决。</p>
 <p>为什么number++无法保证线程安全？因为很多值在putfield这步写回主内存的时候可能线程的调度被挂起了，刚好也没有收到最新值的通知，有那么一个纳秒级的时间差，一写就出现了写覆盖，将之前的值给覆盖掉了。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> <span class="hljs-variable">number</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br><span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">atomicInteger</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>();<br><br>numeber++;<br>atomicInteger.getAndIncrement();<br></code></pre></td></tr></table></figure>
@@ -1108,7 +1108,7 @@
 <p><strong>3、JMM有序性</strong></p>
 <p>对于一个线程的执行代码而言，我们总是习惯性认为代码的执行总是从上到下，有序执行。</p>
 <p>但是计算机在执行程序时，为了提高性能，编译器和处理器常常会做<strong>指令重排</strong>，一般分为一下3种</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181359988.png" srcset="/img/loading.gif" lazyload alt="image-20210911181359988"></p>
+<p><img src="image-20210911181359988.png" srcset="/img/loading.gif" lazyload alt="image-20210911181359988"></p>
 <p>指令重排可以保证串行语义一致，但是没有义务保证多线程间的语义也一致，即可能产生“脏读“，简单说，两行以上不相干的代码在执行的时候有可能先执行的不是第一条，执行顺序会被优化。</p>
 <ul>
 <li>单线程环境里面确保程序最终执行结果和代码顺序执行结果一致</li>
@@ -1193,13 +1193,13 @@
 <p><strong>也就是说，volatile凭什么保证可见性和有序性？就是因为内存屏障</strong></p>
 <p>JMM提供了四类内存屏障指令：</p>
 <p>查看Unsafe.class：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203143709073.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203143709073.png"></p>
+<p><img src="image-20220203143709073.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203143709073.png"></p>
 <p>它的底层其实就是Unsafe.cpp类</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144527688.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144527688.png"></p>
+<p><img src="image-20220203144527688.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144527688.png"></p>
 <p>再看OrderAccess.hpp类：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144601489.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144601489.png"></p>
+<p><img src="image-20220203144601489.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144601489.png"></p>
 <p>orderAccess_linux_x86.inline.hpp：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203144627544.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144627544.png"></p>
+<p><img src="image-20220203144627544.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203144627544.png"></p>
 <p>那么所谓的四大屏障分别是什么意思呢？</p>
 <table>
 <thead>
@@ -1232,7 +1232,7 @@
 </tbody></table>
 <p>进一步加深理解：</p>
 <p>先行发生原则之volatile变量规则如下所示：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203155841704.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203155841704.png"></p>
+<p><img src="image-20220203155841704.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203155841704.png"></p>
 <ul>
 <li>当第一个操作为volatile读时，不论第二个操作是什么，都不能重排序。这个操作保证了volatile读之后的操作不会被重排到volatile读之前。</li>
 <li>当第二个操作为volatile写时，不论第一个操作是什么，都不能重排序。这个操作保证了volatile写之前的操作不会被重排到volatile写之后。</li>
@@ -1243,15 +1243,15 @@
 <li>在每个volatile写操作的前面插入一个StoreStore屏障</li>
 <li>在每个volatile写操作的后面插入一个StoreLoad屏障</li>
 </ul>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203164803880.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203164803880.png"></p>
+<p><img src="image-20220203164803880.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203164803880.png"></p>
 <ul>
 <li>在每个volatile读操作的后面插入一个LoadLoad屏障</li>
 <li>在每个volatile读操作的后面插入一个LoadStore屏障</li>
 </ul>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220203165011738.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203165011738.png"></p>
+<p><img src="image-20220203165011738.png" srcset="/img/loading.gif" lazyload alt="IMG/JUC进阶版.asserts/image-20220203165011738.png"></p>
 <h3 id="6-3-volatile特性"><a href="#6-3-volatile特性" class="headerlink" title="6.3 volatile特性"></a>6.3 volatile特性</h3><p><strong>禁止指令重排小总结</strong>（了解）</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181631789.png" srcset="/img/loading.gif" lazyload alt="image-20210911181631789"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911181636446.png" srcset="/img/loading.gif" lazyload alt="image-20210911181636446"></p>
+<p><img src="image-20210911181631789.png" srcset="/img/loading.gif" lazyload alt="image-20210911181631789"></p>
+<p><img src="image-20210911181636446.png" srcset="/img/loading.gif" lazyload alt="image-20210911181636446"></p>
 <p><strong>volatile使用案例</strong></p>
 <p>单例模式DCL代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SingletonDemo</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> SingletonDemo instance=<span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">SingletonDemo</span><span class="hljs-params">()</span>&#123;<br>        System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 构造方法&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 双重检测机制</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> SingletonDemo <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">if</span>(instance==<span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">synchronized</span> (SingletonDemo.class)&#123;<br>                <span class="hljs-keyword">if</span>(instance==<span class="hljs-literal">null</span>)&#123;<br>                    instance=<span class="hljs-keyword">new</span> <span class="hljs-title class_">SingletonDemo</span>();<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -1265,7 +1265,7 @@
 </ol>
 <p>步骤2和步骤3不存在数据依赖关系，而且无论重排前还是重排后程序执行的结果在单线程中并没有改变，因此这种重排优化是允许的。</p>
 <p>但是如果多线程情况下进行了重排优化，可能第三步先执行，此时对象还没初始化完，<strong>所以当一条线程访问instance不为null时，由于instance实例未必完成初始化，也就造成了线程安全问题。</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/64c955c65010aae3902ec918412827d8.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="64c955c65010aae3902ec918412827d8.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>因此我们可以加上volatile来禁止指令重排，就能保证多线程间的语义一致性，<code>private static volatile SingletonDemo instance = null</code>。</p>
 <h3 id="6-4-拓展：单例的另一种实现"><a href="#6-4-拓展：单例的另一种实现" class="headerlink" title="6.4 拓展：单例的另一种实现"></a>6.4 拓展：单例的另一种实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MySingleton</span> &#123;<br>    <span class="hljs-comment">// 内部类</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MySingletonHandler</span> &#123;<br>        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">MySingleton</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MySingleton</span>();<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">MySingleton</span><span class="hljs-params">()</span> &#123;&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> MySingleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> MySingletonHandler.instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -1279,7 +1279,7 @@
 
 <p>可以看到getAndIncrement方法底层用的是unsafe类中的方法</p>
 <p>下面是AtomicInteger的部分源码</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911203702980.png" srcset="/img/loading.gif" lazyload alt="尚硅谷面试题/IMG/尚硅谷面试题第二季.assets/image-20210911203702980.png  100644 → 0"></p>
+<p><img src="image-20210911203702980.png" srcset="/img/loading.gif" lazyload alt="尚硅谷面试题/IMG/尚硅谷面试题第二季.assets/image-20210911203702980.png  100644 → 0"></p>
 <p>UnSafe是CAS的核心类，由于Java方法无法直接访问底层，需要通过本地（native）方法来访问，UnSafe相当于一个后门，基于该类可以直接操作特定的内存数据。UnSafe在sun.misc包中，其内部方法操作可以像C的指针一样直接操作内存。</p>
 <p><strong>注意UnSafe类中的所有方法都是native修饰的，也就是说UnSafe类中的方法都是直接调用操作底层资源执行响应的任务</strong></p>
 <p>变量valueOffset就是该变量在内存中的<strong>偏移地址</strong>，因为UnSafe就是根据内存偏移地址来获取数据的。</p>
@@ -1287,9 +1287,9 @@
 <p><strong>2、什么是CAS</strong></p>
 <p>CAS的全称就是Compare-And-Swap，<strong>它是一条CPU并发原语</strong>，它的功能是判断内存某个位置的值是否为预期值，如果是则更新为新的值，这个过程是原子的。</p>
 <p>CAS并发原语体现在Java语言中就是UnSafe类中的各个方法，调用UnSafe类中的CAS方法，JVM会帮我们实现<strong>CAS汇编指令</strong>，这是一种完全依赖于硬件功能，通过它实现了原子操作，再次强调，由于CAS是一种系统原语，原语属于操作系统用语范畴，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程中不允许中断，也就是说CAS是一条原子指令，不会造成所谓的数据不一致问题</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211528787.png" srcset="/img/loading.gif" lazyload alt="image-20210911211528787"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211532186.png" srcset="/img/loading.gif" lazyload alt="image-20210911211532186"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210911211535551.png" srcset="/img/loading.gif" lazyload alt="image-20210911211535551"></p>
+<p><img src="image-20210911211528787.png" srcset="/img/loading.gif" lazyload alt="image-20210911211528787"></p>
+<p><img src="image-20210911211532186.png" srcset="/img/loading.gif" lazyload alt="image-20210911211532186"></p>
+<p><img src="image-20210911211535551.png" srcset="/img/loading.gif" lazyload alt="image-20210911211535551"></p>
 <p>var1 AtomicInteger对象本身.</p>
 <p>var2 该对象值的引用地址</p>
 <p>var4 需要变动的数值</p>
@@ -1323,8 +1323,8 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Description: ABA问题的解决</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> veliger@163.com</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2019-04-12 21:30</span><br><span class="hljs-comment"> **/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ABADemo</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> AtomicReference&lt;Integer&gt; atomicReference=<span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicReference</span>&lt;&gt;(<span class="hljs-number">100</span>);<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> AtomicStampedReference&lt;Integer&gt; stampedReference=<span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicStampedReference</span>&lt;&gt;(<span class="hljs-number">100</span>,<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;===以下是ABA问题的产生===&quot;</span>);<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            atomicReference.compareAndSet(<span class="hljs-number">100</span>,<span class="hljs-number">101</span>);<br>            atomicReference.compareAndSet(<span class="hljs-number">101</span>,<span class="hljs-number">100</span>);<br>        &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            <span class="hljs-comment">//先暂停1秒 保证完成ABA</span><br>            <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br>            System.out.println(atomicReference.compareAndSet(<span class="hljs-number">100</span>, <span class="hljs-number">2019</span>)+<span class="hljs-string">&quot;\t&quot;</span>+atomicReference.get());<br>        &#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br>        <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">2</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br>        System.out.println(<span class="hljs-string">&quot;===以下是ABA问题的解决===&quot;</span>);<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">stamp</span> <span class="hljs-operator">=</span> stampedReference.getStamp();<br>            System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 第1次版本号&quot;</span>+stamp+<span class="hljs-string">&quot;\t值是&quot;</span>+stampedReference.getReference());<br>            <span class="hljs-comment">//暂停1秒钟t3线程</span><br>            <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br><br>            stampedReference.compareAndSet(<span class="hljs-number">100</span>,<span class="hljs-number">101</span>,stampedReference.getStamp(),stampedReference.getStamp()+<span class="hljs-number">1</span>);<br>            System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 第2次版本号&quot;</span>+stampedReference.getStamp()+<span class="hljs-string">&quot;\t值是&quot;</span>+stampedReference.getReference());<br>            stampedReference.compareAndSet(<span class="hljs-number">101</span>,<span class="hljs-number">100</span>,stampedReference.getStamp(),stampedReference.getStamp()+<span class="hljs-number">1</span>);<br>            System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 第3次版本号&quot;</span>+stampedReference.getStamp()+<span class="hljs-string">&quot;\t值是&quot;</span>+stampedReference.getReference());<br>        &#125;,<span class="hljs-string">&quot;t3&quot;</span>).start();<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">stamp</span> <span class="hljs-operator">=</span> stampedReference.getStamp();<br>            System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 第1次版本号&quot;</span>+stamp+<span class="hljs-string">&quot;\t值是&quot;</span>+stampedReference.getReference());<br>            <span class="hljs-comment">//保证线程3完成1次ABA</span><br>            <span class="hljs-keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>); &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;<br>            <span class="hljs-type">boolean</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> stampedReference.compareAndSet(<span class="hljs-number">100</span>, <span class="hljs-number">2019</span>, stamp, stamp + <span class="hljs-number">1</span>);<br>            System.out.println(Thread.currentThread().getName()+<span class="hljs-string">&quot;\t 修改成功否&quot;</span>+result+<span class="hljs-string">&quot;\t最新版本号&quot;</span>+stampedReference.getStamp());<br>            System.out.println(<span class="hljs-string">&quot;最新的值\t&quot;</span>+stampedReference.getReference());<br>        &#125;,<span class="hljs-string">&quot;t4&quot;</span>).start();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>这个可以规避掉ABA问题，就是<strong>新增一种机制，那就是增加时间戳，当时间戳跟要比对的时间戳不一致的话，就说明这个数据在中间被修改过</strong></p>
-<h2 id="第八章-原子操作类之18罗汉增强"><a href="#第八章-原子操作类之18罗汉增强" class="headerlink" title="第八章 原子操作类之18罗汉增强"></a>第八章 原子操作类之18罗汉增强</h2><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103406684.png" srcset="/img/loading.gif" lazyload alt="image-20220206103406684"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206103423934.png" srcset="/img/loading.gif" lazyload alt="image-20220206103423934"></p>
+<h2 id="第八章-原子操作类之18罗汉增强"><a href="#第八章-原子操作类之18罗汉增强" class="headerlink" title="第八章 原子操作类之18罗汉增强"></a>第八章 原子操作类之18罗汉增强</h2><p><img src="image-20220206103406684.png" srcset="/img/loading.gif" lazyload alt="image-20220206103406684"></p>
+<p><img src="image-20220206103423934.png" srcset="/img/loading.gif" lazyload alt="image-20220206103423934"></p>
 <h3 id="8-1-基本类型原子类"><a href="#8-1-基本类型原子类" class="headerlink" title="8.1 基本类型原子类"></a>8.1 基本类型原子类</h3><p>AtomicInteger、AtomicBoolean、AtomicLong</p>
 <p>常用API简介：</p>
 <ul>
@@ -1373,7 +1373,7 @@
 <li>热点商品点赞计算器，点赞数加加统计，不要求实时精确</li>
 <li>一个很大的List，里面都是int类型，如何实现加加，说说思路</li>
 </ol>
-<h4 id="2、常用API"><a href="#2、常用API" class="headerlink" title="2、常用API"></a><strong>2、常用API</strong></h4><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206113432949.png" srcset="/img/loading.gif" lazyload alt="image-20220206113432949"></p>
+<h4 id="2、常用API"><a href="#2、常用API" class="headerlink" title="2、常用API"></a><strong>2、常用API</strong></h4><p><img src="image-20220206113432949.png" srcset="/img/loading.gif" lazyload alt="image-20220206113432949"></p>
 <p><strong>LongAdder只能用来计算加法，且从零开始计算；</strong></p>
 <p><strong>LongAccumulator提供了自定义的函数操作</strong>：long类型的聚合器，需要传入一个long类型的二元操作，可以用来计算各种聚合操作，包括加乘等</p>
 <p>使用示例如下：</p>
@@ -1381,8 +1381,8 @@
 
 <h4 id="3、LongAdder高性能对比Code演示"><a href="#3、LongAdder高性能对比Code演示" class="headerlink" title="3、LongAdder高性能对比Code演示"></a><strong>3、LongAdder高性能对比Code演示</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ClickNumberNet</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">number</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clickBySync</span><span class="hljs-params">()</span> &#123;<br>        number++;<br>    &#125;<br><br>    <span class="hljs-type">AtomicLong</span> <span class="hljs-variable">atomicLong</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicLong</span>(<span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clickByAtomicLong</span><span class="hljs-params">()</span> &#123;<br>        atomicLong.incrementAndGet();<br>    &#125;<br><br>    <span class="hljs-type">LongAdder</span> <span class="hljs-variable">longAdder</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LongAdder</span>();<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clickByLongAdder</span><span class="hljs-params">()</span> &#123;<br>        longAdder.increment();<br>    &#125;<br><br>    <span class="hljs-type">LongAccumulator</span> <span class="hljs-variable">longAccumulator</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LongAccumulator</span>((x,y) -&gt; x + y,<span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clickByLongAccumulator</span><span class="hljs-params">()</span> &#123;<br>        longAccumulator.accumulate(<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@auther</span> zzyy</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@create</span> 2020-05-21 22:23</span><br><span class="hljs-comment"> * 50个线程，每个线程100W次，总点赞数出来</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LongAdderDemo2</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>        <span class="hljs-type">ClickNumberNet</span> <span class="hljs-variable">clickNumberNet</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClickNumberNet</span>();<br><br>        <span class="hljs-type">long</span> startTime;<br>        <span class="hljs-type">long</span> endTime;<br>        <span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">countDownLatch</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">50</span>);<br>        <span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">countDownLatch2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">50</span>);<br>        <span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">countDownLatch3</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">50</span>);<br>        <span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">countDownLatch4</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">50</span>);<br><br><br>        startTime = System.currentTimeMillis();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;=<span class="hljs-number">50</span>; i++) &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; j &lt;=<span class="hljs-number">100</span> * <span class="hljs-number">10000</span>; j++) &#123;<br>                        clickNumberNet.clickBySync();<br>                    &#125;<br>                &#125;<span class="hljs-keyword">finally</span> &#123;<br>                    countDownLatch.countDown();<br>                &#125;<br>            &#125;,String.valueOf(i)).start();<br>        &#125;<br>        countDownLatch.await();<br>        endTime = System.currentTimeMillis();<br>        System.out.println(<span class="hljs-string">&quot;----costTime: &quot;</span>+(endTime - startTime) +<span class="hljs-string">&quot; 毫秒&quot;</span>+<span class="hljs-string">&quot;\t clickBySync result: &quot;</span>+clickNumberNet.number);<br><br>        startTime = System.currentTimeMillis();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;=<span class="hljs-number">50</span>; i++) &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; j &lt;=<span class="hljs-number">100</span> * <span class="hljs-number">10000</span>; j++) &#123;<br>                        clickNumberNet.clickByAtomicLong();<br>                    &#125;<br>                &#125;<span class="hljs-keyword">finally</span> &#123;<br>                    countDownLatch2.countDown();<br>                &#125;<br>            &#125;,String.valueOf(i)).start();<br>        &#125;<br>        countDownLatch2.await();<br>        endTime = System.currentTimeMillis();<br>        System.out.println(<span class="hljs-string">&quot;----costTime: &quot;</span>+(endTime - startTime) +<span class="hljs-string">&quot; 毫秒&quot;</span>+<span class="hljs-string">&quot;\t clickByAtomicLong result: &quot;</span>+clickNumberNet.atomicLong);<br><br>        startTime = System.currentTimeMillis();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;=<span class="hljs-number">50</span>; i++) &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; j &lt;=<span class="hljs-number">100</span> * <span class="hljs-number">10000</span>; j++) &#123;<br>                        clickNumberNet.clickByLongAdder();<br>                    &#125;<br>                &#125;<span class="hljs-keyword">finally</span> &#123;<br>                    countDownLatch3.countDown();<br>                &#125;<br>            &#125;,String.valueOf(i)).start();<br>        &#125;<br>        countDownLatch3.await();<br>        endTime = System.currentTimeMillis();<br>        System.out.println(<span class="hljs-string">&quot;----costTime: &quot;</span>+(endTime - startTime) +<span class="hljs-string">&quot; 毫秒&quot;</span>+<span class="hljs-string">&quot;\t clickByLongAdder result: &quot;</span>+clickNumberNet.longAdder.sum());<br><br>        startTime = System.currentTimeMillis();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;=<span class="hljs-number">50</span>; i++) &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; j &lt;=<span class="hljs-number">100</span> * <span class="hljs-number">10000</span>; j++) &#123;<br>                        clickNumberNet.clickByLongAccumulator();<br>                    &#125;<br>                &#125;<span class="hljs-keyword">finally</span> &#123;<br>                    countDownLatch4.countDown();<br>                &#125;<br>            &#125;,String.valueOf(i)).start();<br>        &#125;<br>        countDownLatch4.await();<br>        endTime = System.currentTimeMillis();<br>        System.out.println(<span class="hljs-string">&quot;----costTime: &quot;</span>+(endTime - startTime) +<span class="hljs-string">&quot; 毫秒&quot;</span>+<span class="hljs-string">&quot;\t clickByLongAccumulator result: &quot;</span>+clickNumberNet.longAccumulator.longValue());<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206114644660.png" srcset="/img/loading.gif" lazyload alt="image-20220206114644660"></p>
-<h4 id="4、源码、原理分析"><a href="#4、源码、原理分析" class="headerlink" title="4、源码、原理分析"></a><strong>4、源码、原理分析</strong></h4><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134057810.png" srcset="/img/loading.gif" lazyload alt="image-20220206134057810"></p>
+<p><img src="image-20220206114644660.png" srcset="/img/loading.gif" lazyload alt="image-20220206114644660"></p>
+<h4 id="4、源码、原理分析"><a href="#4、源码、原理分析" class="headerlink" title="4、源码、原理分析"></a><strong>4、源码、原理分析</strong></h4><p><img src="image-20220206134057810.png" srcset="/img/loading.gif" lazyload alt="image-20220206134057810"></p>
 <p>那么为什么LongAdder这么快呢？</p>
 <p>那是因为<strong>LongAdder是Striped64的子类</strong></p>
 <p>Striped64有几个比较重要的成员函数：</p>
@@ -1398,19 +1398,19 @@
 <li>advanceProbe（）：重置当前线程的hash值</li>
 </ul>
 <p>而所谓的Cell类，其实就是<strong>是 java.util.concurrent.atomic 下 Striped64 的一个内部类</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206134940151.png" srcset="/img/loading.gif" lazyload alt="image-20220206134940151"></p>
+<p><img src="image-20220206134940151.png" srcset="/img/loading.gif" lazyload alt="image-20220206134940151"></p>
 <p>LongAdder的基本思路就是<strong>分散热点</strong>，将value值分散到一个<strong>Cell数组</strong>中，不同线程会命中到数组的不同槽中，各个线程只对自己槽中的那个值进行CAS操作，这样热点就被分散了，冲突的概率就小很多。如果要获取真正的long值，只需将各个槽中的变量值累加返回。</p>
 <p>sum()会将所有Cell数组中的value和base累加作为返回值，核心的思想就是将之前AtomicLong一个value的更新压力分散到更多个value中去，<strong>从而降级更新热点</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135334565.png" srcset="/img/loading.gif" lazyload alt="image-20220206135334565"></p>
+<p><img src="image-20220206135334565.png" srcset="/img/loading.gif" lazyload alt="image-20220206135334565"></p>
 <p>内部有一个base变量，一个Cell数组</p>
 <p>base变量：非竞争条件下，直接累加到该变量上</p>
 <p>cell数组：竞争条件下，累加到各个线程自己的槽Cell[i]中。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135356216.png" srcset="/img/loading.gif" lazyload alt="image-20220206135356216"></p>
+<p><img src="image-20220206135356216.png" srcset="/img/loading.gif" lazyload alt="image-20220206135356216"></p>
 <p>LongAdder在无竞争的情况，跟AtomicLong一样，对同一个base进行操作，当出现竞争关系时则是采用化整为零的做法，从空间换时间，用一个数组cells，将一个value拆分进这个数组cells。多个线程需要同时对value进行操作时候，可以对线程id进行hash得到hash值，再根据hash值映射到这个数组cells的某个下标，再对该下标所对应的值进行自增操作。当所有线程操作完毕，将数组cells的所有值和无竞争值base都加起来作为最终结果。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;<br>    add(<span class="hljs-number">1L</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206135838869.png" srcset="/img/loading.gif" lazyload alt="image-20220206135838869"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/%E5%9B%BE%E7%89%87.png" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="image-20220206135838869.png" srcset="/img/loading.gif" lazyload alt="image-20220206135838869"></p>
+<p><img src="%E5%9B%BE%E7%89%87.png" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <ol>
 <li>最初无竞争时只更新base</li>
 <li>如果更新base失败后，首次新建一个Cell[]数组</li>
@@ -1421,12 +1421,12 @@
 <li>LongBinrayOperator fn ：默认传递的是null</li>
 <li>wasUncontended竞争标识，如果是false则代表有竞争。只有cells初始化之后，并且当前线程CAS竞争修改失败，才会是false。</li>
 </ul>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204659299.png" srcset="/img/loading.gif" lazyload alt="image-20220206204659299"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204712443.png" srcset="/img/loading.gif" lazyload alt="image-20220206204712443"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204716485.png" srcset="/img/loading.gif" lazyload alt="image-20220206204716485"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204721049.png" srcset="/img/loading.gif" lazyload alt="image-20220206204721049"></p>
+<p><img src="image-20220206204659299.png" srcset="/img/loading.gif" lazyload alt="image-20220206204659299"></p>
+<p><img src="image-20220206204712443.png" srcset="/img/loading.gif" lazyload alt="image-20220206204712443"></p>
+<p><img src="image-20220206204716485.png" srcset="/img/loading.gif" lazyload alt="image-20220206204716485"></p>
+<p><img src="image-20220206204721049.png" srcset="/img/loading.gif" lazyload alt="image-20220206204721049"></p>
 <p><strong>接下来看总纲</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206204805772.png" srcset="/img/loading.gif" lazyload alt="image-20220206204805772"></p>
+<p><img src="image-20220206204805772.png" srcset="/img/loading.gif" lazyload alt="image-20220206204805772"></p>
 <p>上述代码首先给当前线程分配一个hash值，然后进入一个for(;;)自旋，这个自旋分为三个分支：</p>
 <ul>
 <li>CASE1：Cell[]数组已经初始化</li>
@@ -1436,37 +1436,37 @@
 <p>接下来分开看：</p>
 <p><strong>1、刚刚要初始化Cell[]数组(首次新建)：</strong></p>
 <p>未初始化过Cell[]数组，尝试占有锁并首次初始化cells数组</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205242031.png" srcset="/img/loading.gif" lazyload alt="image-20220206205242031"></p>
+<p><img src="image-20220206205242031.png" srcset="/img/loading.gif" lazyload alt="image-20220206205242031"></p>
 <p>如果上面条件都执行成功就会执行数组的初始化及赋值操作， Cell[] rs &#x3D; new Cell[2]表示数组的长度为2，rs[h &amp; 1] &#x3D; new Cell(x) 表示创建一个新的Cell元素，value是x值，默认为1。h &amp; 1类似于我们之前HashMap常用到的计算散列桶index的算法，通常都是hash &amp; (table.len - 1)。同hashmap一个意思。</p>
 <p><strong>2、兜底</strong></p>
 <p>多个线程尝试CAS修改失败的线程会走到这个分支</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205314265.png" srcset="/img/loading.gif" lazyload alt="image-20220206205314265"></p>
+<p><img src="image-20220206205314265.png" srcset="/img/loading.gif" lazyload alt="image-20220206205314265"></p>
 <p>该分支实现直接操作base基数，将值累加到base上，也即其它线程正在初始化，多个线程正在更新base的值。</p>
 <p><strong>3、Cell数组不再为空且可能存在Cell数组扩容</strong></p>
 <p>多个线程同时命中一个cell的竞争</p>
 <p>总体代码如下：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206205342462.png" srcset="/img/loading.gif" lazyload alt="image-20220206205342462"></p>
+<p><img src="image-20220206205342462.png" srcset="/img/loading.gif" lazyload alt="image-20220206205342462"></p>
 <p><strong>3.1</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211522791.png" srcset="/img/loading.gif" lazyload alt="image-20220206211522791"></p>
+<p><img src="image-20220206211522791.png" srcset="/img/loading.gif" lazyload alt="image-20220206211522791"></p>
 <p>上面代码判断当前线程hash后指向的数据位置元素是否为空，如果为空则将Cell数据放入数组中，跳出循环。如果不空则继续循环。</p>
 <p><strong>3.2</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211544806.png" srcset="/img/loading.gif" lazyload alt="image-20220206211544806"></p>
+<p><img src="image-20220206211544806.png" srcset="/img/loading.gif" lazyload alt="image-20220206211544806"></p>
 <p><strong>3.3</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211555812.png" srcset="/img/loading.gif" lazyload alt="image-20220206211555812"></p>
+<p><img src="image-20220206211555812.png" srcset="/img/loading.gif" lazyload alt="image-20220206211555812"></p>
 <p>说明当前线程对应的数组中有了数据，也重置过hash值，这时通过CAS操作尝试对当前数中的value值进行累加x操作，x默认为1，如果CAS成功则直接跳出循环。</p>
 <p><strong>3.4</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211615943.png" srcset="/img/loading.gif" lazyload alt="image-20220206211615943"></p>
+<p><img src="image-20220206211615943.png" srcset="/img/loading.gif" lazyload alt="image-20220206211615943"></p>
 <p><strong>3.5</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211624502.png" srcset="/img/loading.gif" lazyload alt="image-20220206211624502"></p>
+<p><img src="image-20220206211624502.png" srcset="/img/loading.gif" lazyload alt="image-20220206211624502"></p>
 <p><strong>3.6</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211632200.png" srcset="/img/loading.gif" lazyload alt="image-20220206211632200"></p>
+<p><img src="image-20220206211632200.png" srcset="/img/loading.gif" lazyload alt="image-20220206211632200"></p>
 <p><strong>上述六部总结如下</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211645742.png" srcset="/img/loading.gif" lazyload alt="image-20220206211645742"></p>
+<p><img src="image-20220206211645742.png" srcset="/img/loading.gif" lazyload alt="image-20220206211645742"></p>
 <h5 id="sum方法"><a href="#sum方法" class="headerlink" title="sum方法"></a><strong>sum方法</strong></h5><p>sum()会将所有Cell数组中的value和base累加作为返回值。核心的思想就是将之前AtomicLong一个value的更新压力分散到多个value中去，从而降级更新热点。</p>
 <p><strong>sum执行时，并没有限制对base和cells的更新(一句要命的话)。所以LongAdder不是强一致性的，它是最终一致性的。</strong></p>
 <p>首先，最终返回的sum局部变量，初始被复制为base，而最终返回时，很可能base已经被更新了，而此时局部变量sum不会更新，造成不一致。</p>
 <p>其次，这里对cell的读取也无法保证是最后一次写入的值。所以，sum方法在没有并发的情况下，可以获得正确的结果。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220206211930658.png" srcset="/img/loading.gif" lazyload alt="image-20220206211930658"></p>
+<p><img src="image-20220206211930658.png" srcset="/img/loading.gif" lazyload alt="image-20220206211930658"></p>
 <h4 id="5、使用总结"><a href="#5、使用总结" class="headerlink" title="5、使用总结"></a>5、使用总结</h4><ul>
 <li>AtomicLong<ul>
 <li>线程安全，可允许一些性能损耗，要求高精度时可使用</li>
@@ -1492,12 +1492,12 @@
 <p>原理：CAS + Base + Cell数组分散；空间换时间并分散了热点数据</p>
 <p>场景：高并发下的全局计算</p>
 <p>缺陷：sum求和后还有计算线程修改结果的话，最后结果不够准确</p>
-<h2 id="第十章-Java对象内存布局和对象头"><a href="#第十章-Java对象内存布局和对象头" class="headerlink" title="第十章 Java对象内存布局和对象头"></a>第十章 Java对象内存布局和对象头</h2><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125505913.png" srcset="/img/loading.gif" lazyload alt="image-20220205125505913"></p>
+<h2 id="第十章-Java对象内存布局和对象头"><a href="#第十章-Java对象内存布局和对象头" class="headerlink" title="第十章 Java对象内存布局和对象头"></a>第十章 Java对象内存布局和对象头</h2><p><img src="image-20220205125505913.png" srcset="/img/loading.gif" lazyload alt="image-20220205125505913"></p>
 <p>Object object &#x3D; new Object()，谈谈你对这句话的理解？一般而言，JDK8按照默认情况下，new一个对象占多少内存空间？</p>
 <h3 id="10-1-对象在堆内存中的存储布局"><a href="#10-1-对象在堆内存中的存储布局" class="headerlink" title="10.1 对象在堆内存中的存储布局"></a>10.1 对象在堆内存中的存储布局</h3><p><strong>在HotSpot虚拟机里，对象在堆内存中的存储布局可以划分为三个部分：对象头、实际数据、对齐填充</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205125656777.png" srcset="/img/loading.gif" lazyload alt="image-20220205125656777"></p>
+<p><img src="image-20220205125656777.png" srcset="/img/loading.gif" lazyload alt="image-20220205125656777"></p>
 <h3 id="10-1-1-对象头"><a href="#10-1-1-对象头" class="headerlink" title="10.1.1 对象头"></a>10.1.1 对象头</h3><p><strong>对象头包含对象标记（Mark Word）和类元信息（又叫类型指针）</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205130518985.png" srcset="/img/loading.gif" lazyload alt="image-20220205130518985"></p>
+<p><img src="image-20220205130518985.png" srcset="/img/loading.gif" lazyload alt="image-20220205130518985"></p>
 <p><strong>1、对象标记：</strong></p>
 <table>
 <thead>
@@ -1534,21 +1534,21 @@
 </tr>
 </tbody></table>
 <p>在64位系统中，MarkWord占了8个字节，类型指针占了8个字节，一共是16个字节。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132040145.png" srcset="/img/loading.gif" lazyload alt="image-20220205132040145"></p>
+<p><img src="image-20220205132040145.png" srcset="/img/loading.gif" lazyload alt="image-20220205132040145"></p>
 <ul>
 <li>默认存储对象的HashCode、分代年龄和锁标志位等信息。</li>
 <li>这些信息都是与对象自身定义无关的数据，所以MarkWord被设计成一个非固定的数据结构以便在极小的空间内存存储尽量多的数据。</li>
 <li>它会根据对象的状态复用自己的存储空间，也就是说在运行期间MarkWord里存储的数据会随着锁标志位的变化而变化。</li>
 </ul>
 <p><strong>2、类元信息（类型指针）</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132454203.png" srcset="/img/loading.gif" lazyload alt="image-20220205132454203"></p>
+<p><img src="image-20220205132454203.png" srcset="/img/loading.gif" lazyload alt="image-20220205132454203"></p>
 <p>对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。</p>
 <h3 id="10-1-2-实例数据"><a href="#10-1-2-实例数据" class="headerlink" title="10.1.2 实例数据"></a>10.1.2 实例数据</h3><p>存放类的属性（Field）数据信息，包括父类的属性信息，如果是数组的实例部分还包括数组的长度，这部分内存按4字节对齐。</p>
 <h3 id="10-1-3-对齐填充"><a href="#10-1-3-对齐填充" class="headerlink" title="10.1.3 对齐填充"></a>10.1.3 对齐填充</h3><p>虚拟机要求对象起始地址必须是8字节的整数倍。填充数据不是必须存在的，仅仅只是为了字节对齐，这部分内存按8字节补充对齐。</p>
-<h3 id="10-2-再说对象头的MarkWord"><a href="#10-2-再说对象头的MarkWord" class="headerlink" title="10.2 再说对象头的MarkWord"></a>10.2 再说对象头的MarkWord</h3><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132832941.png" srcset="/img/loading.gif" lazyload alt="image-20220205132832941"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205132859119.png" srcset="/img/loading.gif" lazyload alt="image-20220205132859119"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133200557.png" srcset="/img/loading.gif" lazyload alt="image-20220205133200557"></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133206455.png" srcset="/img/loading.gif" lazyload alt="image-20220205133206455"></p>
+<h3 id="10-2-再说对象头的MarkWord"><a href="#10-2-再说对象头的MarkWord" class="headerlink" title="10.2 再说对象头的MarkWord"></a>10.2 再说对象头的MarkWord</h3><p><img src="image-20220205132832941.png" srcset="/img/loading.gif" lazyload alt="image-20220205132832941"></p>
+<p><img src="image-20220205132859119.png" srcset="/img/loading.gif" lazyload alt="image-20220205132859119"></p>
+<p><img src="image-20220205133200557.png" srcset="/img/loading.gif" lazyload alt="image-20220205133200557"></p>
+<p><img src="image-20220205133206455.png" srcset="/img/loading.gif" lazyload alt="image-20220205133206455"></p>
 <ul>
 <li>hash：保存对象的哈希码</li>
 <li>age：保存对象的分代年龄</li>
@@ -1565,7 +1565,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">object</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br>    <span class="hljs-comment">//引入了JOL，直接使用</span><br>    System.out.println(ClassLayout.parseInstance(object).toPrintable());<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>结果如下：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205133815247.png" srcset="/img/loading.gif" lazyload alt="image-20220205133815247"></p>
+<p><img src="image-20220205133815247.png" srcset="/img/loading.gif" lazyload alt="image-20220205133815247"></p>
 <p>其中MarkWord8个字节，类型指针4个字节</p>
 <table>
 <thead>
@@ -1597,12 +1597,12 @@
 </tbody></table>
 <p>注意到上述的类型指针只有4个字节，但是我们之前说类型指针应该是8个才对，这是因为<strong>JVM默认开启了类型指针的压缩，来节省空间</strong></p>
 <p>使用<code>-XX:-UseCompressedClassPointers</code>来关闭默认开启的类型指针压缩</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205134512658.png" srcset="/img/loading.gif" lazyload alt="image-20220205134512658"></p>
+<p><img src="image-20220205134512658.png" srcset="/img/loading.gif" lazyload alt="image-20220205134512658"></p>
 <p>如果换成其他的对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ObjectHeadDemo</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        System.out.println(ClassLayout.parseInstance(<span class="hljs-keyword">new</span> <span class="hljs-title class_">O</span>()).toPrintable());<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">O</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> flag;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> j;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> d;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>结果如下：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205141630791.png" srcset="/img/loading.gif" lazyload alt="image-20220205141630791"></p>
+<p><img src="image-20220205141630791.png" srcset="/img/loading.gif" lazyload alt="image-20220205141630791"></p>
 <h2 id="第十一章-Synchronized与锁升级"><a href="#第十一章-Synchronized与锁升级" class="headerlink" title="第十一章 Synchronized与锁升级"></a>第十一章 Synchronized与锁升级</h2><p>源码下载：<a target="_blank" rel="noopener" href="http://hg.openjdk.java.net/jdk8u/jdk8u/hotspot/">jdk8u&#x2F;jdk8u&#x2F;hotspot: log (java.net)</a></p>
 <ul>
 <li>整体逻辑：无锁&#x3D;》偏向锁&#x3D;》轻量级锁&#x3D;》重量级锁</li>
@@ -1611,7 +1611,7 @@
 <li>重量级锁，cxq、entrylist、waitset；自旋；mutex、futex</li>
 </ul>
 <h3 id="11-1-锁升级基本概念"><a href="#11-1-锁升级基本概念" class="headerlink" title="11.1 锁升级基本概念"></a>11.1 锁升级基本概念</h3><p>用锁能够实现数据的安全性，但是会带来性能下降。无锁能够基于线程并行提升程序性能，但是会带来安全性下降。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205144231834.png" srcset="/img/loading.gif" lazyload alt="image-20220205144231834"></p>
+<p><img src="image-20220205144231834.png" srcset="/img/loading.gif" lazyload alt="image-20220205144231834"></p>
 <p>synchronized锁：由对象头中的Mark Word根据锁标志位的不同而被复用及锁升级策略</p>
 <p>在Java5之前，只有Synchronized，这个是操作系统级别的重量级操作。<strong>重量级锁</strong>，假如锁的竞争比较激烈的话，性能下降。Java5之前，用户态和内核态之间的切换。</p>
 <p>Java的线程是映射到操作系统原生线程之上的。如果要阻塞或唤醒一个线程就需要操作系统介入，需要用户态和核心态之间切换，这种切换会消耗大量的系统资源，因为用户态与内核态都有各自专用的内存空间，专用的寄存器等，用户态切换至内核态需要传递给许多变量、参数给内核，内核也需要保护好用户态在切换时的一些寄存器值、变量等，以便内核态调用结束后切换回用户态继续工作。</p>
@@ -1632,8 +1632,8 @@
 <p><strong>升级流程：synchronized用的锁是存在Java对象头里的MarkWord中，锁升级功能主要依赖MarkWord中锁标志位和释放偏向锁标志位</strong></p>
 <h3 id="11-2-无锁"><a href="#11-2-无锁" class="headerlink" title="11.2 无锁"></a>11.2 无锁</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyObject</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br>        System.out.println(<span class="hljs-string">&quot;10进制hash码：&quot;</span>+o.hashCode());<br>        System.out.println(<span class="hljs-string">&quot;16进制hash码：&quot;</span>+Integer.toHexString(o.hashCode()));<br>        System.out.println(<span class="hljs-string">&quot;2进制hash码：&quot;</span>+Integer.toBinaryString(o.hashCode()));<br><br>        System.out.println( ClassLayout.parseInstance(o).toPrintable());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152216749.png" srcset="/img/loading.gif" lazyload alt="image-20220205152216749"></p>
-<h3 id="11-3-偏向锁"><a href="#11-3-偏向锁" class="headerlink" title="11.3 偏向锁"></a>11.3 偏向锁</h3><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20221109214027087.png" srcset="/img/loading.gif" lazyload alt="image-20221109214027087"></p>
+<p><img src="image-20220205152216749.png" srcset="/img/loading.gif" lazyload alt="image-20220205152216749"></p>
+<h3 id="11-3-偏向锁"><a href="#11-3-偏向锁" class="headerlink" title="11.3 偏向锁"></a>11.3 偏向锁</h3><p><img src="image-20221109214027087.png" srcset="/img/loading.gif" lazyload alt="image-20221109214027087"></p>
 <blockquote>
 <p>默认情况下，偏向锁会有一个时延，默认四秒。</p>
 <p>因为虚拟机自己会有一些默认的启动的线程，里面会有很多的sync代码。这些代码在启动的时候肯定会有竞争，而如果一开始就可以使用偏向锁，那么就会造成偏向锁不断的进行锁撤销和锁升级的操作，效率低下。 </p>
@@ -1641,7 +1641,7 @@
 </blockquote>
 <p><strong>当一段同步代码一直被同一个线程多次访问，由于只有一个线程那么该线程在后续访问时便会自动获得锁</strong></p>
 <p>HotSpot的作者经过研究发现，大多数情况下：多线程的情况下，锁不仅不存在多线程竞争，还存在锁由同一线程多次获得的情况。<strong>偏向锁就是在这种情况下出现的，它的出现是为了解决只有在一个线程执行同步时提高性能。</strong></p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205152510684.png" srcset="/img/loading.gif" lazyload alt="image-20220205152510684"></p>
+<p><img src="image-20220205152510684.png" srcset="/img/loading.gif" lazyload alt="image-20220205152510684"></p>
 <p>那么只需要在锁的第一次被拥有的时候，记录下偏向线程ID。这样偏向线程就一直持有着锁（后续这个线程进入和退出这段加了同步锁的代码块时，<strong>不需要再次加锁和释放锁</strong>。而是直接比较对象头里面是否存储了指向当前线程的偏向锁。</p>
 <p>如果相等表示偏向锁时偏向于当前线程的，就不需要再次尝试获得锁了，直到竞争发生才释放锁。以后每次同步，检查锁的偏向线程ID与当前线程ID是否一致，如果一致直接进入同步。无需每次加锁解锁都去CAS更新对象头。如果自始至终使用锁的线程只有一个，很明显偏向锁几乎没有额外开销，性能极高。</p>
 <p>假如不一致意味着发生了竞争，锁已经不是总是偏向于同一线程了，这时候可能需要升级位轻量级锁，才能保证线程间公平竞争锁。<strong>偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，线程是不会主动释放偏向锁的</strong></p>
@@ -1662,7 +1662,7 @@
 <p>①  第一个线程正在执行synchronized方法(处于同步块)，它还没有执行完，其它线程来抢夺，该偏向锁会被取消掉并出现锁升级。此时轻量级锁由原持有偏向锁的线程持有，继续执行其同步代码，而正在竞争的线程会继续CAS尝试获得该轻量级锁。</p>
 <p>②  第一个线程执行完成synchronized方法(退出同步块)，则将对象头设置成无锁状态并撤销偏向锁，但是该锁将无法变成偏向锁了，如果再有线程来获取该无锁，将会直接升级成轻量级锁。</p>
 <p>除此之外，其实如果调用wait&#x2F;notify，也会使得偏向锁或轻量级锁强制升级为重量级锁</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213034003.png" srcset="/img/loading.gif" lazyload alt="image-20220205213034003"></p>
+<p><img src="image-20220205213034003.png" srcset="/img/loading.gif" lazyload alt="image-20220205213034003"></p>
 <p><strong>批量重偏向和批量撤销</strong></p>
 <ul>
 <li><p>对于一个类（源码中获取锁对象的类的元数据  Klass* k &#x3D; o-&gt;klass()），单个偏向撤销的计数达到20，就会进行批量重偏向；当每次发生批量重偏向的时候，会将class的epoch加1，同时遍历JVM中所有线程的栈，找到该class所有正在处于加锁状态的偏向锁，将其epoch字段改为新值。下次加锁的时候，发现当前对象的epoch和class的epoch不想等，那就算当前已经偏向了其他线程，也不会执行撤销操作，而是直接通过CAS操作将其Mark Word的Thread Id 改成当前线程Id。</p>
@@ -1680,7 +1680,7 @@
 <p>JVM内部为每个类维护了一个偏向锁revoke计数器，对偏向锁撤销进行计数，当这个值达到指定阈值时，JVM会认为这个类的偏向锁有问题，需要重新偏向(rebias),对所有属于这个类的对象进行重偏向的操作成为 批量重偏向(bulk rebias)。在做bulk rebias时，会对这个类的epoch的值做递增，这个epoch会存储在对象头中的epoch字段。在判断这个对象是否获得偏向锁的条件是:markword的 biased_lock:1、lock:01、threadid和当前线程id相等、epoch字段和所属类的epoch值相同，如果epoch的值不一样，要么就是撤销偏向锁、要么就是rebias； 如果这个类的revoke计数器的值继续增加到一个阈值，那么jvm会认为这个类不适合偏向锁，就需要进行bulk revoke操作</p>
 </blockquote>
 <h3 id="11-4-轻量级锁"><a href="#11-4-轻量级锁" class="headerlink" title="11.4 轻量级锁"></a>11.4 轻量级锁</h3><p>有线程来参与锁的竞争，但是获取锁的冲突时间非常短</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205213144978.png" srcset="/img/loading.gif" lazyload alt="image-20220205213144978"></p>
+<p><img src="image-20220205213144978.png" srcset="/img/loading.gif" lazyload alt="image-20220205213144978"></p>
 <p><strong>加锁过程</strong>：</p>
 <p>在代码即将进入 同步块的时候，如果此同步对象没有被锁定（锁标志位为“01”状态），虚拟机首先将在当前线程的栈帧中建立一个名为锁记录（Lock Record）的空间，用于存储锁对象目前的Mark Word的拷贝（官方为 这份拷贝加了一个Displaced前缀，即Displaced Mark Word） </p>
 <p>然后，虚拟机将使用CAS操作尝试把对象的Mark Word更新为指向Lock Record的指针。如果这个 更新动作成功了，即代表该线程拥有了这个对象的锁，并且对象Mark Word的锁标志位（Mark Word的 最后两个比特）将转变为“00”，表示此对象处于轻量级锁定状态。</p>
@@ -1699,7 +1699,7 @@
 <p>当线程释放锁的时候，会根据唤醒策略，从cxq队列或entrylist中挑选一个线程unpark唤醒。</p>
 <p>在唤醒等待队列的时候，会先将owner设置为null，如果这个时候有其他线程进入会获得该锁，也就是owner不为null，这其实也是<strong>非公平锁的体现</strong>，它会给刚进入，但是还没有进入等待队列等待的线程一次抢占的机会。</p>
 <p>如果没有线程能珍惜这次机会，就根据不同的策略从cxq或者entrylist中取出一个线程进行唤醒。但是该唤醒的线程被恢复挂起，恢复之后也不一定能够运行用户代码，不保证一定能获取到。</p>
-<h3 id="11-6-小总结"><a href="#11-6-小总结" class="headerlink" title="11.6 小总结"></a>11.6 小总结</h3><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215228013.png" srcset="/img/loading.gif" lazyload alt="image-20220205215228013"></p>
+<h3 id="11-6-小总结"><a href="#11-6-小总结" class="headerlink" title="11.6 小总结"></a>11.6 小总结</h3><p><img src="image-20220205215228013.png" srcset="/img/loading.gif" lazyload alt="image-20220205215228013"></p>
 <p><strong>synchronized锁升级过程总结：一句话，就是先自旋，不行再阻塞。</strong></p>
 <p>实际上是把之前的悲观锁(重量级锁)变成在一定条件下使用偏向锁以及使用轻量级(自旋锁CAS)的形式</p>
 <p>synchronized在修饰方法和代码块在字节码上实现方式有很大差异，但是内部实现还是基于对象头的MarkWord来实现的。</p>
@@ -1716,9 +1716,9 @@
 <p><strong>问题2: 为什么ObjectMonitor需要cxq和entryList两个等待队列</strong><br> ObjectMonitor中加解锁、wait&#x2F;notify都涉及对等待队列的进出队操作。如果使用一个队列冲突的概率会加大，耗费系统资源。分成2个队列后，出入队EntryList队列只有加锁的情况才会操作，不需要CAS和自旋，减少了资源消耗。</p>
 <h2 id="第十二章-AbstractQueuedSynchronizer之AQS"><a href="#第十二章-AbstractQueuedSynchronizer之AQS" class="headerlink" title="第十二章 AbstractQueuedSynchronizer之AQS"></a>第十二章 AbstractQueuedSynchronizer之AQS</h2><p>抽象的队列同步器</p>
 <p>是用来构建锁或者其它同步器组件的<strong>重量级基础框架及整个JUC体系的基石</strong>，通过内置的FIFO<strong>队列</strong>来完成资源获取线程的排队工作，并通过一个<strong>int变量</strong>表示持有锁的状态</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923185707622.png" srcset="/img/loading.gif" lazyload alt="image-20210923185707622"></p>
+<p><img src="image-20210923185707622.png" srcset="/img/loading.gif" lazyload alt="image-20210923185707622"></p>
 <p>和AQS有关的内容如下图所示</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923113321814.png" srcset="/img/loading.gif" lazyload alt="image-20210923113321814"></p>
+<p><img src="image-20210923113321814.png" srcset="/img/loading.gif" lazyload alt="image-20210923113321814"></p>
 <p>锁，面向锁的使用者，定义了程序员和锁交互的使用层API，隐藏了实现细节，调用就可以</p>
 <p>同步器，面向锁的实现者，比如java并发大神Douglee提出了统一规范并简化了锁的实现，屏蔽了同步状态管理、阻塞线程排队和通知、唤醒机制等。</p>
 <h3 id="12-1-能干嘛"><a href="#12-1-能干嘛" class="headerlink" title="12.1 能干嘛"></a>12.1 能干嘛</h3><p>加锁会导致阻塞，有阻塞就需要排队，实现排队必然需要有某种形式的队列来管理</p>
@@ -1730,19 +1730,19 @@
 <p>依靠单个原子来表示状态，通过占用和释放方法改变状态值</p>
 </blockquote>
 <p>AQS使用一个volatile的int类型的成员变量来表示同步状态，通过内置的FIFO队列来完成资源获取的排队工作将每条要去抢占资源的线程封装成一个Node节点来实现锁的分配，通过CAS完成对State值的修改</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923201402008.png" srcset="/img/loading.gif" lazyload alt="image-20210923201402008"></p>
+<p><img src="image-20210923201402008.png" srcset="/img/loading.gif" lazyload alt="image-20210923201402008"></p>
 <p>对于state变量来说，如果为0就是相当于自由状态，线程可以进行锁的抢占，类似于银行办理业务的受理窗口可以进行办理；如果大于0，有人占用窗口，线程得进行阻塞等待</p>
 <p>CLH队列是一个双向队列，从尾部入队，头部出队，即AQS就是state变量 + CLH双端Node队列</p>
 <p>Node类在AQS类内部：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Node</span> &#123;<br><br>    <span class="hljs-comment">// 共享</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Node</span> <span class="hljs-variable">SHARED</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Node</span>();<br>    <span class="hljs-comment">// 独占</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Node</span> <span class="hljs-variable">EXCLUSIVE</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-comment">// 线程被取消了</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">CANCELLED</span> <span class="hljs-operator">=</span>  <span class="hljs-number">1</span>;<br>    <span class="hljs-comment">// 后继线程需要唤醒</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">SIGNAL</span>    <span class="hljs-operator">=</span> -<span class="hljs-number">1</span>;<br>    <span class="hljs-comment">// 等待condition唤醒</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">CONDITION</span> <span class="hljs-operator">=</span> -<span class="hljs-number">2</span>;<br>    <span class="hljs-comment">// 共享式同步状态获取将会无条件地传播下去</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">PROPAGATE</span> <span class="hljs-operator">=</span> -<span class="hljs-number">3</span>;<br>    <span class="hljs-comment">// 初始为0，状态是上面的几种</span><br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> waitStatus;<br>    <span class="hljs-comment">// 前置节点</span><br>    <span class="hljs-keyword">volatile</span> Node prev;<br>    <span class="hljs-comment">// 后继节点</span><br>    <span class="hljs-keyword">volatile</span> Node next;<br><br>    <span class="hljs-keyword">volatile</span> Thread thread;<br><br>    <span class="hljs-comment">// 后面省略。。。</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>Node的waitStatus就是等候区其他顾客（其他线程）的等待状态，队列中每一个排队的个体就是一个Node</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923203705089.png" srcset="/img/loading.gif" lazyload alt="image-20210923203705089"></p>
+<p><img src="image-20210923203705089.png" srcset="/img/loading.gif" lazyload alt="image-20210923203705089"></p>
 <p>AQS底层是用LockSupport.park()进行排队的</p>
 <h3 id="12-3-源码解析"><a href="#12-3-源码解析" class="headerlink" title="12.3 源码解析"></a>12.3 源码解析</h3><p>我们以ReentrantLock为例进行解读</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AQSDemo</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">ReentrantLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReentrantLock</span>();<br>        <span class="hljs-comment">//带入一个银行办理业务的案例来模拟我们的AQS如何进行线程的管理和通知唤醒机制</span><br>        <span class="hljs-comment">//3个线程模拟3个来银行网点，受理窗口办理业务的顾客</span><br>        <span class="hljs-comment">//A顾客就是第一个顾客，此时受理窗口没有任何人，A可以直接去办理</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                lock.lock();<br>                <span class="hljs-keyword">try</span>&#123;<br>                    System.out.println(<span class="hljs-string">&quot;-----A thread come in&quot;</span>);<br>                    <span class="hljs-keyword">try</span> &#123; TimeUnit.MINUTES.sleep(<span class="hljs-number">20</span>); &#125;<span class="hljs-keyword">catch</span> (Exception e) &#123;e.printStackTrace();&#125;<br>                &#125;<span class="hljs-keyword">finally</span> &#123; lock.unlock(); &#125;<br>        &#125;,<span class="hljs-string">&quot;A&quot;</span>).start();<br><br>        <span class="hljs-comment">//第二个顾客，第二个线程---》由于受理业务的窗口只有一个(只能一个线程持有锁)，此时B只能等待，</span><br>        <span class="hljs-comment">//进入候客区</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            lock.lock();<br>            <span class="hljs-keyword">try</span>&#123;<br>                System.out.println(<span class="hljs-string">&quot;-----B thread come in&quot;</span>);<br>            &#125;<span class="hljs-keyword">finally</span> &#123; lock.unlock(); &#125;<br>        &#125;,<span class="hljs-string">&quot;B&quot;</span>).start();<br><br>        <span class="hljs-comment">//第三个顾客，第三个线程---》由于受理业务的窗口只有一个(只能一个线程持有锁)，此时C只能等待，</span><br>        <span class="hljs-comment">//进入候客区</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            lock.lock();<br>            <span class="hljs-keyword">try</span>&#123;<br>                System.out.println(<span class="hljs-string">&quot;-----C thread come in&quot;</span>);<br>            &#125;<span class="hljs-keyword">finally</span> &#123; lock.unlock(); &#125;<br>        &#125;,<span class="hljs-string">&quot;C&quot;</span>).start();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923210904175.png" srcset="/img/loading.gif" lazyload alt="image-20210923210904175"></p>
+<p><img src="image-20210923210904175.png" srcset="/img/loading.gif" lazyload alt="image-20210923210904175"></p>
 <p>Lock接口的实现类基本上都是通过聚合了一个队列同步器的子类完成线程访问控制的</p>
 <p>对于公平和非公平锁，比较他们的tryAcqure()方法， 其实差别就在于<strong>非公平锁获取锁时比公平锁中少了一个判断</strong><code>!hasQueuedPredecessors()</code>，该方法中判断了是否需要排队。</p>
 <p>公平锁：先来先到，线程在获取锁时，如果这个锁的等待队列中已经有线程在等待，那么当前线程就会进入等待队列中</p>
@@ -1754,7 +1754,7 @@
 
 <p>如果是第一个线程进来，一开始status为0，因此就能够通过CAS变成1，因此进入if里面进行抢占，在我们的银行例子中，A线程就能抢占到锁。其中<code>setExclusiveOwnerThread</code>设置该锁是被当前线程所占领，即A线程</p>
 <p>此时状态如下：</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923211027125.png" srcset="/img/loading.gif" lazyload alt="image-20210923211027125"></p>
+<p><img src="image-20210923211027125.png" srcset="/img/loading.gif" lazyload alt="image-20210923211027125"></p>
 <p>因为A线程设置的时候阻塞了20分钟，因此此时B线程进来抢夺锁，发现state已经被占用了，就执行else里面的<code>acquire(1)</code>方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">acquire</span><span class="hljs-params">(<span class="hljs-type">int</span> arg)</span> &#123;<br>    <span class="hljs-keyword">if</span> (!tryAcquire(arg) &amp;&amp;<br>        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))<br>        selfInterrupt();<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -1769,12 +1769,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> Node <span class="hljs-title function_">enq</span><span class="hljs-params">(<span class="hljs-keyword">final</span> Node node)</span> &#123;<br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        <span class="hljs-type">Node</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> tail;<br>        <span class="hljs-keyword">if</span> (t == <span class="hljs-literal">null</span>) &#123; <span class="hljs-comment">// Must initialize</span><br>            <span class="hljs-keyword">if</span> (compareAndSetHead(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Node</span>()))<br>                tail = head;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            node.prev = t;<br>            <span class="hljs-keyword">if</span> (compareAndSetTail(t, node)) &#123;<br>                t.next = node;<br>                <span class="hljs-keyword">return</span> t;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>再次判断tail指向null，因此新建一个Node节点，让head指向该Node，然后让tail指向head，也就是这个新建的Node，</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20210923213116201.png" srcset="/img/loading.gif" lazyload alt="image-20210923213116201"></p>
+<p><img src="image-20210923213116201.png" srcset="/img/loading.gif" lazyload alt="image-20210923213116201"></p>
 <p>双向链表中，<strong>第一个节点为虚节点，也叫哨兵节点</strong>，其实并不存储任何信息，只是占位。真正的第一个有数据的节点，是从第二个节点开始的。</p>
 <p>此时方法还没结束，继续下一次循环，注意的是，此时tail已经不为null了，进入else中，而此时的node就是线程B所在的节点，将线程B加入到CLH队列之中。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214430039.png" srcset="/img/loading.gif" lazyload alt="image-20220224214430039"></p>
+<p><img src="image-20220224214430039.png" srcset="/img/loading.gif" lazyload alt="image-20220224214430039"></p>
 <p>然后这时候C线程也进来了，重复线程B的动作，但是在addWaiter方法能进if里面， 此时将线程C也添加进CLH队列中</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214444508.png" srcset="/img/loading.gif" lazyload alt="image-20220224214444508"></p>
+<p><img src="image-20220224214444508.png" srcset="/img/loading.gif" lazyload alt="image-20220224214444508"></p>
 <p>接着执行下一个方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">acquireQueued</span><span class="hljs-params">(<span class="hljs-keyword">final</span> Node node, <span class="hljs-type">int</span> arg)</span> &#123;<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">failed</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 标志异常中断情况</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">interrupted</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">for</span> (;;) &#123;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">Node</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> node.predecessor(); <span class="hljs-comment">// 获取当前节点的prev节点</span><br>            <span class="hljs-keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;<br>                <span class="hljs-comment">// 当前线程抢占锁成功</span><br>                setHead(node);<br>                p.next = <span class="hljs-literal">null</span>; <span class="hljs-comment">// help GC</span><br>                failed = <span class="hljs-literal">false</span>;<br>                <span class="hljs-keyword">return</span> interrupted;<br>            &#125;<br>            <span class="hljs-comment">// </span><br>            <span class="hljs-keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;<br>                parkAndCheckInterrupt())<br>                interrupted = <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (failed)<br>            cancelAcquire(node);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -1790,11 +1790,11 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// acquireQueued中的方法</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setHead</span><span class="hljs-params">(Node node)</span> &#123;<br>    head = node;<br>    node.thread = <span class="hljs-literal">null</span>;<br>    node.prev = <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>线程B抢到锁之后，就让线程B变成哨兵节点</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220224214500823.png" srcset="/img/loading.gif" lazyload alt="image-20220224214500823"></p>
+<p><img src="image-20220224214500823.png" srcset="/img/loading.gif" lazyload alt="image-20220224214500823"></p>
 <p>原来的哨兵节点就被GC回收掉了</p>
 <h3 id="12-4-小细节"><a href="#12-4-小细节" class="headerlink" title="12.4 小细节"></a>12.4 小细节</h3><p>AQS里面的state有三个状态，0表示没占用，1表示被占用，大于1是可重入锁</p>
 <p>如果AB两个线程进来了以后，CLH中总共有三个Node节点，因为还包含哨兵节点。</p>
-<h2 id="第十三章-ReentrantLock、ReentrantReadWriteLock、StampedLock讲解"><a href="#第十三章-ReentrantLock、ReentrantReadWriteLock、StampedLock讲解" class="headerlink" title="第十三章 ReentrantLock、ReentrantReadWriteLock、StampedLock讲解"></a>第十三章 ReentrantLock、ReentrantReadWriteLock、StampedLock讲解</h2><p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205215707623.png" srcset="/img/loading.gif" lazyload alt="image-20220205215707623"></p>
+<h2 id="第十三章-ReentrantLock、ReentrantReadWriteLock、StampedLock讲解"><a href="#第十三章-ReentrantLock、ReentrantReadWriteLock、StampedLock讲解" class="headerlink" title="第十三章 ReentrantLock、ReentrantReadWriteLock、StampedLock讲解"></a>第十三章 ReentrantLock、ReentrantReadWriteLock、StampedLock讲解</h2><p><img src="image-20220205215707623.png" srcset="/img/loading.gif" lazyload alt="image-20220205215707623"></p>
 <p>面试题：</p>
 <ul>
 <li>你知道Java里面有哪些锁吗？</li>
@@ -1814,7 +1814,7 @@
 
 <p><strong>3、从写锁→读锁，ReentrantReadWriteLock可以降级</strong></p>
 <p>锁的严苛程度变强叫做升级，反之叫做降级</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221301989.png" srcset="/img/loading.gif" lazyload alt="image-20220205221301989"></p>
+<p><img src="image-20220205221301989.png" srcset="/img/loading.gif" lazyload alt="image-20220205221301989"></p>
 <p>锁降级：<strong>遵循获取写锁 → 再获取读锁 → 再释放写锁的次序，写锁能够降级成为读锁。</strong></p>
 <p><strong>如果一个线程占有了写锁，在不释放写锁的情况下，它还能占有读锁，即写锁降级为读锁。</strong></p>
 <p>Java8 官网说明：重入还允许通过获取写入锁定，然后读取锁然后释放写锁从写锁到读取锁,<br>但是，从读锁定升级到写锁是不可能的。</p>
@@ -1824,10 +1824,10 @@
 <p>如果有线程在读，那么写线程是无法获取写锁的，是悲观锁的策略</p>
 <p><strong>4、不可锁升级</strong></p>
 <p>线程获取读锁是不能直接升级为写入锁的。</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221840288.png" srcset="/img/loading.gif" lazyload alt="image-20220205221840288"></p>
+<p><img src="image-20220205221840288.png" srcset="/img/loading.gif" lazyload alt="image-20220205221840288"></p>
 <p>在ReentrantReadWriteLock中，当读锁被使用时，如果有线程尝试获取写锁，该写线程会被阻塞。</p>
 <p>所以，需要释放所有读锁，才可获取写锁，</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205221856490.png" srcset="/img/loading.gif" lazyload alt="image-20220205221856490"></p>
+<p><img src="image-20220205221856490.png" srcset="/img/loading.gif" lazyload alt="image-20220205221856490"></p>
 <p><strong>5、写锁和读锁是互斥的</strong></p>
 <p>写锁和读锁是互斥的（这里的互斥是指<strong>线程间的互斥</strong>，当前线程可以获取到写锁又获取到读锁，但是获取到了读锁不能继续获取写锁），这是因为读写锁要保持写操作的可见性。</p>
 <p>因为，如果允许读锁在被获取的情况下对写锁的获取，那么正在运行的其他读线程无法感知到当前写线程的操作。</p>
@@ -1844,7 +1844,7 @@
 <p>锁降级  下面的示例代码摘自ReentrantWriteReadLock源码中：</p>
 <p>ReentrantWriteReadLock支持锁降级，遵循按照获取写锁，获取读锁再释放写锁的次序，写锁能够降级成为读锁，不支持锁升级。</p>
 <p>解读在最下面:</p>
-<p><img src="JUC%E8%BF%9B%E9%98%B6%E7%89%88/image-20220205222241508.png" srcset="/img/loading.gif" lazyload alt="image-20220205222241508"></p>
+<p><img src="image-20220205222241508.png" srcset="/img/loading.gif" lazyload alt="image-20220205222241508"></p>
 <ol>
 <li>代码中声明了一个volatile类型的cacheValid变量，保证其可见性。</li>
 <li>首先获取读锁，如果cache不可用，则释放读锁，获取写锁，在更改数据之前，再检查一次cacheValid的值，然后修改数据，将cacheValid置为true，然后在释放写锁前获取读锁；此时，cache中数据可用，处理cache中数据，最后释放读锁。这个过程就是一个完整的锁降级的过程，目的是保证数据可见性。</li>

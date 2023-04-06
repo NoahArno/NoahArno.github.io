@@ -23,20 +23,20 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="HotRing：A Hotspot-Aware In-Memory Key-Value Store 一种热点可感知的内存 KV 存储结构  1. 背景在真实场景中经常会造成热点数据的出现，比如双十一的时候，会给缓存系统带来巨大的访问量；比如微博的热点事件，大多数的访问都集中在少量的数据上，也就是存在访问倾斜。为了解决这些问题，针对集群系统，一般都会采用一致性哈希、数据迁移、前端数据缓存等等。而对于">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221194304667.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221211049084.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221214644376.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222134518866.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222152043979.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222152307144.png">
-<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221222230106482.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221221194304667.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221221211049084.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221221214644376.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221222134518866.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221222152043979.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221222152307144.png">
+<meta property="og:image" content="https://noaharno.top/HotRing/HotRing/image-20221222230106482.png">
 <meta property="article:published_time" content="2023-04-06T15:48:37.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:04.292Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:25.616Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="PaperReading">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/HotRing/HotRing/HotRing/image-20221221194304667.png">
+<meta name="twitter:image" content="https://noaharno.top/HotRing/HotRing/image-20221221194304667.png">
   
   
   
@@ -311,7 +311,7 @@
 <li>MICA：A Holistic Approach to Fast In-Memory Key-Value Storage</li>
 </ol>
 </blockquote>
-<p><img src="HotRing/image-20221221194304667.png" srcset="/img/loading.gif" lazyload alt="image-20221221194304667"></p>
+<p><img src="image-20221221194304667.png" srcset="/img/loading.gif" lazyload alt="image-20221221194304667"></p>
 <blockquote>
 <p>Figure 1：无热点感知的哈希结构</p>
 </blockquote>
@@ -331,7 +331,7 @@
 <p>同时，环形链表没有终结点，为了更好的进行值的查找，需要将环形链表设计成有序的，这样就可以根据前后项的关系判断是否终结本次查询。注意，将头指针指向的第一个 item 作为停止信号是不合适的，因为它可以被并发请求修改。</p>
 <p>此外，比较两个较长的 Key 所带来的开销可能比较昂贵，我们将首先使用 Tag 字段进行比较。也就是说，我们的环的有序性根据其 Tag 和 Key 这一字段进行的, $order_k &#x3D; (tag_k, key_k)$</p>
 <p>至此，我们的 HashRing 就被设计成了一个基于有序环的哈希索引了。</p>
-<p><img src="HotRing/image-20221221211049084.png" srcset="/img/loading.gif" lazyload alt="image-20221221211049084"></p>
+<p><img src="image-20221221211049084.png" srcset="/img/loading.gif" lazyload alt="image-20221221211049084"></p>
 <blockquote>
 <p>Figure 2：基于有序环的哈希索引</p>
 </blockquote>
@@ -344,7 +344,7 @@
 <li>未找到 item k:</li>
 </ul>
 <p>$$<br>\begin{cases} \quad\space order_{i-1} &lt; order_k &lt; order_i \quad①\<br>or \space order_k &lt; order_i &lt; order_{i - 1} \quad ②\<br>or \space order_i &lt; order_{i -1} &lt; order_k \quad ③<br>\end{cases}<br>$$</p>
-<p><img src="HotRing/image-20221221214644376.png" srcset="/img/loading.gif" lazyload alt="image-20221221214644376"></p>
+<p><img src="image-20221221214644376.png" srcset="/img/loading.gif" lazyload alt="image-20221221214644376"></p>
 <blockquote>
 <p>Figure 3：Find operation in HotRing</p>
 </blockquote>
@@ -369,7 +369,7 @@
 <p>参数 R 影响反应延迟和识别精度。如果使用小的 R，则实现稳定性能的反应延迟将很低。然而，这也可能导致频繁且无效的头部指针移动。在我们的场景中，数据访问是高度倾斜的，因此头部指针的移动往往很少。默认情况下，参数 R 根据经验设置为 5，这已被证明可提供低反应延迟和可忽略的性能影响。</p>
 <p>注：也就是说在随机移动策略下，由于大部分的请求访问的都是热点数据，因此在大量的请求之后，该环的头部指针会偏向于指向热项目。不过如果一个环中存在不止一个热项目，那么就会导致头部指针的频繁移动，造成性能的丢失，因此该策略无法处理环中多个热点项的情况。</p>
 <h4 id="统计采样策略"><a href="#统计采样策略" class="headerlink" title="统计采样策略"></a>统计采样策略</h4><p>为了实现更高的性能，我们设计了一种统计采样策略，该策略旨在提供更准确的热点识别，并具有略高的反应延迟。在详细解释该策略之前，我们先来介绍一下 HotRing 中的一些结构的内部实现：</p>
-<p><img src="HotRing/image-20221222134518866.png" srcset="/img/loading.gif" lazyload alt="image-20221222134518866"></p>
+<p><img src="image-20221222134518866.png" srcset="/img/loading.gif" lazyload alt="image-20221222134518866"></p>
 <blockquote>
 <p>Figure 4：HotRing Index Format.</p>
 </blockquote>
@@ -400,7 +400,7 @@
 </ul>
 <p>对于更新操作，HotRing 为那些小于 8 字节的值提供了一种就地更新方法（即，现代机器支持最多8字节的原子操作）。在这种情况下，read 和 update 数据项在热度方面是相同的。然而，对于较大的值，情况完全不同，如图5所示。为了获得高性能，必须应用 read-copy-update（RCU）协议。在这种情况下，需要修改前一项的指针，以在更新期间指向新项。如果修改了头中的写入密集型热点，则必须遍历整个冲突环才能到达其前一项。也就是说，写密集型热项也会使其前一项变热。根据这一见解，我们稍微修改了统计抽样策略。对于RCU下，更新的是其前一项的计数器。这有助于指出写入密集型热点的先例，使整个RCU更新操作快速（This helps to point the head to the precedent of a write-intensive hotspot, making the entire RCU update operation fast.）</p>
 <p>由于在 RCU 下，更新的是前一项的计数器，头指针就会趋向于指向写入项的前一项，在写密集型的热点时，可以直接定位到热点的前一项，更新时就不需要遍历链表。</p>
-<p><img src="HotRing/image-20221222152043979.png" srcset="/img/loading.gif" lazyload alt="image-20221222152043979"></p>
+<p><img src="image-20221222152043979.png" srcset="/img/loading.gif" lazyload alt="image-20221222152043979"></p>
 <blockquote>
 <p>Figure 5：Updating hot item A with RCU makes item F hot</p>
 <p>热点是 A，RCU 下，修改 A 需要前一项 F，这就需要遍历整个环。所以 RCU 下，更新的是 F 的计数器，从而让头指针指向 F（写入热点依然是 A），之后写入 A 时，不需要遍历环了。</p>
@@ -413,7 +413,7 @@
 <h3 id="2-3-并发操作设计"><a href="#2-3-并发操作设计" class="headerlink" title="2.3 并发操作设计"></a>2.3 并发操作设计</h3><p>头部指针的移动使无锁设计更加复杂。这主要体现在以下几个方面：一方面，头部指针的移动可能与其他线程并行。因此，我们需要考虑头部指针移动和其他修改操作的并发性，防止指针指向无效项。</p>
 <p>另一方面，当我们删除或更新项目时，我们需要检查头部指针是否指向该项目。如果是这样，我们需要正确而巧妙地移动头部指针。在本节中，我们主要介绍并发访问的控制方法，以解决 HotRing 中的并发问题。</p>
 <p>为了实现高访问并发性并确保高吞吐量，我们实现了一套完整的无锁设计，这在之前的工作中得到了严格的介绍。原子 CAS 操作用于确保两个线程不会同时修改同一个Next Item Address。如果多个线程试图更新同一个Next Item Address，则只有一个线程成功，其他线程失败。失败的线程必须重新执行其操作。</p>
-<p><img src="HotRing/image-20221222152307144.png" srcset="/img/loading.gif" lazyload alt="image-20221222152307144"></p>
+<p><img src="image-20221222152307144.png" srcset="/img/loading.gif" lazyload alt="image-20221222152307144"></p>
 <blockquote>
 <p>Figure 6：Different concurrency issues that involve RCU operations.</p>
 </blockquote>
@@ -442,7 +442,7 @@
 <p>头部指针的移动是 HotRing 中的一个特殊动作。为了确保头部指针移动与其他操作（尤其是更新和删除）的正确性，我们需要额外的管理。有两个主要问题需要解决：（1）如何处理正常操作的并发性和标识策略导致的头指针移动？（2） 如何处理头部项目更新或删除导致的头部指针移动？</p>
 <p>对于由识别策略引起的头部指针移动，我们还使用占用位来确保正确性。当将头指针移动到新项目时，我们设置其占用位，以确保在移动过程中不会更新或删除该项目。对于头项更新，HotRing将头指针移动到此项的新版本。在移动头指针之前，我们需要确保新版本项不会被其他线程更改（即，更新或删除）。因此，在更新项目时，HotRing会先设置新版本项目的占用位，直到移动完成。对于头部项目删除，HotRing不仅需要占用准备删除的项目，还需要占用其下一个项目。因为如果在删除操作期间下一个项目未被占用，则下一个节点可能已被更改，这使得头部指针指向无效项目。</p>
 <h3 id="2-4-无锁化的-rehash"><a href="#2-4-无锁化的-rehash" class="headerlink" title="2.4 无锁化的 rehash"></a>2.4 无锁化的 rehash</h3><p>随着新数据从插入中到达，环中冲突项的数量继续增加，导致每次访问遍历更多项。在这种情况下，KVS 的性能将严重下降。HotRing 中提出了一种无锁重新散列策略，该策略允许随着数据量的增加而灵活地重新散列。传统的重新散列策略由哈希表的负载因子（即平均链长度）触发。</p>
-<p><img src="HotRing/image-20221222230106482.png" srcset="/img/loading.gif" lazyload alt="image-20221222230106482"></p>
+<p><img src="image-20221222230106482.png" srcset="/img/loading.gif" lazyload alt="image-20221222230106482"></p>
 <blockquote>
 <p>Figure 7：The lock-free rehash strategy(The dotted line between (c) and (d) represents a transition period before deletion)</p>
 </blockquote>

@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="前置搭建tomcat的源码环境，首先得去官网下载tomcat的源码包，我们这里使用的是tomcat9.0.44，然后将解压好的源码包添加一个pom文件，让其变成一个maven项目 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204107522.png">
-<meta property="og:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204554002.png">
+<meta property="og:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204107522.png">
+<meta property="og:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204554002.png">
 <meta property="article:published_time" content="2023-04-06T15:24:19.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:05.290Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:26.652Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="Tomcat">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204107522.png">
+<meta name="twitter:image" content="https://noaharno.top/Tomcat/Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204107522.png">
   
   
   
@@ -335,9 +335,9 @@
 <p>对于我们以前启动tomcat来说，都是执行startup命令，但是这次我们以源码分析，可以查看startup命令，然后它其实执行的是catalina.bat命令，它里面规定了<code>MAINCLASS=org.apache.catalina.startup.Bootstrap</code>。</p>
 <p>因此我们重点就可以开始分析源码中的Bootstrap类了。</p>
 <p>我们先将项目启动起来，先配置一个Application：</p>
-<p><img src="Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204107522.png" srcset="/img/loading.gif" lazyload alt="image-20220421204107522"></p>
+<p><img src="image-20220421204107522.png" srcset="/img/loading.gif" lazyload alt="image-20220421204107522"></p>
 <p>然后给这个Application配置一个主类，就是我们上面说的Bootstrap类，同时可能项目启动的时候会报错，这时候就可以去根据提示修改源码，把VERSON_15等给修改成VERSON_8。然后为了解决乱码问题，可以添加一些VM。</p>
-<p><img src="Tomcat%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/image-20220421204554002.png" srcset="/img/loading.gif" lazyload alt="image-20220421204554002"></p>
+<p><img src="image-20220421204554002.png" srcset="/img/loading.gif" lazyload alt="image-20220421204554002"></p>
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">-Duser.language</span>=<span class="hljs-string">en</span><br><span class="hljs-attr">-Duser.region</span>=<span class="hljs-string">US</span><br><span class="hljs-attr">-Dfile.encoding</span>=<span class="hljs-string">UTF-8</span><br><span class="hljs-attr">-Dsun.jnu.encoding</span>=<span class="hljs-string">UTF-8</span><br></code></pre></td></tr></table></figure>
 
 

@@ -23,17 +23,17 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="HashMap源码解析基本概念 介绍一下HashMap  基本概念：HashMap基于哈希表的Map接口实现，以key-value形式存储，主要用来存放键值对。它的key和value都可以为null，但是只能存在一个为null的key，它的存放位置在Node&lt;K,V&gt;[] table的第0号位置上。同时HashMap是线程不安全的。 底层结构：对于HashMap来说，它在1.8之前底层">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299578.png">
-<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299579.png">
-<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299580.png">
-<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp.webp">
-<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp-16544154653205.webp">
+<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299578.png">
+<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299579.png">
+<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299580.png">
+<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp.webp">
+<meta property="og:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp-16544154653205.webp">
 <meta property="article:published_time" content="2023-04-06T14:47:23.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:04.661Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:25.998Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299578.png">
+<meta name="twitter:image" content="https://noaharno.top/Java/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299578.png">
   
   
   
@@ -555,19 +555,19 @@
 
 <p>transfer方法作用：在对table进行扩容到newTable之后，需要将原来数据转移到newTable中，而转移过程中采用的是头插法，也就是链表的顺序会翻转，而这里就是形成死循环的关键点。</p>
 <p>假如有两个线程AB同时进行并发扩容：</p>
-<p><img src="HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299578.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="1460000041299578.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>此时T1和T2都指向A，T1.next和T2.next都指向B节点。</p>
 <p>线程T2的时间片用完了从而挂起，此时T1开始执行扩容操作，并顺利完成，则此时的状态如下图所示：</p>
-<p><img src="HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299579.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="1460000041299579.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>线程T2被唤醒，并开始执行后续的扩容操作，注意由于transfer中e最后要指向next，即A要指向B，因此就会发生死循环，A指向B，而B又指向A。</p>
-<p><img src="HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1460000041299580.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="1460000041299580.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p>同时JDK7时候的HashMap还可能造成数据丢失问题</p>
 </blockquote>
 <p>假如一开始节点如下图所示：</p>
-<p><img src="HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="webp.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>线程A被挂起，此时e指向3，next指向5。线程B完成扩容：</p>
-<p><img src="HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/webp-16544154653205.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="webp-16544154653205.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>线程A继续扩容， 它会先将e指向的3放到newTable的正确的位置上，然后让e&#x3D;next，即e指向5。然后完成节点5的存放之后，发现e为null了，就结束本次扩容。此时就发现节点7丢失了。</p>
 <blockquote>
 <p>JDK8数据覆盖</p>

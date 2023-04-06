@@ -23,117 +23,117 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="第一章 类加载子系统  Class Loader SubSystem（类加载子系统）负责从文件系统或网络中加载Class Files，Class Files在文件开头有特定的文件标识 ClassLoader只负责class文件的加载，至于它是否可以允许，则有Execution Engine（执行引擎）决定。（可以理解为媒婆负责介绍对象，能不能成就得看自己的努力了） 加载的类信息存放于一块称为方法区">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183302402.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183404624.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183421452.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504184253091.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821122951746.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821123048947.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821124341862.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821190828499.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%AC03%E7%AB%A0_%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%92%8C%E7%A7%81%E6%9C%89%E7%9A%84%E7%BB%93%E6%9E%84.jpg">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821200606763.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0009.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825093704619.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825095220429.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825183353317.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825184400287.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825185025622.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825195923604.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828183928535.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827185554979.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827190632387.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828175838380.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828180331700.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002-16516620314131.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104459102.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104538625.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830105414117.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110159922.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110221095.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110251768.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830124820775.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125356389.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125950217.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130203892.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130225530.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130431500.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130447943.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210904154047916.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0003.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112032806.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112236173.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112340252.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905113306187.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905140917696.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0015.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516626421232.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210909162516777.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0006.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101637422.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101832115.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102113842.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102356847.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910104835512.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627146513.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910185741502.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910191705132.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004-16516627404644.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0007.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0008.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011-16516627404645.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627404646.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516627404647.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014-16516627404648.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0016.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017-16516627404649.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0018.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019-165166274046510.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0020.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0021.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0022.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0023.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0034.jpg">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0024.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0025.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0026.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0027.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0028.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029-165166274046511.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030-165166274046612.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0031.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032-165166274046613.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033-165166274046614.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0035.jpg">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0036.jpg">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0037.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038-165166274046615.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039-165166274046616.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040-165166274046617.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0041.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0042.png">
-<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20230406233123757.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183302402.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183404624.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183421452.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504184253091.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821122951746.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821123048947.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821124341862.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821190828499.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%AC03%E7%AB%A0_%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%92%8C%E7%A7%81%E6%9C%89%E7%9A%84%E7%BB%93%E6%9E%84.jpg">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821200606763.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0009.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825093704619.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825095220429.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825183353317.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825184400287.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825185025622.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825195923604.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828183928535.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827185554979.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827190632387.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828175838380.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828180331700.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002-16516620314131.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104459102.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104538625.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830105414117.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110159922.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110221095.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110251768.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830124820775.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125356389.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125950217.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130203892.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130225530.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130431500.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130447943.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210904154047916.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0003.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112032806.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112236173.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112340252.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905113306187.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905140917696.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0015.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516626421232.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210909162516777.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0006.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101637422.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101832115.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102113842.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102356847.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910104835512.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627146513.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910185741502.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910191705132.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004-16516627404644.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0007.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0008.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011-16516627404645.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627404646.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516627404647.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014-16516627404648.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0016.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017-16516627404649.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0018.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019-165166274046510.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0020.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0021.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0022.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0023.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0034.jpg">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0024.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0025.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0026.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0027.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0028.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029-165166274046511.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030-165166274046612.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0031.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032-165166274046613.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033-165166274046614.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0035.jpg">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0036.jpg">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0037.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038-165166274046615.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039-165166274046616.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040-165166274046617.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0041.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0042.png">
+<meta property="og:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20230406233123757.png">
 <meta property="article:published_time" content="2023-04-06T15:29:30.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:04.315Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:25.649Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183302402.png">
+<meta name="twitter:image" content="https://noaharno.top/JVM/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183302402.png">
   
   
   
@@ -432,14 +432,14 @@
             
               <div class="markdown-body">
                 
-                <h1 id="第一章-类加载子系统"><a href="#第一章-类加载子系统" class="headerlink" title="第一章 类加载子系统"></a>第一章 类加载子系统</h1><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183302402.png" srcset="/img/loading.gif" lazyload alt="image-20220504183302402"></p>
+                <h1 id="第一章-类加载子系统"><a href="#第一章-类加载子系统" class="headerlink" title="第一章 类加载子系统"></a>第一章 类加载子系统</h1><p><img src="image-20220504183302402.png" srcset="/img/loading.gif" lazyload alt="image-20220504183302402"></p>
 <ol>
 <li>Class Loader SubSystem（类加载子系统）负责从文件系统或网络中加载Class Files，Class Files在文件开头有特定的文件标识</li>
 <li>ClassLoader只负责class文件的加载，至于它是否可以允许，则有Execution Engine（执行引擎）决定。（可以理解为媒婆负责介绍对象，能不能成就得看自己的努力了）</li>
 <li>加载的类信息存放于一块称为方法区（Method Area）的内存空间。除了类的信息外，方法区（Method Area）中还会存放运行时常量池信息，可能还包括字符串字面量和数字常量（这部分信息是Class文件中常量池部分的内存映射）</li>
 </ol>
-<h2 id="什么是ClassLoader"><a href="#什么是ClassLoader" class="headerlink" title="什么是ClassLoader"></a>什么是ClassLoader</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183404624.png" srcset="/img/loading.gif" lazyload alt="image-20220504183404624"></p>
-<h2 id="类的加载过程"><a href="#类的加载过程" class="headerlink" title="类的加载过程"></a>类的加载过程</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504183421452.png" srcset="/img/loading.gif" lazyload alt="image-20220504183421452"></p>
+<h2 id="什么是ClassLoader"><a href="#什么是ClassLoader" class="headerlink" title="什么是ClassLoader"></a>什么是ClassLoader</h2><p><img src="image-20220504183404624.png" srcset="/img/loading.gif" lazyload alt="image-20220504183404624"></p>
+<h2 id="类的加载过程"><a href="#类的加载过程" class="headerlink" title="类的加载过程"></a>类的加载过程</h2><p><img src="image-20220504183421452.png" srcset="/img/loading.gif" lazyload alt="image-20220504183421452"></p>
 <h3 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h3><ol>
 <li>通过一个类的全限定名获取定义此类的二进制字节流</li>
 <li>将这个字节流所代表的静态存储结构转换为方法区的运行时数据结构</li>
@@ -491,7 +491,7 @@
 <li>从概念上来讲，自定义类加载器一般指的是程序中由开发人员自定义的一类加载器，但是Java虚拟机规范却没有这么定义，而是将<strong>所有派生于抽象类ClassLoader的类加载器都划分为自定义加载器</strong>。</li>
 <li>无论类加载器的类型如何分类，我们在程序中最常见的类加载器始终只有三个</li>
 </ul>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220504184253091.png" srcset="/img/loading.gif" lazyload alt="image-20220504184253091"></p>
+<p><img src="image-20220504184253091.png" srcset="/img/loading.gif" lazyload alt="image-20220504184253091"></p>
 <p>也就是说，JVM将Bootstarp Class Loader 分为一类，将扩展类加载器（Extension ClassLoader）、系统类加载器（SystemClassLoader）、还有其余的用户自定义的类加载器同一称为自定义类加载器</p>
 <p><strong>1、BootstrapClassLoader</strong></p>
 <ul>
@@ -534,9 +534,9 @@
 </li>
 </ul>
 <h2 id="ClassLoader的使用说明"><a href="#ClassLoader的使用说明" class="headerlink" title="ClassLoader的使用说明"></a>ClassLoader的使用说明</h2><p>ClassLoader类是一个抽象类，其后所有的类加载器都继承自ClassLoader，不包括BootstrapClassLoader</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821122951746.png" srcset="/img/loading.gif" lazyload alt="image-20210821122951746"></p>
+<p><img src="image-20210821122951746.png" srcset="/img/loading.gif" lazyload alt="image-20210821122951746"></p>
 <p><strong>获取ClassLoader的途径</strong></p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821123048947.png" srcset="/img/loading.gif" lazyload alt="tupu"></p>
+<p><img src="image-20210821123048947.png" srcset="/img/loading.gif" lazyload alt="tupu"></p>
 <h2 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h2><p>java虚拟机对class文件采用的是<strong>按需加载</strong>方式，也就是说当需要使用该类时才会将它的class文件加载到内存生成class对象。而且加载某个类的class文件时，java虚拟机采用的是双亲委派模式，<strong>即把请求交由父类处理</strong>，它是一种任务委派模式</p>
 <p><strong>工作原理</strong></p>
 <ol>
@@ -566,7 +566,7 @@
 
 <p>运行StringTest的main方法，只会打印hello,atguigu.com ，不会打印自定义的String类中的静态代码块中的内容，说明我们自定义的String类没有进行初始化</p>
 <p>运行自定义String类中的main方法，会报错：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821124341862.png" srcset="/img/loading.gif" lazyload alt="image-20210821124341862"></p>
+<p><img src="image-20210821124341862.png" srcset="/img/loading.gif" lazyload alt="image-20210821124341862"></p>
 <p>这就是上面说的沙箱安全机制</p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
 <li>在JVM中表示两个class对象是否为同一类存在两个必要条件：<ul>
@@ -591,7 +591,7 @@
 </ul>
 <p>除了以上7种情况，其他的使用都是<strong>被动使用</strong>，都不会导致类的初始化</p>
 <h1 id="第二章-运行时数据区"><a href="#第二章-运行时数据区" class="headerlink" title="第二章 运行时数据区"></a>第二章 运行时数据区</h1><p>内存是非常重要的资源，是硬盘和CPU的中间仓库及桥梁，承载着操作系统和应用程序的实时运行。JVM内存布局规定了Java在运行过程种内存申请、分配、管理的策略，保证了JVM的高效稳定运行。<strong>不同的JVM对于内存的划分方式和管理机制存在部分差异</strong>。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821190828499.png" srcset="/img/loading.gif" lazyload alt="image-20210821190828499"></p>
+<p><img src="image-20210821190828499.png" srcset="/img/loading.gif" lazyload alt="image-20210821190828499"></p>
 <p>在Java8的时候，方法区变成了元空间。</p>
 <p>Java虚拟机定义了若干种程序运行期间会使用到的运行时数据区，其中有一些会随着虚拟机启动而创建，随着虚拟机退出而销毁。另外一些则是与线程一一对应的，这些与线程对应的数据区域会随着线程开始和结束创建和销毁</p>
 <p>灰色的为单独线程私有的，红色的为多个线程共享的。</p>
@@ -599,7 +599,7 @@
 <li>每个线程：独立包括程序计数器（ProgramCounterRegister）、本地方法栈（NativeMethodStack）、虚拟机栈（VirtualMachineStack）</li>
 <li>线程间共享：堆（Heap）、堆外内存（永久代或元空间、代码缓存）</li>
 </ul>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%AC03%E7%AB%A0_%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%92%8C%E7%A7%81%E6%9C%89%E7%9A%84%E7%BB%93%E6%9E%84.jpg" srcset="/img/loading.gif" lazyload alt="IMG/03、运行时数据区概述及线程.assets/第03章_线程共享和私有的结构.jpg"></p>
+<p><img src="%E7%AC%AC03%E7%AB%A0_%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%92%8C%E7%A7%81%E6%9C%89%E7%9A%84%E7%BB%93%E6%9E%84.jpg" srcset="/img/loading.gif" lazyload alt="IMG/03、运行时数据区概述及线程.assets/第03章_线程共享和私有的结构.jpg"></p>
 <p>每个JVM只有一个Runtime实例。即为运行时环境，相当于内存结构的中间的那个框框“运行时环境。</p>
 <h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><ul>
 <li>线程是一个程序里的运行单元。JVM允许一个应用有多个线程并行的执行。</li>
@@ -626,12 +626,12 @@
 <li>它是<strong>唯一一个</strong>在Java虚拟机规范中没有规定任何OutofMemoryError情况的区域。</li>
 </ol>
 <h3 id="PC寄存器的作用"><a href="#PC寄存器的作用" class="headerlink" title="PC寄存器的作用"></a>PC寄存器的作用</h3><p>PC寄存器用来存储指向下一条指令的地址，也即将 要执行的指令代码。由执行引擎读取下一条指令，并执行该指令。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210821200606763.png" srcset="/img/loading.gif" lazyload alt="IMG/04、程序计数器.assets/image-20210821200606763.png"></p>
+<p><img src="image-20210821200606763.png" srcset="/img/loading.gif" lazyload alt="IMG/04、程序计数器.assets/image-20210821200606763.png"></p>
 <p>测试代码如下，通过字节码文件层次进行分析：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PCRegisterTest</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">k</span> <span class="hljs-operator">=</span> i + j;<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;abc&quot;</span>;<br>        System.out.println(i);<br>        System.out.println(k);<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>左边的数字代表<strong>指令地址（指令偏移）</strong>，即 PC 寄存器中可能存储的值，然后执行引擎读取 PC 寄存器中的值，并执行该指令</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0009.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0009.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h3 id="两个常见面试题"><a href="#两个常见面试题" class="headerlink" title="两个常见面试题"></a>两个常见面试题</h3><p><strong>使用PC寄存器存储字节码指令地址有什么用呢？</strong>或者问<strong>为什么使用PC寄存器来记录当前线程的执行地址</strong></p>
 <ol>
 <li>因为CPU需要不停的切换各个线程，这时候切换回来以后，就得知道接着从哪开始继续执行</li>
@@ -648,7 +648,7 @@
 <li>在宏观上：我们可以同时打开多个应用程序，每个程序并行不悖，同时运行。</li>
 <li>但在微观上：由于只有一个CPU，一次只能处理程序要求的一部分，如何处理公平，一种方法就是引入时间片，<strong>每个程序轮流执行</strong>。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0011.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h2 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><strong>虚拟机栈出现的背景</strong></p>
 <ol>
 <li>由于跨平台性的设计，Java的指令都是根据栈来设计的。不同平台CPU架构不同，所以不能设计为基于寄存器的【如果设计成基于寄存器的，耦合度高，性能会有所提升，因为可以对具体的CPU架构进行优化，但是跨平台性大大降低】。</li>
@@ -707,7 +707,7 @@
 <li>执行引擎运行的所有字节码指令都针对当前栈帧进行操作。</li>
 <li>如果该方法调用了其他方法，对应的新的栈帧会被创建出来，放在栈的顶端，成为新的当前栈帧</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825093704619.png" srcset="/img/loading.gif" lazyload alt="image-20210825093704619"></p>
+<p><img src="image-20210825093704619.png" srcset="/img/loading.gif" lazyload alt="image-20210825093704619"></p>
 <ol>
 <li><strong>不同的线程中所包含的栈帧是不允许存在相互引用的</strong>，即不可能在一个栈帧之中引用另外一个线程的栈帧。</li>
 <li>如果当前方法调用了其他方法，在方法返回之际，当前栈帧会传回此方法的执行结果给前一个栈帧，接着，虚拟机会丢弃当前栈帧，使得前一个栈帧重新成为当前栈帧</li>
@@ -725,13 +725,13 @@
 <li>方法返回地址（Return Address）或方法正常退出或者异常退出的定义</li>
 <li>一些附加信息</li>
 </ul>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825095220429.png" srcset="/img/loading.gif" lazyload alt="image-20210825095220429"></p>
+<p><img src="image-20210825095220429.png" srcset="/img/loading.gif" lazyload alt="image-20210825095220429"></p>
 <h3 id="局部变量表（有疑问）"><a href="#局部变量表（有疑问）" class="headerlink" title="局部变量表（有疑问）"></a>局部变量表（有疑问）</h3><ul>
 <li><p>局部变量表也被称为局部变量数组或本地变量表</p>
 </li>
 <li><p><strong>定义为一个数字数组，主要用于存储方法参数和定义在方法体内的局部变量</strong>，这些数据类型包括各类基本数据类型、对象引用（reference），以及returnAddress返回值类型。</p>
 <blockquote>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825183353317.png" srcset="/img/loading.gif" lazyload alt="image-20210825183353317"></p>
+<p><img src="image-20210825183353317.png" srcset="/img/loading.gif" lazyload alt="image-20210825183353317"></p>
 </blockquote>
 <blockquote>
 <p>注意这里说的，在Java8中，通过jclasslib我并没有看到局部变量表中有关于returnAddress返回值类型的影子，通过在尚硅谷群内询问，这位老哥告诉我returnAddress已经由异常表代替了，但是现在我还没有学到异常表相关信息（好像后序的章节会说明，暂时标注一下）</p>
@@ -771,7 +771,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">localVar2</span><span class="hljs-params">()</span> &#123;<br>    &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        System.out.println(a);<br>    &#125;<br>    <span class="hljs-comment">//此时的b就会复用a的槽位</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>通过jclasslib可以看到b复用了a所处的slot</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825184400287.png" srcset="/img/loading.gif" lazyload alt="IMG/05、虚拟机栈.assets/image-20210825184400287.png"></p>
+<p><img src="image-20210825184400287.png" srcset="/img/loading.gif" lazyload alt="IMG/05、虚拟机栈.assets/image-20210825184400287.png"></p>
 <h4 id="静态变量和局部变量的对比"><a href="#静态变量和局部变量的对比" class="headerlink" title="静态变量和局部变量的对比"></a>静态变量和局部变量的对比</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">变量的分类：<br><span class="hljs-number">1</span>、按照数据类型分：① 基本数据类型  ② 引用数据类型<br><span class="hljs-number">2</span>、按照在类中声明的位置分：<br>  <span class="hljs-number">2</span>-<span class="hljs-number">1</span>、成员变量：在使用前，都经历过默认初始化赋值<br>       <span class="hljs-number">2</span>-<span class="hljs-number">1</span>-<span class="hljs-number">1</span>、类变量: linking的prepare阶段：给类变量默认赋值<br>              ---&gt; initial阶段：给类变量显式赋值即静态代码块赋值<br>       <span class="hljs-number">2</span>-<span class="hljs-number">1</span>-<span class="hljs-number">2</span>、实例变量：随着对象的创建，会在堆空间中分配实例变量空间，并进行默认赋值<br>  <span class="hljs-number">2</span>-<span class="hljs-number">2</span>、局部变量：在使用前，必须要进行显式赋值的！否则，编译不通过。<br></code></pre></td></tr></table></figure>
 
 <ol>
@@ -793,7 +793,7 @@
 <li><p>某些字节码指令将值压入操作数栈，其余的字节码指令将操作数取出栈。使用它们后再把结果压入栈，</p>
 </li>
 <li><p>比如：执行复制、交换、求和等操作</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825185025622.png" srcset="/img/loading.gif" lazyload alt="image-20210825185025622"></p>
+<p><img src="image-20210825185025622.png" srcset="/img/loading.gif" lazyload alt="image-20210825185025622"></p>
 </li>
 </ul>
 <h4 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h4><ol>
@@ -827,7 +827,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><code class="hljs java">Classfile /F:/IDEAWorkSpaceSourceCode/JVMDemo/out/production/chapter05/com/atguigu/java1/DynamicLinkingTest.<span class="hljs-keyword">class</span><br>  <span class="hljs-title class_">Last</span> modified <span class="hljs-number">2020</span>-<span class="hljs-number">11</span>-<span class="hljs-number">10</span>; size <span class="hljs-number">712</span> bytes<br>  MD5 checksum e56913c945f897c7ee6c0a608629bca8<br>  Compiled from <span class="hljs-string">&quot;DynamicLinkingTest.java&quot;</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">com</span>.atguigu.java1.DynamicLinkingTest<br>  minor version: <span class="hljs-number">0</span><br>  major version: <span class="hljs-number">52</span><br>  flags: ACC_PUBLIC, ACC_SUPER<br>Constant pool:<br>   #<span class="hljs-number">1</span> = Methodref          #<span class="hljs-number">9.</span>#<span class="hljs-number">23</span>         <span class="hljs-comment">// java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br>   #<span class="hljs-number">2</span> = Fieldref           #<span class="hljs-number">8.</span>#<span class="hljs-number">24</span>         <span class="hljs-comment">// com/atguigu/java1/DynamicLinkingTest.num:I</span><br>   #<span class="hljs-number">3</span> = Fieldref           #<span class="hljs-number">25.</span>#<span class="hljs-number">26</span>        <span class="hljs-comment">// java/lang/System.out:Ljava/io/PrintStream;</span><br>   #<span class="hljs-number">4</span> = String             #<span class="hljs-number">27</span>            <span class="hljs-comment">// methodA()....</span><br>   #<span class="hljs-number">5</span> = Methodref          #<span class="hljs-number">28.</span>#<span class="hljs-number">29</span>        <span class="hljs-comment">// java/io/PrintStream.println:(Ljava/lang/String;)V</span><br>   #<span class="hljs-number">6</span> = String             #<span class="hljs-number">30</span>            <span class="hljs-comment">// methodB()....</span><br>   #<span class="hljs-number">7</span> = Methodref          #<span class="hljs-number">8.</span>#<span class="hljs-number">31</span>         <span class="hljs-comment">// com/atguigu/java1/DynamicLinkingTest.methodA:()V</span><br>   #<span class="hljs-number">8</span> = Class              #<span class="hljs-number">32</span>            <span class="hljs-comment">// com/atguigu/java1/DynamicLinkingTest</span><br>   #<span class="hljs-number">9</span> = Class              #<span class="hljs-number">33</span>            <span class="hljs-comment">// java/lang/Object</span><br>  #<span class="hljs-number">10</span> = Utf8               num<br>  #<span class="hljs-number">11</span> = Utf8               I<br>  #<span class="hljs-number">12</span> = Utf8               &lt;init&gt;<br>  #<span class="hljs-number">13</span> = Utf8               ()V<br>  #<span class="hljs-number">14</span> = Utf8               Code<br>  #<span class="hljs-number">15</span> = Utf8               LineNumberTable<br>  #<span class="hljs-number">16</span> = Utf8               LocalVariableTable<br>  #<span class="hljs-number">17</span> = Utf8               <span class="hljs-built_in">this</span><br>  #<span class="hljs-number">18</span> = Utf8               Lcom/atguigu/java1/DynamicLinkingTest;<br>  #<span class="hljs-number">19</span> = Utf8               methodA<br>  #<span class="hljs-number">20</span> = Utf8               methodB<br>  #<span class="hljs-number">21</span> = Utf8               SourceFile<br>  #<span class="hljs-number">22</span> = Utf8               DynamicLinkingTest.java<br>  #<span class="hljs-number">23</span> = NameAndType        #<span class="hljs-number">12</span>:#<span class="hljs-number">13</span>        <span class="hljs-comment">// &quot;&lt;init&gt;&quot;:()V</span><br>  #<span class="hljs-number">24</span> = NameAndType        #<span class="hljs-number">10</span>:#<span class="hljs-number">11</span>        <span class="hljs-comment">// num:I</span><br>  #<span class="hljs-number">25</span> = Class              #<span class="hljs-number">34</span>            <span class="hljs-comment">// java/lang/System</span><br>  #<span class="hljs-number">26</span> = NameAndType        #<span class="hljs-number">35</span>:#<span class="hljs-number">36</span>        <span class="hljs-comment">// out:Ljava/io/PrintStream;</span><br>  #<span class="hljs-number">27</span> = Utf8               <span class="hljs-title function_">methodA</span><span class="hljs-params">()</span>....<br>  #<span class="hljs-number">28</span> = Class              #<span class="hljs-number">37</span>            <span class="hljs-comment">// java/io/PrintStream</span><br>  #<span class="hljs-number">29</span> = NameAndType        #<span class="hljs-number">38</span>:#<span class="hljs-number">39</span>        <span class="hljs-comment">// println:(Ljava/lang/String;)V</span><br>  #<span class="hljs-number">30</span> = Utf8               <span class="hljs-title function_">methodB</span><span class="hljs-params">()</span>....<br>  #<span class="hljs-number">31</span> = NameAndType        #<span class="hljs-number">19</span>:#<span class="hljs-number">13</span>        <span class="hljs-comment">// methodA:()V</span><br>  #<span class="hljs-number">32</span> = Utf8               com/atguigu/java1/DynamicLinkingTest<br>  #<span class="hljs-number">33</span> = Utf8               java/lang/Object<br>  #<span class="hljs-number">34</span> = Utf8               java/lang/System<br>  #<span class="hljs-number">35</span> = Utf8               out<br>  #<span class="hljs-number">36</span> = Utf8               Ljava/io/PrintStream;<br>  #<span class="hljs-number">37</span> = Utf8               java/io/PrintStream<br>  #<span class="hljs-number">38</span> = Utf8               println<br>  #<span class="hljs-number">39</span> = Utf8               (Ljava/lang/String;)V<br>&#123;<br>  <span class="hljs-type">int</span> num;<br>    descriptor: I<br>    flags:<br><br>  <span class="hljs-keyword">public</span> com.atguigu.java1.DynamicLinkingTest();<br>    descriptor: ()V<br>    flags: ACC_PUBLIC<br>    Code:<br>      stack=<span class="hljs-number">2</span>, locals=<span class="hljs-number">1</span>, args_size=<span class="hljs-number">1</span><br>         <span class="hljs-number">0</span>: aload_0<br>         <span class="hljs-number">1</span>: invokespecial #<span class="hljs-number">1</span>                  <span class="hljs-comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br>         <span class="hljs-number">4</span>: aload_0<br>         <span class="hljs-number">5</span>: bipush        <span class="hljs-number">10</span><br>         <span class="hljs-number">7</span>: putfield      #<span class="hljs-number">2</span>                  <span class="hljs-comment">// Field num:I</span><br>        <span class="hljs-number">10</span>: <span class="hljs-keyword">return</span><br>      LineNumberTable:<br>        line <span class="hljs-number">7</span>: <span class="hljs-number">0</span><br>        line <span class="hljs-number">9</span>: <span class="hljs-number">4</span><br>      LocalVariableTable:<br>        Start  Length  Slot  Name   Signature<br>            <span class="hljs-number">0</span>      <span class="hljs-number">11</span>     <span class="hljs-number">0</span>  <span class="hljs-built_in">this</span>   Lcom/atguigu/java1/DynamicLinkingTest;<br><br>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">methodA</span><span class="hljs-params">()</span>;<br>    descriptor: ()V<br>    flags: ACC_PUBLIC<br>    Code:<br>      stack=<span class="hljs-number">2</span>, locals=<span class="hljs-number">1</span>, args_size=<span class="hljs-number">1</span><br>         <span class="hljs-number">0</span>: getstatic     #<span class="hljs-number">3</span>                  <span class="hljs-comment">// Field java/lang/System.out:Ljava/io/PrintStream;</span><br>         <span class="hljs-number">3</span>: ldc           #<span class="hljs-number">4</span>                  <span class="hljs-comment">// String methodA()....</span><br>         <span class="hljs-number">5</span>: invokevirtual #<span class="hljs-number">5</span>                  <span class="hljs-comment">// Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br>         <span class="hljs-number">8</span>: <span class="hljs-keyword">return</span><br>      LineNumberTable:<br>        line <span class="hljs-number">12</span>: <span class="hljs-number">0</span><br>        line <span class="hljs-number">13</span>: <span class="hljs-number">8</span><br>      LocalVariableTable:<br>        Start  Length  Slot  Name   Signature<br>            <span class="hljs-number">0</span>       <span class="hljs-number">9</span>     <span class="hljs-number">0</span>  <span class="hljs-built_in">this</span>   Lcom/atguigu/java1/DynamicLinkingTest;<br><br>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">methodB</span><span class="hljs-params">()</span>;<br>    descriptor: ()V<br>    flags: ACC_PUBLIC<br>    Code:<br>      stack=<span class="hljs-number">3</span>, locals=<span class="hljs-number">1</span>, args_size=<span class="hljs-number">1</span><br>         <span class="hljs-number">0</span>: getstatic     #<span class="hljs-number">3</span>                  <span class="hljs-comment">// Field java/lang/System.out:Ljava/io/PrintStream;</span><br>         <span class="hljs-number">3</span>: ldc           #<span class="hljs-number">6</span>                  <span class="hljs-comment">// String methodB()....</span><br>         <span class="hljs-number">5</span>: invokevirtual #<span class="hljs-number">5</span>                  <span class="hljs-comment">// Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br>         <span class="hljs-number">8</span>: aload_0<br>         <span class="hljs-number">9</span>: invokevirtual #<span class="hljs-number">7</span>                  <span class="hljs-comment">// Method methodA:()V</span><br>        <span class="hljs-number">12</span>: aload_0<br>        <span class="hljs-number">13</span>: dup<br>        <span class="hljs-number">14</span>: getfield      #<span class="hljs-number">2</span>                  <span class="hljs-comment">// Field num:I</span><br>        <span class="hljs-number">17</span>: iconst_1<br>        <span class="hljs-number">18</span>: iadd<br>        <span class="hljs-number">19</span>: putfield      #<span class="hljs-number">2</span>                  <span class="hljs-comment">// Field num:I</span><br>        <span class="hljs-number">22</span>: <span class="hljs-keyword">return</span><br>      LineNumberTable:<br>        line <span class="hljs-number">16</span>: <span class="hljs-number">0</span><br>        line <span class="hljs-number">18</span>: <span class="hljs-number">8</span><br>        line <span class="hljs-number">20</span>: <span class="hljs-number">12</span><br>        line <span class="hljs-number">21</span>: <span class="hljs-number">22</span><br>      LocalVariableTable:<br>        Start  Length  Slot  Name   Signature<br>            <span class="hljs-number">0</span>      <span class="hljs-number">23</span>     <span class="hljs-number">0</span>  <span class="hljs-built_in">this</span>   Lcom/atguigu/java1/DynamicLinkingTest;<br>&#125;<br>SourceFile: <span class="hljs-string">&quot;DynamicLinkingTest.java&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>所谓的<strong>将这些符号引用转换为调用方法的直接引用</strong>，可以看到代码我们是方法B中调用了方法A，然后在方法B的字节码文件中，可以看到通过invokevirtual指令调用了方法A，而#7所代表的东西，我们可以去看Constant Pool。也就是我们可以将这些符号引用转化为调用方法的直接引用</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210825195923604.png" srcset="/img/loading.gif" lazyload alt="image-20210825195923604"></p>
+<p><img src="image-20210825195923604.png" srcset="/img/loading.gif" lazyload alt="image-20210825195923604"></p>
 <p><strong>为什么要用常量池呢？</strong></p>
 <ol>
 <li>因为在不同的方法，都可能调用常量或者方法，所以只需要存储一份即可，然后记录其引用即可，节省了空间。</li>
@@ -927,7 +927,7 @@
 <li>在方法执行过程中遇到异常（Exception），并且这个异常没有在方法内进行处理，也就是只要在本方法的异常表中没有搜索到匹配的异常处理器，就会导致方法退出，简称<strong>异常完成出口</strong>。</li>
 <li>方法执行过程中，抛出异常时的异常处理，存储在一个异常处理表，方便在发生异常的时候找到处理异常的代码</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0040.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>异常处理表：</p>
 <ul>
 <li>反编译字节码文件，可得到 Exception table</li>
@@ -938,7 +938,7 @@
 </ul>
 <p>所谓的异常处理表，包含的内容其实就是Java代码层次的try catch，上面说的，只要在本方法的异常表中没有搜索到匹配的异常处理器，就会导致方法退出，也就是方法执行过程中抛出的异常没有被catch到，就会终止该方法</p>
 <h3 id="一些附加信息"><a href="#一些附加信息" class="headerlink" title="一些附加信息"></a>一些附加信息</h3><p>栈帧中还允许携带与Java虚拟机实现相关的一些附加信息。例如：对程序调试提供支持的信息。</p>
-<h2 id="本地方法接口"><a href="#本地方法接口" class="headerlink" title="本地方法接口"></a>本地方法接口</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="本地方法接口"><a href="#本地方法接口" class="headerlink" title="本地方法接口"></a>本地方法接口</h2><p><img src="0012.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>简单地讲，<strong>一个Native Method是一个Java调用非Java代码的接囗</strong>，一个Native Method是这样一个Java方法：该方法的实现由非Java语言实现，比如C。这个特征并非Java所特有，很多其它的编程语言都有这一机制，比如在C++中，你可以用extern 告知C++编译器去调用一个C的函数。</li>
 <li>“A native method is a Java method whose implementation is provided by non-java code.”（本地方法是一个非Java的方法，它的具体实现是非Java代码的实现）</li>
@@ -979,7 +979,7 @@
 <li>本地方法一般是使用C语言或C++语言实现的。</li>
 <li>它的具体做法是Native Method Stack中登记native方法，在Execution Engine 执行时加载本地方法库。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828183928535.png" srcset="/img/loading.gif" lazyload alt="image-20210828183928535"></p>
+<p><img src="image-20210828183928535.png" srcset="/img/loading.gif" lazyload alt="image-20210828183928535"></p>
 <p><strong>注意事项</strong></p>
 <ol>
 <li>当某个线程调用一个本地方法时，它就进入了一个全新的并且不再受虚拟机限制的世界。它和虚拟机拥有同样的权限。<ul>
@@ -1015,8 +1015,8 @@
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SimpleHeap</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> id;<span class="hljs-comment">//属性、成员变量</span><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">SimpleHeap</span><span class="hljs-params">(<span class="hljs-type">int</span> id)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = id;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">SimpleHeap</span> <span class="hljs-variable">sl</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleHeap</span>(<span class="hljs-number">1</span>);<br>        <span class="hljs-type">SimpleHeap</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleHeap</span>(<span class="hljs-number">2</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/0002.png"></p>
-<h3 id="堆的内存细分"><a href="#堆的内存细分" class="headerlink" title="堆的内存细分"></a>堆的内存细分</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827185554979.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210827185554979.png"></p>
+<p><img src="0002.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/0002.png"></p>
+<h3 id="堆的内存细分"><a href="#堆的内存细分" class="headerlink" title="堆的内存细分"></a>堆的内存细分</h3><p><img src="image-20210827185554979.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210827185554979.png"></p>
 <p>如图所示，在Java7及之前堆内存逻辑上分为三部分：新生代+老年代+永久代，而在Java8以及之后，永久代被替换成了元空间。</p>
 <h4 id="设置堆内存大小"><a href="#设置堆内存大小" class="headerlink" title="设置堆内存大小"></a>设置堆内存大小</h4><ol>
 <li><p>Java堆区用于存储Java对象实例，那么堆的大小在JVM启动时就已经设定好了，大家可以通过选项”-Xms”和”-Xmx”来进行设置。</p>
@@ -1046,7 +1046,7 @@
 <p>如果我们给我们的程序设置xms和xmx都是600m，但是通过Java代码：</p>
 <p><code> Runtime.getRuntime().totalMemory()/1024/1024</code></p>
 <p>得到Java虚拟机中的堆内存总量发现，只有575m，比预计的少了25m，那是因为我们堆的S0和S1区只有一个能用，这是由于垃圾回收的需要导致的。</p>
-<h4 id="新生代和老年代"><a href="#新生代和老年代" class="headerlink" title="新生代和老年代"></a>新生代和老年代</h4><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210827190632387.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210827190632387.png"></p>
+<h4 id="新生代和老年代"><a href="#新生代和老年代" class="headerlink" title="新生代和老年代"></a>新生代和老年代</h4><p><img src="image-20210827190632387.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210827190632387.png"></p>
 <ol>
 <li>一般来说，新生代和老年代的大小比例为1：2，而新生代里面的Eden：S0：S1&#x3D;8：1：1<ul>
 <li><strong>-XX:NewRatio</strong>&#x3D;4，表示新生代占1，老年代占4，新生代占整个堆的1&#x2F;5</li>
@@ -1073,7 +1073,7 @@
 <li>如果Eden执行了YGC后还是放不到Eden区，就只能看老年代能否放进去，如果老年代也放不进就 进行一次FGC。如果这个时候还是放不下，就只能报OOM错误了</li>
 <li>如果Eden区满了之后触发YGC，将对象放入S0或者S1，但是发现也放不下，就只能晋升至老年代了</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/0019.png"></p>
+<p><img src="0019.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/0019.png"></p>
 <h3 id="GC分类"><a href="#GC分类" class="headerlink" title="GC分类"></a>GC分类</h3><ol>
 <li>我们都知道，JVM的调优的一个环节，也就是垃圾收集，我们需要尽量的避免垃圾回收，因为在垃圾回收的过程中，容易出现STW（Stop the World）的问题，<strong>而 Major GC 和 Full GC出现STW的时间，是Minor GC的10倍以上</strong></li>
 <li>JVM在进行GC时，并非每次都对上面三个内存区域一起回收的，大部分时候回收的都是指新生代。针对Hotspot VM的实现，它里面的GC按照回收区域又分为两大种类型：一种是部分收集（Partial GC），一种是整堆收集（FullGC）</li>
@@ -1141,7 +1141,7 @@
 <li>由于对象实例的创建在JVM中非常频繁，因此在并发环境下从堆区中划分内存空间是线程不安全的</li>
 <li>为避免多个线程操作同一地址，需要使用<strong>加锁等机制</strong>，进而影响分配速度。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828175838380.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210828175838380.png"></p>
+<p><img src="image-20210828175838380.png" srcset="/img/loading.gif" lazyload alt="IMG/07、堆.assets/image-20210828175838380.png"></p>
 <ol>
 <li>从内存模型而不是垃圾收集的角度，对Eden区域继续进行划分，<strong>JVM为每个线程分配了一个私有缓存区域，它包含在Eden空间内</strong>。</li>
 <li>多线程同时分配内存时，使用TLAB可以避免一系列的非线程安全问题，同时还能够提升内存分配的吞吐量，因此我们可以将这种内存分配方式称之为<strong>快速分配策略</strong>。</li>
@@ -1157,7 +1157,7 @@
 <li>默认情况下，TLAB空间的内存非常小，仅占有整个Eden空间的1%，当然我们可以通过选项“**-XX:TLABWasteTargetPercent**”设置TLAB空间所占用Eden空间的百分比大小。</li>
 <li>一旦对象在TLAB空间分配内存失败时，JVM就会尝试着通过<strong>使用加锁机制确保数据操作的原子性</strong>，从而直接在Eden空间中分配内存。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210828180331700.png" srcset="/img/loading.gif" lazyload alt="image-20210828180331700"></p>
+<p><img src="image-20210828180331700.png" srcset="/img/loading.gif" lazyload alt="image-20210828180331700"></p>
 <h3 id="堆空间常用参数设置"><a href="#堆空间常用参数设置" class="headerlink" title="堆空间常用参数设置"></a>堆空间常用参数设置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 测试堆空间常用的jvm参数：</span><br><span class="hljs-comment"> * -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="hljs-comment"> * -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="hljs-comment"> *      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="hljs-comment"> *                             jinfo -flag SurvivorRatio 进程id</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="hljs-comment"> * -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="hljs-comment"> * -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="hljs-comment"> * -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="hljs-comment"> * -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="hljs-comment"> * -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="hljs-comment"> * -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="hljs-comment"> * 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="hljs-comment"> * -XX:HandlePromotionFailure：是否设置空间分配担保</span><br><span class="hljs-comment"> */</span><br></code></pre></td></tr></table></figure>
 
 <h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><p>1、在发生Minor GC之前，虚拟机会检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。</p>
@@ -1265,7 +1265,7 @@
 <li>注意到有一些观点，认为通过逃逸分析，JVM会在栈上分配那些不会逃逸的对象，这在理论上是可行的，但是取决于JVM设计者的选择。据我所知，<strong>Oracle Hotspot JVM中并未这么做</strong>（刚刚演示的效果，是因为HotSpot实现了标量替换），这一点在逃逸分析相关的文档里已经说明，<strong>所以可以明确在HotSpot虚拟机上，所有的对象实例都是创建在堆上</strong>。</li>
 <li>目前很多书籍还是基于JDK7以前的版本，JDK已经发生了很大变化，intern字符串的缓存和静态变量曾经都被分配在永久代上，而永久代已经被元数据区取代。但是<strong>intern字符串缓存和静态变量并不是被转移到元数据区，而是直接在堆上分配</strong>，<strong>所以这一点同样符合前面一点的结论：对象实例都是分配在堆上</strong>。</li>
 </ol>
-<h2 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h2><h3 id="方法区的理解"><a href="#方法区的理解" class="headerlink" title="方法区的理解"></a>方法区的理解</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0002-16516620314131.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h2><h3 id="方法区的理解"><a href="#方法区的理解" class="headerlink" title="方法区的理解"></a>方法区的理解</h3><p><img src="0002-16516620314131.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h4 id="方法区在哪里？"><a href="#方法区在哪里？" class="headerlink" title="方法区在哪里？"></a>方法区在哪里？</h4><ol>
 <li>《Java虚拟机规范》中明确说明：尽管所有的方法区在逻辑上是属于堆的一部分，但一些简单的实现可能不会选择去进行垃圾收集或者进行压缩。但对于HotSpotJVM而言，方法区还有一个别名叫做Non-Heap（非堆），目的就是要和堆分开。</li>
 <li>所以，<strong>方法区可以看作是一块独立于Java堆的内存空间</strong>。</li>
@@ -1323,9 +1323,9 @@
 <li>如果是内存泄漏，可进一步通过工具查看泄漏对象到GC Roots的引用链。于是就能找到泄漏对象是通过怎样的路径与GC Roots相关联并导致垃圾收集器无法自动回收它们的。掌握了泄漏对象的类型信息，以及GC Roots引用链的信息，就可以比较准确地定位出泄漏代码的位置。</li>
 <li>如果不存在内存泄漏，换句话说就是内存中的对象确实都还必须存活着，那就应当检查虚拟机的堆参数（-Xmx与-Xms），与机器物理内存对比看是否还可以调大，从代码上检查是否存在某些对象生命周期过长、持有状态时间过长的情况，尝试减少程序运行期的内存消耗。</li>
 </ol>
-<h3 id="方法区的内部结构"><a href="#方法区的内部结构" class="headerlink" title="方法区的内部结构"></a>方法区的内部结构</h3><h4 id="方法区存储什么"><a href="#方法区存储什么" class="headerlink" title="方法区存储什么"></a>方法区存储什么</h4><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104459102.png" srcset="/img/loading.gif" lazyload alt="image-20210830104459102"></p>
+<h3 id="方法区的内部结构"><a href="#方法区的内部结构" class="headerlink" title="方法区的内部结构"></a>方法区的内部结构</h3><h4 id="方法区存储什么"><a href="#方法区存储什么" class="headerlink" title="方法区存储什么"></a>方法区存储什么</h4><p><img src="image-20210830104459102.png" srcset="/img/loading.gif" lazyload alt="image-20210830104459102"></p>
 <p>《深入理解Java虚拟机》书中对方法区（Method Area）存储内容描述如下：它用于存储已被虚拟机加载的<strong>类型信息、常量、静态变量、即时编译器编译后的代码缓存</strong>等。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830104538625.png" srcset="/img/loading.gif" lazyload alt="image-20210830104538625"></p>
+<p><img src="image-20210830104538625.png" srcset="/img/loading.gif" lazyload alt="image-20210830104538625"></p>
 <p><strong>类型信息</strong></p>
 <p>对每个加载的类型（类class、接口interface、枚举enum、注解annotation），JVM必须在方法区中存储以下类型信息：</p>
 <ol>
@@ -1384,7 +1384,7 @@
 <li>一个有效的字节码文件中除了包含类的版本信息、字段、方法以及接口等描述符信息外。还包含一项信息就是<strong>常量池表</strong>（<strong>Constant Pool Table</strong>），包括各种字面量和对类型、域和方法的符号引用。</li>
 <li>字面量： 10 ， “我是某某”这种数字和字符串都是字面量</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830105414117.png" srcset="/img/loading.gif" lazyload alt="image-20210830105414117"></p>
+<p><img src="image-20210830105414117.png" srcset="/img/loading.gif" lazyload alt="image-20210830105414117"></p>
 <p><strong>为什么需要常量池？</strong></p>
 <ol>
 <li>一个java源文件中的类、接口，编译后产生一个字节码文件。而Java中的字节码需要数据支持，通常这种数据会很大以至于不能直接存到字节码里，换另一种方式，可以存到常量池。这个字节码包含了指向常量池的引用。在动态链接的时候会用到运行时常量池，之前有介绍</li>
@@ -1443,13 +1443,13 @@
 </tbody></table>
 <p><strong>JDK6</strong></p>
 <p>方法区由永久代实现，使用 JVM 虚拟机内存（虚拟的内存）</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110159922.png" srcset="/img/loading.gif" lazyload alt="image-20210830110159922"></p>
+<p><img src="image-20210830110159922.png" srcset="/img/loading.gif" lazyload alt="image-20210830110159922"></p>
 <p><strong>JDK7</strong></p>
 <p>方法区由永久代实现，使用 JVM 虚拟机内存</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110221095.png" srcset="/img/loading.gif" lazyload alt="image-20210830110221095"></p>
+<p><img src="image-20210830110221095.png" srcset="/img/loading.gif" lazyload alt="image-20210830110221095"></p>
 <p><strong>JDK8</strong></p>
 <p>方法区由元空间实现，使用物理机本地内存</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830110251768.png" srcset="/img/loading.gif" lazyload alt="image-20210830110251768"></p>
+<p><img src="image-20210830110251768.png" srcset="/img/loading.gif" lazyload alt="image-20210830110251768"></p>
 <h4 id="永久代为什么要被元空间替代"><a href="#永久代为什么要被元空间替代" class="headerlink" title="永久代为什么要被元空间替代"></a>永久代为什么要被元空间替代</h4><ol>
 <li><p>随着Java8的到来，HotSpot VM中再也见不到永久代了。但是这并不意味着类的元数据信息也消失了。这些数据被移到了一个与堆不相连的本地内存区域，这个区域叫做元空间（Metaspace）。</p>
 </li>
@@ -1503,9 +1503,9 @@
 </ul>
 <p>2、Java虚拟机被允许对满足上述三个条件的无用类进行回收，这里说的仅仅是“被允许”，而并不是和对象一样，没有引用了就必然会回收。关于是否要对类型进行回收，HotSpot虚拟机提供了<code>-Xnoclassgc</code>参数进行控制，还可以使用<code>-verbose:class</code> 以及 <code>-XX：+TraceClass-Loading</code>、<code>-XX：+TraceClassUnLoading</code>查看类加载和卸载信息</p>
 <p>3、在大量使用反射、动态代理、CGLib等字节码框架，动态生成JSP以及OSGi这类频繁自定义类加载器的场景中，通常都需要Java虚拟机具备类型卸载的能力，以保证不会对方法区造成过大的内存压力。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830124820775.png" srcset="/img/loading.gif" lazyload alt="image-20210830124820775"></p>
-<h1 id="第三章-对象的实例化内存布局与访问定位"><a href="#第三章-对象的实例化内存布局与访问定位" class="headerlink" title="第三章 对象的实例化内存布局与访问定位"></a>第三章 对象的实例化内存布局与访问定位</h1><h2 id="对象的实例化"><a href="#对象的实例化" class="headerlink" title="对象的实例化"></a>对象的实例化</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125356389.png" srcset="/img/loading.gif" lazyload alt="image-20210830125356389"></p>
-<h2 id="对象创建的方式和步骤"><a href="#对象创建的方式和步骤" class="headerlink" title="对象创建的方式和步骤"></a>对象创建的方式和步骤</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830125950217.png" srcset="/img/loading.gif" lazyload alt="image-20210830125950217"></p>
+<p><img src="image-20210830124820775.png" srcset="/img/loading.gif" lazyload alt="image-20210830124820775"></p>
+<h1 id="第三章-对象的实例化内存布局与访问定位"><a href="#第三章-对象的实例化内存布局与访问定位" class="headerlink" title="第三章 对象的实例化内存布局与访问定位"></a>第三章 对象的实例化内存布局与访问定位</h1><h2 id="对象的实例化"><a href="#对象的实例化" class="headerlink" title="对象的实例化"></a>对象的实例化</h2><p><img src="image-20210830125356389.png" srcset="/img/loading.gif" lazyload alt="image-20210830125356389"></p>
+<h2 id="对象创建的方式和步骤"><a href="#对象创建的方式和步骤" class="headerlink" title="对象创建的方式和步骤"></a>对象创建的方式和步骤</h2><p><img src="image-20210830125950217.png" srcset="/img/loading.gif" lazyload alt="image-20210830125950217"></p>
 <ol>
 <li>new：最常见的方式、单例类中调用getInstance的静态类方法，XXXFactory的静态方法</li>
 <li>Class的newInstance方法：在JDK9里面被标记为过时的方法，因为只能调用空参构造器，并且权限必须为 public</li>
@@ -1565,10 +1565,10 @@
 <li>在Java程序的视角看来，初始化才正式开始。初始化成员变量，执行实例化代码块，调用类的构造方法，并把堆内对象的首地址赋值给引用变量</li>
 <li>因此一般来说（由字节码中跟随invokespecial指令所决定），new指令之后会接着就是执行init方法，把对象按照程序员的意愿进行初始化，这样一个真正可用的对象才算完成创建出来。</li>
 </ol>
-<h2 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130203892.png" srcset="/img/loading.gif" lazyload alt="image-20210830130203892"></p>
+<h2 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h2><p><img src="image-20210830130203892.png" srcset="/img/loading.gif" lazyload alt="image-20210830130203892"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Customer</span>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span> <span class="hljs-number">1001</span>;<br>    String name;<br>    Account acct;<br><br>    &#123;<br>        name = <span class="hljs-string">&quot;匿名客户&quot;</span>;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Customer</span><span class="hljs-params">()</span>&#123;<br>        acct = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Account</span>();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Customer</span> <span class="hljs-variable">cust</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Customer</span>();<br>    &#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Account</span>&#123;<br><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130225530.png" srcset="/img/loading.gif" lazyload alt="image-20210830130225530"></p>
+<p><img src="image-20210830130225530.png" srcset="/img/loading.gif" lazyload alt="image-20210830130225530"></p>
 <h2 id="对象的访问内存"><a href="#对象的访问内存" class="headerlink" title="对象的访问内存"></a>对象的访问内存</h2><p><strong>JVM是如何通过栈帧中的对象引用访问到其内部的对象实例呢？</strong></p>
 <p>定位，通过栈上reference访问</p>
 <p><strong>对象的两种访问方式：句柄访问和直接指针</strong></p>
@@ -1577,13 +1577,13 @@
 <li>缺点：在堆空间中开辟了一块空间作为句柄池，句柄池本身也会占用空间；通过两次指针访问才能访问到堆中的对象，效率低</li>
 <li>优点：reference中存储稳定句柄地址，对象被移动（垃圾收集时移动对象很普遍）时只会改变句柄中实例数据指针即可，reference本身不需要被修改</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130431500.png" srcset="/img/loading.gif" lazyload alt="image-20210830130431500"></p>
+<p><img src="image-20210830130431500.png" srcset="/img/loading.gif" lazyload alt="image-20210830130431500"></p>
 <p><strong>2、直接指针（HotSpot采用）</strong></p>
 <ol>
 <li>优点：直接指针是局部变量表中的引用，直接指向堆中的实例，在对象实例中有类型指针，指向的是方法区中的对象类型数据</li>
 <li>缺点：对象被移动（垃圾收集时移动对象很普遍）时需要修改 reference 的值</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210830130447943.png" srcset="/img/loading.gif" lazyload alt="image-20210830130447943"></p>
+<p><img src="image-20210830130447943.png" srcset="/img/loading.gif" lazyload alt="image-20210830130447943"></p>
 <h1 id="第四章-直接内存"><a href="#第四章-直接内存" class="headerlink" title="第四章 直接内存"></a>第四章 直接内存</h1><h2 id="直接内存概述（了解）"><a href="#直接内存概述（了解）" class="headerlink" title="直接内存概述（了解）"></a>直接内存概述（了解）</h2><ol>
 <li>不是虚拟机运行时数据区的一部分，也不是《Java虚拟机规范》中定义的内存区域。</li>
 <li>直接内存是在Java堆外的、直接向系统申请的内存区间。</li>
@@ -1594,10 +1594,10 @@
 </ol>
 <h2 id="BIO与NIO"><a href="#BIO与NIO" class="headerlink" title="BIO与NIO"></a>BIO与NIO</h2><p><strong>非直接缓存区（BIO）</strong></p>
 <p>原来采用BIO的架构，在读写本地文件时，我们需要从用户态切换成内核态</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0038.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>直接缓冲区（NIO）</strong></p>
 <p>NIO 直接操作物理磁盘，省去了中间过程</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0039.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h2 id="直接内存与-OOM"><a href="#直接内存与-OOM" class="headerlink" title="直接内存与 OOM"></a>直接内存与 OOM</h2><ol>
 <li>直接内存也可能导致OutofMemoryError异常</li>
 <li>由于直接内存在Java堆外，因此它的大小不会直接受限于-Xmx指定的最大堆大小，但是系统内存是有限的，Java堆和直接内存的总和依然受限于操作系统能给出的最大内存。</li>
@@ -1609,30 +1609,30 @@
 <li>直接内存大小可以通过MaxDirectMemorySize设置</li>
 <li>如果不指定，默认与堆的最大值-Xmx参数值一致</li>
 </ol>
-<h1 id="第五章-执行引擎"><a href="#第五章-执行引擎" class="headerlink" title="第五章 执行引擎"></a>第五章 执行引擎</h1><h2 id="执行引擎概述"><a href="#执行引擎概述" class="headerlink" title="执行引擎概述"></a>执行引擎概述</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210904154047916.png" srcset="/img/loading.gif" lazyload alt="image-20210904154047916"></p>
+<h1 id="第五章-执行引擎"><a href="#第五章-执行引擎" class="headerlink" title="第五章 执行引擎"></a>第五章 执行引擎</h1><h2 id="执行引擎概述"><a href="#执行引擎概述" class="headerlink" title="执行引擎概述"></a>执行引擎概述</h2><p><img src="image-20210904154047916.png" srcset="/img/loading.gif" lazyload alt="image-20210904154047916"></p>
 <ol>
 <li>执行引擎是Java虚拟机核心的组成部分之一</li>
 <li>“虚拟机”是要给相对于“物理机”的概念，这两种机器都有代码执行能力，其区别是物理机的执行能力，其区别是物理机的执行引擎是直接建立在处理器、缓存、指令集和操作系统层面上的。而<strong>虚拟机的执行引擎则是由软件自行实现的</strong>，因此可以不受物理条件制约地定制指令集与执行引擎的结构体系，<strong>能够执行那些不被硬件直接支持的指令集格式</strong>。</li>
 <li>JVM的主要任务是负责<strong>装载字节码到其内部</strong>，但字节码并不能够直接运行在操作系统之上，因为字节码指令并非等价于本地机器指令，它内部包含的仅仅只是一些能够被JVM所识别的字节码指令、符号表，以及其他辅助信息。</li>
 <li>那么，如果想要让一个Java程序运行起来，执行引擎（Execution Engine）的任务就是<strong>将字节码指令解释&#x2F;编译为对应平台上的本地机器指令才可以</strong>。简单来说，JVM中的执行引擎充当了将高级语言翻译为机器语言的译者。</li>
 </ol>
-<h3 id="执行引擎工作过程"><a href="#执行引擎工作过程" class="headerlink" title="执行引擎工作过程"></a>执行引擎工作过程</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0003.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="执行引擎工作过程"><a href="#执行引擎工作过程" class="headerlink" title="执行引擎工作过程"></a>执行引擎工作过程</h3><p><img src="0003.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>执行引擎在执行的过程中究竟需要执行什么样的字节码指令完全依赖于PC寄存器。</li>
 <li>每当执行完一项指令操作后，PC寄存器就会更新下一条需要被执行的指令地址。</li>
 <li>当然方法在执行的过程中，执行引擎有可能会通过存储在局部变量表中的对象引用准确定位到存储在Java堆区中的对象实例信息，以及通过对象头中的元数据指针定位到目标对象的类型信息。</li>
 <li>从外观上来看，所有的Java虚拟机的执行引擎输入、处理、输出都是一致的：输入的是字节码二进制流，处理过程是字节码解析执行、即时编译的等效过程，输出的是执行过程。</li>
 </ol>
-<h2 id="Java代码编译和执行过程"><a href="#Java代码编译和执行过程" class="headerlink" title="Java代码编译和执行过程"></a>Java代码编译和执行过程</h2><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112032806.png" srcset="/img/loading.gif" lazyload alt="image-20210905112032806"></p>
+<h2 id="Java代码编译和执行过程"><a href="#Java代码编译和执行过程" class="headerlink" title="Java代码编译和执行过程"></a>Java代码编译和执行过程</h2><p><img src="image-20210905112032806.png" srcset="/img/loading.gif" lazyload alt="image-20210905112032806"></p>
 <p>大部分的程序代码转换成物理机的目标代码或虚拟机能执行的指令集之前，都需要经过上图中的各个步骤。</p>
 <ol>
 <li>前面橙色部分是编译生成字节码文件的过程（javac编译器来完成，也就是前端编译器），和JVM没有关系</li>
 <li>后面绿色（解释执行）和蓝色（即时编译）才是JVM需要考虑的过程。</li>
 </ol>
 <p>Java代码编译是由Java源码编译器来完成，也就是上图橙色所属，流程图如下所示：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112236173.png" srcset="/img/loading.gif" lazyload alt="image-20210905112236173"></p>
+<p><img src="image-20210905112236173.png" srcset="/img/loading.gif" lazyload alt="image-20210905112236173"></p>
 <p>Java字节码的执行是由JVM执行引擎来完成，流程图如下图所示：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905112340252.png" srcset="/img/loading.gif" lazyload alt="image-20210905112340252"></p>
+<p><img src="image-20210905112340252.png" srcset="/img/loading.gif" lazyload alt="image-20210905112340252"></p>
 <h3 id="什么是解释器？什么是JIT编译器？"><a href="#什么是解释器？什么是JIT编译器？" class="headerlink" title="什么是解释器？什么是JIT编译器？"></a>什么是解释器？什么是JIT编译器？</h3><ol>
 <li>解释器：当Java虚拟机启动时会根据预定义的规范对字节码采用<strong>逐行</strong>解释的方式<strong>执行</strong>，将每条字节码文件中的内容“翻译”为对应平台的本地机器指令执行。</li>
 <li>JIT编译器：也叫即时编译器，就是虚拟机将源代码<strong>一次性直接</strong>编译成和本地机器平台相关的机器语言，<strong>但并不是马上执行</strong>。</li>
@@ -1643,7 +1643,7 @@
 <li>现在JVM在执行Java代码的时候，通常都会将解释执行与编译执行二者结合起来进行。</li>
 <li>JIT编译器将字节码翻译成本地代码后，就可以做一个缓存操作，存储在方法区的JIT代码缓存中（执行效率更高了），并且在翻译成本地代码的过程中可以做优化。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905113306187.png" srcset="/img/loading.gif" lazyload alt="image-20210905113306187"></p>
+<p><img src="image-20210905113306187.png" srcset="/img/loading.gif" lazyload alt="image-20210905113306187"></p>
 <h2 id="解释器"><a href="#解释器" class="headerlink" title="解释器"></a>解释器</h2><h3 id="为什么要有解释器"><a href="#为什么要有解释器" class="headerlink" title="为什么要有解释器"></a>为什么要有解释器</h3><ol>
 <li>JVM设计者们的初衷仅仅只是单纯地为了满足Java程序实现跨平台特性，因此避免采用静态编译的方式由高级语言直接生成本地机器指令，从而诞生了实现解释器在运行时采用逐行解释字节码执行程序的想法（也就是产生了一个中间产品<strong>字节码</strong>）</li>
 <li>解释器真正的意义上所承担的角色就是一个运行时“翻译者”，将字节码文件中的内容“翻译”为对应平台的本地机器指令执行。</li>
@@ -1734,21 +1734,21 @@
 </ul>
 </li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0013.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h4 id="热度衰减"><a href="#热度衰减" class="headerlink" title="热度衰减"></a>热度衰减</h4><ol>
 <li>如果不做任何设置，方法调用计数器统计的并不是方法被调用的绝对次数，而是一个相对的执行频率，即<strong>一段时间之内方法被调用的次数</strong>。当超过一定的时间限度，如果方法的调用次数仍然不足以让它提交给即时编译器编译，那这个方法的调用计数器就会被减少一半，这个过程称为方法调用计数器热度的衰减（Counter Decay），而这段时间就称为此方法统计的半衰周期（Counter Half Life Time）（半衰周期是化学中的概念，比如出土的文物通过查看C60来获得文物的年龄）</li>
 <li>进行热度衰减的动作是在虚拟机进行垃圾收集时顺便进行的，可以使用虚拟机参数 -XX:-UseCounterDecay 来关闭热度衰减，让方法计数器统计方法调用的绝对次数，这样的话，只要系统运行时间足够长，绝大部分方法都会被编译成本地代码。</li>
 <li>另外，可以使用-XX:CounterHalfLifeTime参数设置半衰周期的时间，单位是秒。</li>
 </ol>
 <h4 id="回边计数器"><a href="#回边计数器" class="headerlink" title="回边计数器"></a>回边计数器</h4><p>它的作用是统计一个方法中循环体代码执行的次数，在字节码中遇到控制流向后跳转的指令称为“回边”（Back Edge）。显然，建立回边计数器统计的目的就是为了触发OSR编译。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210905140917696.png" srcset="/img/loading.gif" lazyload alt="image-20210905140917696"></p>
+<p><img src="image-20210905140917696.png" srcset="/img/loading.gif" lazyload alt="image-20210905140917696"></p>
 <h3 id="HotSpotVM可以设置程序执行方法"><a href="#HotSpotVM可以设置程序执行方法" class="headerlink" title="HotSpotVM可以设置程序执行方法"></a>HotSpotVM可以设置程序执行方法</h3><p>缺省情况下HotSpot VM是采用解释器与即时编译器并存的架构，当然开发人员可以根据具体的应用场景，通过命令显式地为Java虚拟机指定在运行时到底是完全采用解释器执行，还是完全采用即时编译器执行。如下所示：</p>
 <ol>
 <li>-Xint：完全采用解释器模式执行程序；</li>
 <li>-Xcomp：完全采用即时编译器模式执行程序。如果即时编译出现问题，解释器会介入执行</li>
 <li>-Xmixed：采用解释器+即时编译器的混合模式共同执行程序。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0015.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0015.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>HotSpotVM JIT 分类</strong></p>
 <p>在HotSpot VM中内嵌有两个JIT编译器，分别为Client Compiler和Server Compiler，但大多数情况下我们简称为C1编译器 和 C2编译器。开发人员可以通过如下命令显式指定Java虚拟机在运行时到底使用哪一种即时编译器，如下所示：</p>
 <ol>
@@ -1930,13 +1930,13 @@
 
 <p><strong>内存分析</strong></p>
 <p>JDK6：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516626421232.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0013-16516626421232.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>JDK7以及以后：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0014.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h3 id="面试题的拓展"><a href="#面试题的拓展" class="headerlink" title="面试题的拓展"></a>面试题的拓展</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StringIntern1</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s3</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;1&quot;</span>) + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;1&quot;</span>);<br>        <span class="hljs-comment">// 执行完上一行代码后，字符串常量池中并没有出现“11”</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">s4</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;11&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s5</span> <span class="hljs-operator">=</span> s3.intern();<br><br>        <span class="hljs-comment">// s3是堆中的&quot;11&quot;，s4是字符串常量池中的&quot;11&quot;</span><br>        System.out.println(s3 == s4); <span class="hljs-comment">//false</span><br><br>        System.out.println(s5 == s4);<span class="hljs-comment">// true</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>如果将s5和s4的语句交换位置，就会导致两个都输出true</p>
-<h3 id="intern方法的练习题"><a href="#intern方法的练习题" class="headerlink" title="intern方法的练习题"></a>intern方法的练习题</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="intern方法的练习题"><a href="#intern方法的练习题" class="headerlink" title="intern方法的练习题"></a>intern方法的练习题</h3><p><img src="0017.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h3 id="intern的效率测试（空间角度）"><a href="#intern的效率测试（空间角度）" class="headerlink" title="intern的效率测试（空间角度）"></a>intern的效率测试（空间角度）</h3><p>结论：</p>
 <p>1、<strong>对于程序中大量存在的字符串，尤其其中存在很多重复的字符串时，使用intern</strong></p>
 <p>2、大的网站平台，需要内存中存储大量的字符串。比如社交网站，很多人都存储：北京市、海淀区等信息。这时候如果字符串都调用intern() 方法，就会很明显降低内存的大小。</p>
@@ -2035,7 +2035,7 @@
 </ol>
 </li>
 </ol>
-<h4 id="循环引用"><a href="#循环引用" class="headerlink" title="循环引用"></a>循环引用</h4><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="循环引用"><a href="#循环引用" class="headerlink" title="循环引用"></a>循环引用</h4><p><img src="0004.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>当p的指针断开的时候，内部的引用形成一个循环，计数器都还算1，无法被回收，这就是循环引用，从而造成内存泄漏。</p>
 <p>这里的内存泄露并不是Java中的内存泄露。面试中不可以用这个例子进行举例</p>
 <h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><ol>
@@ -2063,7 +2063,7 @@
 </ol>
 </li>
 </ul>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210909162516777.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/image-20210909162516777.png"></p>
+<p><img src="image-20210909162516777.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/image-20210909162516777.png"></p>
 <h4 id="GCRoots可以是哪些元素？"><a href="#GCRoots可以是哪些元素？" class="headerlink" title="GCRoots可以是哪些元素？"></a>GCRoots可以是哪些元素？</h4><ol>
 <li>虚拟机栈中引用的对象：各个线程被调用的方法中使用到的参数、局部变量等。</li>
 <li>本地方法栈内JNI（通常说的本地方法）引用的对象</li>
@@ -2150,7 +2150,7 @@
 </li>
 <li>清除：Collector对堆内存从头到尾进行线性的遍历，如果发现某个对象在其Header中没有标记为可达对象，则将其回收</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0029.png"></p>
+<p><img src="0029.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0029.png"></p>
 <p><strong>标记-清除算法的缺点</strong></p>
 <ol>
 <li>标记清除算法的效率不算高</li>
@@ -2177,7 +2177,7 @@
 </ol>
 <p><strong>核心思想</strong></p>
 <p>将活着的内存空间分为两块，每次只使用其中一块，在垃圾回收时将正在使用的内存中的存活对象复制到未被使用的内存块中，之后清除正在使用的内存块中的所有对象，交换两个内存的角色，最后完成垃圾回收</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0030.png"></p>
+<p><img src="0030.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0030.png"></p>
 <p>新生代里面就用到了复制算法，Eden区和S0区存活对象整体复制到S1区</p>
 <p><strong>复制算法的优缺点</strong></p>
 <p><strong>优点</strong></p>
@@ -2208,7 +2208,7 @@
 <li>第一阶段和标记清除算法一样，从根节点开始标记所有被引用对象</li>
 <li>第二阶段将所有的存活对象压缩到内存的一端，按顺序排放。之后，清理边界外所有的空间。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0032.png"></p>
+<p><img src="0032.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0032.png"></p>
 <p><strong>标记-压缩算法与标记-清除算法的比较</strong></p>
 <ol>
 <li>标记-压缩算法的最终效果等同于标记-清除算法执行完成后，再进行一次内存碎片整理，因此，也可以把它称为标记-清除-压缩（Mark-Sweep-Compact）算法。</li>
@@ -2310,7 +2310,7 @@
 <li>一般来说，在相同条件下，堆空间越大，一次GC时所需要的时间就越长，有关GC产生的停顿也越长。为了更好地控制GC产生的停顿时间，将一块大的内存区域分割成多个小块，根据目标的停顿时间，每次合理地回收若干个小区间，而不是整个堆空间，从而减少一次GC所产生的停顿。</li>
 <li>分代算法将按照对象的生命周期长短划分成两个部分，分区算法将整个堆空间划分成连续的不同小区间。每一个小区间都独立使用，独立回收。这种算法的好处是可以控制一次回收多少个小区间。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0033.png"></p>
+<p><img src="0033.png" srcset="/img/loading.gif" lazyload alt="IMG/13、垃圾回收概述和垃圾回收算法.assets/0033.png"></p>
 <h3 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h3><p>注意，这些只是基本的算法思路，实际GC实现过程要复杂的多，目前还在发展中的前沿GC都是复合算法，并且并行和并发兼备。</p>
 <h1 id="第八章-垃圾回收相关概念"><a href="#第八章-垃圾回收相关概念" class="headerlink" title="第八章 垃圾回收相关概念"></a>第八章 垃圾回收相关概念</h1><h2 id="System-gc-的理解"><a href="#System-gc-的理解" class="headerlink" title="System.gc()的理解"></a>System.gc()的理解</h2><ol>
 <li>默认情况下，通过System.gc()者Runtime.getRuntime().gc()的调用，<strong>会显示触发FullGC</strong>，同时对老年代和新生代进行回收，尝试释放被丢弃对象占用的内存。</li>
@@ -2374,7 +2374,7 @@
 <p><strong>内存泄漏官方例子</strong></p>
 <p>左边的图：Java使用可达性分析算法，最上面的数据不可达，就是需要被回收的对象。</p>
 <p>右边的图：后期有一些对象不用了，按道理应该断开引用，但是存在一些链没有断开（图示中的Forgotten Reference Memory Leak），从而导致没有办法被回收。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0006.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/0006.png"></p>
+<p><img src="0006.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/0006.png"></p>
 <p><strong>常见例子</strong></p>
 <ol>
 <li>单例模式<ul>
@@ -2411,13 +2411,13 @@
 <li>在操作系统中，是指<strong>一个时间段</strong>中有几个程序都处于已启动运行到运行完毕之间，且这几个程序都是在同一个处理器上运行。</li>
 <li>并发不是真正意义上的同时进行，只是CPU把一个时间段划分成几个时间片段（时间区间），然后在这几个时间区间之间来回切换。由于CPU处理的速度非常快，只要时间间隔处理得当，即可让用户感觉是多个应用程序同时进行</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101637422.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910101637422.png"></p>
+<p><img src="image-20210910101637422.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910101637422.png"></p>
 <h3 id="并行的概念"><a href="#并行的概念" class="headerlink" title="并行的概念"></a>并行的概念</h3><ol>
 <li>当系统有一个以上的CPU时，当一个CPU执行一个进程时，另一个CPU可以执行另一个进程，两个进程互相不抢占CPU资源，可以<strong>同时</strong>进行，我们称之为并行</li>
 <li>其实决定并行的因素不是CPU的数量，而是CPU的核心数量，比如一个CPU多个核也可以并行</li>
 <li>适合科学计算，后台处理等弱交互场景</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910101832115.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910101832115.png"></p>
+<p><img src="image-20210910101832115.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910101832115.png"></p>
 <blockquote>
 <p>并行与并发的对比</p>
 </blockquote>
@@ -2432,7 +2432,7 @@
 </ul>
 </li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102113842.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910102113842.png"></p>
+<p><img src="image-20210910102113842.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910102113842.png"></p>
 <p>并行和并发，在谈论垃圾收集器的上下文语境中，他们可以解释如下：</p>
 <ol>
 <li>并发（Concurrent）：指<strong>用户线程与垃圾收集线程同时执行</strong>（但不一定是并行的，可能会交替执行），垃圾回收线程在执行时不会停顿用户程序的运行<ul>
@@ -2441,7 +2441,7 @@
 </li>
 <li>典型垃圾回收器：CMS、G1</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910102356847.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910102356847.png"></p>
+<p><img src="image-20210910102356847.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910102356847.png"></p>
 <h2 id="HotSpot的算法实现细节"><a href="#HotSpot的算法实现细节" class="headerlink" title="HotSpot的算法实现细节"></a>HotSpot的算法实现细节</h2><h3 id="根节点枚举"><a href="#根节点枚举" class="headerlink" title="根节点枚举"></a>根节点枚举</h3><ol>
 <li><p>固定可作为GCRoots的节点主要在全局性的引用（例如常量或类静态属性）与执行上下文（例如栈帧中的本地变量表）中，尽管目标明确，但查找过程要做到高效并非一件容易的事情，现在Java应用越做越大，光是方法区的大小就常有数百上千兆，里面的类、常量等更是恒河沙数，若要逐个检查以这里为起源的引用肯定得消耗不少时间。</p>
 </li>
@@ -2475,7 +2475,7 @@
 <li>当线程即将离开Safe Region时，会检查JVM是否已经完成根节点枚举（即GC Roots的枚举），如果完成了，则继续运行，否则线程必须等待直到收到可以安全离开Safe Region的信号为止；</li>
 </ol>
 <h3 id="记忆集与卡表"><a href="#记忆集与卡表" class="headerlink" title="记忆集与卡表"></a>记忆集与卡表</h3><h4 id="什么是跨代引用？"><a href="#什么是跨代引用？" class="headerlink" title="什么是跨代引用？"></a>什么是跨代引用？</h4><p>1、一般的垃圾回收算法至少会划分出两个年代，年轻代和老年代。但是单纯的分代理论在垃圾回收的时候存在一个巨大的缺陷：为了找到年轻代中的存活对象，却不得不遍历整个老年代，反过来也是一样的。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910104835512.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910104835512.png"></p>
+<p><img src="image-20210910104835512.png" srcset="/img/loading.gif" lazyload alt="IMG/14、垃圾回收相关概念.assets/image-20210910104835512.png"></p>
 <p>2、如果我们从年轻代开始遍历，那么可以断定N, S, P, Q都是存活对象。但是，V却不会被认为是存活对象，其占据的内存会被回收了。这就是一个惊天的大漏洞！因为U本身是老年代对象，而且有外部引用指向它，也就是说U是存活对象，而U指向了V，也就是说V也应该是存活对象才是！而这都是因为我们只遍历年轻代对象！</p>
 <p>3、所以，为了解决这种跨代引用的问题，最笨的办法就是遍历老年代的对象，找出这些跨代引用来。这种方案存在极大的性能浪费。因为从两个分代假说里面，其实隐含了一个推论：跨代引用是极少的。也就是为了找出那么一点点跨代引用，我们却得遍历整个老年代！从上图来说，很显然的是，我们根本不必遍历R。</p>
 <p>4、因此，为了避免这种遍历老年代的性能开销，通常的分代垃圾回收器会引入一种称为<strong>记忆集</strong>的技术。<strong>简单来说，记忆集就是用来记录跨代引用的表。</strong></p>
@@ -2506,7 +2506,7 @@
 </li>
 <li>这4种引用强度依次逐渐减弱。除强引用外，其他3种引用均可以在java.lang.ref包中找到它们的身影。如下图，显示了这3种引用类型对应的类，开发人员可以在应用程序中直接使用它们。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627146513.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0012-16516627146513.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>Reference子类中只有终结器引用是包内可见的，其他3种引用类型均为public，可以在应用程序中直接使用</p>
 <ol>
 <li>强引用（StrongReference）：最传统的“引用”的定义，是指在程序代码之中普遍存在的引用赋值，即类似“<code>object obj=new Object()</code>”这种引用关系。无论任何情况下，只要强引用关系还存在，垃圾收集器就永远不会回收掉被引用的对象。宁可报OOM，也不会GC强引用</li>
@@ -2588,7 +2588,7 @@
 <li>并发式垃圾回收器与应用程序线程交替工作，以尽可能减少应用程序的停顿时间。</li>
 <li>独占式垃圾回收器（STW）一旦运行，就停止应用程序中的所有用户线程，直到垃圾回收过程结束</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910185741502.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="image-20210910185741502.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>按碎片处理方式分，可以分为压缩式垃圾回收器和非压缩式垃圾回收器</strong></p>
 <ol>
 <li>压缩式垃圾回收器会在回收完成后，对存活对象进行压缩整理，消除回收后的碎片。再分配对象空间。使用指针碰撞。</li>
@@ -2613,12 +2613,12 @@
 <li>这种情况下，应用程序能容忍较高的暂停时间，因此，吞吐量的应用程序有更长的时间基准，快速响应是不必考虑的。</li>
 <li>吞吐量优先意味着在单位时间内，STW时间最短</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20210910191705132.png" srcset="/img/loading.gif" lazyload alt="image-20210910191705132"></p>
+<p><img src="image-20210910191705132.png" srcset="/img/loading.gif" lazyload alt="image-20210910191705132"></p>
 <h4 id="暂停时间（paus-time）"><a href="#暂停时间（paus-time）" class="headerlink" title="暂停时间（paus time）"></a>暂停时间（paus time）</h4><ol>
 <li>暂停时间是值一个时间段内应用程序线程暂停，让GC线程执行的状态。</li>
 <li>暂停时间优先意味着尽可能让单次STW的时间最短，但是总的GC时间可能会长</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0004-16516627404644.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0004-16516627404644.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h4 id="吞吐量vs暂停时间"><a href="#吞吐量vs暂停时间" class="headerlink" title="吞吐量vs暂停时间"></a>吞吐量vs暂停时间</h4><ol>
 <li><strong>高吞吐量较好</strong>：因为这会让应用程序的最终用户感觉只有应用程序线程在做“生产性”工作。直觉上，吞吐量越高程序运行越快</li>
 <li>低暂停时间（低延迟）较好，是从最终用户的角度来看，不管是GC还是其他原因导致一个应用被挂起始终是不好的。这取决于应用程序的类型，有时候甚至短暂的200毫秒暂停都可能打断终端用户体验。因此具有较低的暂停时间是非常重要的，特别是对于一个交互式应用程序（就是和用户交互比较多的场景）</li>
@@ -2653,13 +2653,13 @@
 <li>并发回收器：CMS、G1</li>
 </ol>
 <p><strong>7款经典回收器与垃圾分代之间的关系</strong></p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0007.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0007.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>新生代收集器：Serial、ParNew、Parallel Scavenge；</li>
 <li>老年代收集器：Serial old、Parallel old、CMS；</li>
 <li>整堆收集器：G1；</li>
 </ol>
-<h3 id="垃圾收集器的组合关系"><a href="#垃圾收集器的组合关系" class="headerlink" title="垃圾收集器的组合关系"></a>垃圾收集器的组合关系</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0008.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="垃圾收集器的组合关系"><a href="#垃圾收集器的组合关系" class="headerlink" title="垃圾收集器的组合关系"></a>垃圾收集器的组合关系</h3><p><img src="0008.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>两个收集器间有连线，表明它们可以搭配使用：<ul>
 <li>Serial&#x2F;Serial old</li>
@@ -2692,7 +2692,7 @@
 <li>Serial Old是运行在Client模式下默认的老年代的垃圾回收器，Serial Old在Server模式下主要有两个用途：① 与新生代的Parallel Scavenge配合使用 ② 作为老年代CMS收集器的后备垃圾收集方案</li>
 </ol>
 <p>这个收集器是一个单线程的收集器，单线程的意义：他只会使用一个CPU（串行）或者一条收集线程去完成垃圾收集工作。更重要的是在它进行垃圾收集时，必须暂停其他所有的工作线程，直到它收集结束。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0011-16516627404645.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0011-16516627404645.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>Serial 回收器的优势</strong></p>
 <ol>
 <li>优势：简单而高效（与其他收集器的单线程比），对于限定单个CPU的环境来说，Serial收集器由于没有线程交互的开销，专心做垃圾收集自然可以获得最高的单线程收集效率，运行在Client模式下的虚拟机是个不错的选择</li>
@@ -2712,7 +2712,7 @@
 <li>ParNew收集器除了采用<strong>并行回收</strong>的方式执行内存回收外，两款垃圾收集器之间几乎没有任何区别，ParNew收集器在年轻代中同样也是采用复制算法、STW机制</li>
 <li>ParNew是很多JVM运行在Server模式下新生代的默认垃圾收集器</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0012-16516627404646.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0012-16516627404646.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>对于新生代，回收次数频繁，使用并行方式高效</li>
 <li>对于老年代，回收次数少，使用串行方式节省资源。（CPU并行需要切换线程，串行可以省去切换线程的资源）</li>
@@ -2739,7 +2739,7 @@
 <p>高吞吐量则可以高效地利用CPU时间，尽快完成程序的运算任务，<strong>主要适合在后台运算而不需要太多交互的任务</strong>。因此常见在服务器环境中使用。例如，那些执行批量处理、订单处理、工资支付、科学计算的应用程序。</p>
 <p>Paraller收集器在JDK1.6时提供了用于执行老年代垃圾收集的Parallel Old收集器，用来代替老年代的SerialOld收集器。</p>
 <p>ParallelOld收集器采用了标记压缩算法，但同样也是基于并行回收和STW机制</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0013-16516627404647.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0013-16516627404647.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>在程序吞吐量优先的应用场景中，Parallel收集器和ParallelOld收集器的组合，在Server模式下的内存回收性能很不错</li>
 <li><strong>在Java8中，默认是此垃圾收集器</strong></li>
@@ -2790,7 +2790,7 @@
 <li>不幸的是，CMS作为老年代的收集器，却无法与JDK1.4中已经存在的新生代收集器ParallelScavenge配合工作（因为实现的框架不一样，没办法兼容使用），所以在JDK1.5中使用CMS来收集老年代的时候，新生代只能选择ParNew或者Serial收集器中的一个</li>
 <li>在G1出现之前，CMS使用还是非常广泛的。一直到今天，仍然还有很多系统使用CMSGC</li>
 </ol>
-<h3 id="CMS工作原理（过程）"><a href="#CMS工作原理（过程）" class="headerlink" title="CMS工作原理（过程）"></a>CMS工作原理（过程）</h3><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0014-16516627404648.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="CMS工作原理（过程）"><a href="#CMS工作原理（过程）" class="headerlink" title="CMS工作原理（过程）"></a>CMS工作原理（过程）</h3><p><img src="0014-16516627404648.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>CMS整个过程比之前的收集器要复杂，整个过程分为4个主要阶段，即初始标记阶段、并发标记阶段、重新标记阶段和并发清除阶段（涉及STW的阶段主要是：初始标记和重新标记）</p>
 <ol>
 <li>初始标记（Initial-Mark）阶段：在这个阶段中，程序中所有的工作线程都将会因为STW机制而出现短暂的暂停，<strong>这个阶段的主要任务仅仅只是标记出GCRoots能直接关联到的对象</strong>。一旦标记完成之后就会恢复之前被暂停的所有应用线程。由于直接关联的对象比较小，所以这里的<strong>速度非常快</strong></li>
@@ -2887,9 +2887,9 @@
 </li>
 </ol>
 <p>G1的分代，已经不是下面这样的了</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0016.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0016.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>G1的分区是这样的一个区域</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0017-16516627404649.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0017-16516627404649.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>空间整合</strong></p>
 <ol>
 <li>CMS：“标记-清除”算法、内存碎片、若干次GC后进行一次碎片整理</li>
@@ -2950,13 +2950,13 @@
 <p>翻译：</p>
 <p>如图所示，可以将区域分配到Eden，幸存者和旧时代区域。 此外，还有第四种类型的物体被称为巨大区域。 这些区域旨在容纳标准区域大小的50％或更大的对象。 它们存储为一组连续区域。 最后，最后一种区域类型是堆的未使用区域。</p>
 </blockquote>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0018.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0018.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 </li>
 </ol>
 <p><strong>设置 H 的原因</strong></p>
 <p>对于堆中的大对象，默认直接会被分配到老年代，但是如果<strong>它是一个短期存在的大对象</strong>就会对垃圾收集器造成负面影响。为了解决这个问题，G1划分了一个Humongous区，它用来专门存放大对象。如<strong>果一个H区装不下一个大对象，那么G1会寻找连续的H区来存储</strong>。为了能找到连续的H区，有时候不得不启动Full GC。G1的大多数行为都把H区作为老年代的一部分来看待。</p>
 <p><strong>Regio的细节</strong></p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0019-165166274046510.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0019-165166274046510.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>每个Region都是通过指针碰撞来分配空间</li>
 <li>G1为每一个Region设 计了两个名为TAMS（Top at Mark Start）的指针，把Region中的一部分空间划分出来用于并发回收过程中的新对象分配，并发回收时新分配的对象地址都必须要在这两个指针位置以上。</li>
@@ -2969,7 +2969,7 @@
 <li>混合回收（Mixed GC）</li>
 <li>（如果需要，单线程、独占式、高强度的Full GC还是继续存在的。它针对GC的评估失败提供了一种失败保护机制，即强力回收。）</li>
 </ul>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0020.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0020.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>顺时针，Young GC –&gt; Young GC+Concurrent Marking –&gt; Mixed GC顺序，进行垃圾回收</p>
 <p><strong>回收流程</strong></p>
 <ol>
@@ -2993,7 +2993,7 @@
 <li>如果不同，通过CardTable把相关引用信息记录到引用指向对象的所在Region对应的Remembered Set中；</li>
 <li>当进行垃圾收集时，在GC根节点的枚举范围加入Remembered Set；就可以保证不进行全局扫描，也不会有遗漏。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0021.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0021.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li>在回收 Region 时，为了不进行全堆的扫描，引入了 Remembered Set</li>
 <li>Remembered Set 记录了当前 Region 中的对象被哪个对象引用了</li>
@@ -3005,7 +3005,7 @@
 <li>年轻代回收只回收Eden区和Survivor区</li>
 <li>YGC时，首先G1停止应用程序的执行（Stop-The-World），G1创建回收集（Collection Set），回收集是指需要被回收的内存分段的集合，年轻代回收过程的回收集包含年轻代Eden区和Survivor区所有的内存分段。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0022.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0022.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>图的大致意思就是：</p>
 <p>1、回收完E和S区，剩余存活的对象会复制到新的S区</p>
 <p>2、S区达到一定的阈值可以晋升为O区</p>
@@ -3050,7 +3050,7 @@
 <li>并发清理阶段：识别并清理完全空闲的区域。</li>
 </ol>
 <h3 id="G1回收过程三：混合回收过程"><a href="#G1回收过程三：混合回收过程" class="headerlink" title="G1回收过程三：混合回收过程"></a>G1回收过程三：混合回收过程</h3><p>当越来越多的对象晋升到老年代Old Region时，为了避免堆内存被耗尽，虚拟机会触发一个混合的垃圾收集器，即Mixed GC，该算法并不是一个Old GC，除了回收整个Young Region，还会回收一部分的Old Region。这里需要注意：是一部分老年代，而不是全部老年代。可以选择哪些Old Region进行收集，从而可以对垃圾回收的耗时时间进行控制。也要注意的是Mixed GC并不是Full GC。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0023.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0023.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><strong>混合回收的细节</strong></p>
 <ol>
 <li>并发标记结束以后，老年代中百分百为垃圾的内存分段被回收了，部分为垃圾的内存分段被计算了出来。默认情况下，这些老年代的内存分段会分8次（可以通过-XX:G1MixedGCCountTarget设置）被回收。【意思就是一个Region会被分为8个内存段】</li>
@@ -3081,7 +3081,7 @@
 </li>
 </ol>
 <h2 id="垃圾回收器总结"><a href="#垃圾回收器总结" class="headerlink" title="垃圾回收器总结"></a>垃圾回收器总结</h2><h3 id="7种垃圾回收器的比较"><a href="#7种垃圾回收器的比较" class="headerlink" title="7种垃圾回收器的比较"></a>7种垃圾回收器的比较</h3><p>截止JDK1.8，一共有7款不同的垃圾收集器。每一款的垃圾收集器都有不同的特点，在具体使用的时候，需要根据具体的情况选用不同的垃圾收集器。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0034.jpg" srcset="/img/loading.gif" lazyload alt="img"> <img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0024.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0034.jpg" srcset="/img/loading.gif" lazyload alt="img"> <img src="0024.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h3 id="怎么选择垃圾回收器"><a href="#怎么选择垃圾回收器" class="headerlink" title="怎么选择垃圾回收器"></a>怎么选择垃圾回收器</h3><p>Java垃圾收集器的配置对于JVM优化来说是一个很重要的选择，选择合适的垃圾收集器可以让JVM的性能有一个很大的提升。怎么选择垃圾收集器？</p>
 <ol>
 <li>优先调整堆的大小让JVM自适应完成。</li>
@@ -3126,9 +3126,9 @@
 <figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-deletion">-verbose:gc</span><br></code></pre></td></tr></table></figure>
 
 <p>2、这个只会显示总的GC堆的变化，如下：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0025.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0025.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>3、参数解析</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0026.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0026.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <blockquote>
 <p><strong>PrintGCDetails</strong></p>
 </blockquote>
@@ -3136,9 +3136,9 @@
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+PrintGCDetails</span><br></code></pre></td></tr></table></figure>
 
 <p>2、输入信息如下</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0027.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0027.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>3、参数解析</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0028.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0028.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <blockquote>
 <p><strong>PrintGCTimestamps 和 PrintGCDatestamps</strong></p>
 </blockquote>
@@ -3146,7 +3146,7 @@
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+PrintGCTimeStamps</span> -<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+PrintGCDateStamps</span><br></code></pre></td></tr></table></figure>
 
 <p>2、输出信息如下</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0029-165166274046511.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0029-165166274046511.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>3、说明：日志带上了日期和时间</p>
 <h3 id="GC日志补充说明"><a href="#GC日志补充说明" class="headerlink" title="GC日志补充说明"></a>GC日志补充说明</h3><ol>
 <li>“[GC”和”[Full GC”说明了这次垃圾收集的停顿类型，如果有”Full”则说明GC发生了”Stop The World”</li>
@@ -3163,20 +3163,20 @@
 </li>
 <li>user代表用户态回收耗时，sys内核态回收耗时，real实际耗时。由于多核线程切换的原因，时间总和可能会超过real时间</li>
 </ol>
-<h4 id="Young-GC"><a href="#Young-GC" class="headerlink" title="Young GC"></a>Young GC</h4><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0030-165166274046612.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h4 id="Full-GC"><a href="#Full-GC" class="headerlink" title="Full GC"></a>Full GC</h4><p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0031.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="Young-GC"><a href="#Young-GC" class="headerlink" title="Young GC"></a>Young GC</h4><p><img src="0030-165166274046612.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="Full-GC"><a href="#Full-GC" class="headerlink" title="Full GC"></a>Full GC</h4><p><img src="0031.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h4 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 在jdk7 和 jdk8中分别执行</span><br><span class="hljs-comment"> * -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:+UseSerialGC</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GCLogTest1</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">_1MB</span> <span class="hljs-operator">=</span> <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">testAllocation</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">byte</span>[] allocation1, allocation2, allocation3, allocation4;<br>        allocation1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">2</span> * _1MB];<br>        allocation2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">2</span> * _1MB];<br>        allocation3 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">2</span> * _1MB];<br>        allocation4 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">4</span> * _1MB];<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] agrs)</span> &#123;<br>        testAllocation();<br>    &#125;<br>&#125;Copy to clipboardErrorCopied<br></code></pre></td></tr></table></figure>
 
 <p><strong>JDK7 中的情况</strong></p>
 <p>1、首先我们会将3个2M的数组存放到Eden区，然后后面4M的数组来了后，将无法存储，因为Eden区只剩下2M的剩余空间了，那么将会进行一次Young GC操作，将原来Eden区的内容，存放到Survivor区，但是Survivor区也存放不下，那么就会直接晋级存入Old 区</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0032-165166274046613.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0032-165166274046613.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>2、然后我们将4M对象存入到Eden区中</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0033-165166274046614.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0033-165166274046614.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>老年代图画的有问题，free应该是4M</p>
 <p><strong>JDK8 中的情况</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java">com.atguigu.java.GCLogTest1<br>[GC (Allocation Failure) [DefNew: 6322K-&gt;668K(9216K), <span class="hljs-number">0.0034812</span> secs] 6322K-&gt;4764K(19456K), <span class="hljs-number">0.0035169</span> secs] [Times: user=<span class="hljs-number">0.00</span> sys=<span class="hljs-number">0.00</span>, real=<span class="hljs-number">0.00</span> secs] <br>Heap<br> def <span class="hljs-keyword">new</span> <span class="hljs-title class_">generation</span>   total 9216K, used 7050K [<span class="hljs-number">0x00000000fec00000</span>, <span class="hljs-number">0x00000000ff600000</span>, <span class="hljs-number">0x00000000ff600000</span>)<br>  eden space 8192K,  <span class="hljs-number">77</span>% used [<span class="hljs-number">0x00000000fec00000</span>, <span class="hljs-number">0x00000000ff23b668</span>, <span class="hljs-number">0x00000000ff400000</span>)<br>  from space 1024K,  <span class="hljs-number">65</span>% used [<span class="hljs-number">0x00000000ff500000</span>, <span class="hljs-number">0x00000000ff5a71d8</span>, <span class="hljs-number">0x00000000ff600000</span>)<br>  to   space 1024K,   <span class="hljs-number">0</span>% used [<span class="hljs-number">0x00000000ff400000</span>, <span class="hljs-number">0x00000000ff400000</span>, <span class="hljs-number">0x00000000ff500000</span>)<br> tenured generation   total 10240K, used 4096K [<span class="hljs-number">0x00000000ff600000</span>, <span class="hljs-number">0x0000000100000000</span>, <span class="hljs-number">0x0000000100000000</span>)<br>   the space 10240K,  <span class="hljs-number">40</span>% used [<span class="hljs-number">0x00000000ff600000</span>, <span class="hljs-number">0x00000000ffa00020</span>, <span class="hljs-number">0x00000000ffa00200</span>, <span class="hljs-number">0x0000000100000000</span>)<br> Metaspace       used 3469K, capacity 4496K, committed 4864K, reserved 1056768K<br>  <span class="hljs-keyword">class</span> <span class="hljs-title class_">space</span>    used 381K, capacity 388K, committed 512K, reserved 1048576K<br><br>Process finished with exit code <span class="hljs-number">0</span><br>Copy to clipboardErrorCopied<br></code></pre></td></tr></table></figure>
 
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0035.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0035.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>与 JDK7 不同的是，JDK8 直接判定 4M 的数组为大对象，直接怼到老年区去了</p>
 <h3 id="常用日志分析工具"><a href="#常用日志分析工具" class="headerlink" title="常用日志分析工具"></a>常用日志分析工具</h3><p><strong>保存日志文件</strong></p>
 <p><strong>JVM参数</strong>：<code>-XLoggc:./logs/gc.log</code>， .&#x2F; 表示当前目录，在 IDEA中程序运行的当前目录是工程的根目录，而不是模块的根目录</p>
@@ -3184,7 +3184,7 @@
 <p>GCViewer、GCEasy、GCHisto、GCLogViewer、Hpjmeter、garbagecat等</p>
 <p><strong>推荐：GCeasy</strong></p>
 <p>在线分析网址：gceasy.io</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0036.jpg" srcset="/img/loading.gif" lazyload alt="img"> <img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0037.png" srcset="/img/loading.gif" lazyload alt="img"> <img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0038-165166274046615.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0036.jpg" srcset="/img/loading.gif" lazyload alt="img"> <img src="0037.png" srcset="/img/loading.gif" lazyload alt="img"> <img src="0038-165166274046615.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <h2 id="垃圾回收器的新发展"><a href="#垃圾回收器的新发展" class="headerlink" title="垃圾回收器的新发展"></a>垃圾回收器的新发展</h2><h3 id="垃圾回收器的发展过程"><a href="#垃圾回收器的发展过程" class="headerlink" title="垃圾回收器的发展过程"></a>垃圾回收器的发展过程</h3><ol>
 <li>GC仍然处于飞速发展之中，目前的默认选项G1 GC在不断的进行改进，很多我们原来认为的缺点，例如串行的Full GC、Card Table扫描的低效等，都已经被大幅改进，例如，JDK10以后，Fu11GC已经是并行运行，在很多场景下，其表现还略优于ParallelGC的并行Ful1GC实现。</li>
 <li>即使是SerialGC，虽然比较古老，但是简单的设计和实现未必就是过时的，它本身的开销，不管是GC相关数据结构的开销，还是线程的开销，都是非常小的，所以随着云计算的兴起，在serverless等新的应用场景下，Serial Gc找到了新的舞台。</li>
@@ -3202,7 +3202,7 @@
 <li>停顿时间比其他几款收集器确实有了质的飞跃，但也未实现最大停顿时间控制在十毫秒以内的目标。</li>
 <li>而吞吐量方面出现了明显的下降，总运行时间是所有测试收集器里最长的。</li>
 </ol>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0039-165166274046616.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0039-165166274046616.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>总结</p>
 <ol>
 <li>Shenandoah GC的弱项：高运行负担下的吞吐量下降。</li>
@@ -3216,14 +3216,14 @@
 <li>ZGC几乎在所有地方并发执行的，除了初始标记的是STW的。所以停顿时间几乎就耗费在初始标记上，这部分的实际时间是非常少的。</li>
 </ol>
 <p><strong>吞吐量</strong></p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0040-165166274046617.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0040-165166274046617.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>max-JOPS：以低延迟为首要前提下的数据</p>
 <p>critical-JOPS：不考虑低延迟下的数据</p>
 <p><strong>低延迟</strong></p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0041.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0041.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>在ZGC的强项停顿时间测试上，它毫不留情的将Parallel、G1拉开了两个数量级的差距。无论平均停顿、95%停顿、998停顿、99. 98停顿，还是最大停顿时间，ZGC都能毫不费劲控制在10毫秒以内。</p>
 <p>虽然ZGC还在试验状态，没有完成所有特性，但此时性能已经相当亮眼，用“令人震惊、革命性”来形容，不为过。未来将在服务端、大内存、低延迟应用的首选垃圾收集器。</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/0042.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="0042.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
 <li><p>JDK14之前，ZGC仅Linux才支持。</p>
 </li>
@@ -3234,7 +3234,7 @@
 </li>
 </ol>
 <h3 id="面向大堆的AliGC"><a href="#面向大堆的AliGC" class="headerlink" title="面向大堆的AliGC"></a>面向大堆的AliGC</h3><p>AliGC是阿里巴巴JVM团队基于G1算法，面向大堆（LargeHeap）应用场景。指定场景下的对比：</p>
-<p><img src="%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20230406233123757.png" srcset="/img/loading.gif" lazyload alt="image-20230406233123757"></p>
+<p><img src="image-20230406233123757.png" srcset="/img/loading.gif" lazyload alt="image-20230406233123757"></p>
 
                 
               </div>

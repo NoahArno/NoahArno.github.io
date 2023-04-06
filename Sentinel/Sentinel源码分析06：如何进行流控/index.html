@@ -23,13 +23,13 @@
 <meta property="og:site_name" content="NoahArno">
 <meta property="og:description" content="Sentinel 中如何进行流量控制？在 Sentinel 中，有关流量控制的实现在 FlowSlot 中进行体现。 如官网所说：FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA &#x3D; SphU.entry(资源名字)">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/image-20230223235305222.png">
+<meta property="og:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/image-20230223235305222.png">
 <meta property="article:published_time" content="2023-04-06T15:41:46.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:09:04.938Z">
+<meta property="article:modified_time" content="2023-04-06T17:16:26.303Z">
 <meta property="article:author" content="NoahArno">
 <meta property="article:tag" content="Sentinel">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/image-20230223235305222.png">
+<meta name="twitter:image" content="https://noaharno.top/Sentinel/Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/image-20230223235305222.png">
   
   
   
@@ -385,7 +385,7 @@
 <li><code>strategy</code>: 根据调用关系选择策略</li>
 </ul>
 <h2 id="第一章-关于流量控制的基本概念"><a href="#第一章-关于流量控制的基本概念" class="headerlink" title="第一章 关于流量控制的基本概念"></a>第一章 关于流量控制的基本概念</h2><p>首先让我们来看看 Sentinel 提供的默认控制台中关于添加流控规则的界面：</p>
-<p><img src="Sentinel%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%9006%EF%BC%9A%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7/image-20230223235305222.png" srcset="/img/loading.gif" lazyload alt="image-20230223235305222"></p>
+<p><img src="image-20230223235305222.png" srcset="/img/loading.gif" lazyload alt="image-20230223235305222"></p>
 <p>可以发现，Sentinel 的流量控制主要有两种统计类型，由 <code>FlowRule.grade</code> 字段来进行定义：</p>
 <ul>
 <li><strong>统计线程数</strong>：线程数限流用于保护业务线程数不被耗尽。例如，当应用所依赖的下游应用由于某种原因导致服务不稳定、响应延迟增加，对于调用者来说，意味着吞吐量下降和更多的线程数占用，极端情况下甚至导致线程池耗尽。为应对高线程占用的情况，业内有使用隔离的方案，比如通过不同业务逻辑使用不同线程池来隔离业务自身之间的资源争抢（线程池隔离），或者使用信号量来控制同时请求的个数（信号量隔离）。这种隔离方案虽然能够控制线程数量，但无法控制请求排队时间。当请求过多时排队也是无益的，直接拒绝能够迅速降低系统压力。Sentinel线程数限流不负责创建和管理线程池，而是简单统计当前请求上下文的线程个数，如果超出阈值，新的请求会被立即拒绝。</li>
