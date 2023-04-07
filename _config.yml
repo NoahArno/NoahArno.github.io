@@ -109,5 +109,5 @@ theme: fluid
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: 'https://github.com/NoahArno/noaharno.github.io.git'
-  branch: master
+  repo: 'https://github.com/NoahArno/notes.git'
+  branch: gh-pages
