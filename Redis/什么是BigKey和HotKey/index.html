@@ -16,25 +16,22 @@
   <meta name="author" content="NoahArno">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1. LRU 和 LFU 的缺陷作为我们常用的缓存淘汰策略，LRU 和 LFU 一直被大家所熟知，但是它们其实也存在一些缺陷。 以 LRU 为例，当一个数据被访问的时候，就会将该数据给移动到最前端，这就存在一个问题，那就是如果有那么一瞬间访问了很多的数据，而这些数据其实只会访问一次，这就导致链表中的那些热点数据被迫移动到链表尾部，从而存在被淘汰的风险。 因此就可以使用 LFU 来解决这个问题，它为">
+    <meta name="description" content="什么是BigKey和HotKey？ 本文是对阿里开发者公众号发布的相关文章的小总结。将会从定义、产生原因、如何发现、带来的问题、如何解决这五方面去进行总结。  1. BigKey和HotKey的定义对于这两者的定义，似乎并没有一个固定的标准，基本上每个资料的定义都不一样，然而，这些判定标准都有共同点：  对于 BigKey 来说，通常以数据大小和成员数量作为评判标准；比如String类型的key的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TinyLFU：A Highly Efficient Cache Admission Policy">
-<meta property="og:url" content="https://noaharno.top/TinyLFU/TinyLFU/index.html">
+<meta property="og:title" content="什么是BigKey和HotKey">
+<meta property="og:url" content="https://noaharno.top/Redis/%E4%BB%80%E4%B9%88%E6%98%AFBigKey%E5%92%8CHotKey/index.html">
 <meta property="og:site_name" content="NoahArno">
-<meta property="og:description" content="1. LRU 和 LFU 的缺陷作为我们常用的缓存淘汰策略，LRU 和 LFU 一直被大家所熟知，但是它们其实也存在一些缺陷。 以 LRU 为例，当一个数据被访问的时候，就会将该数据给移动到最前端，这就存在一个问题，那就是如果有那么一瞬间访问了很多的数据，而这些数据其实只会访问一次，这就导致链表中的那些热点数据被迫移动到链表尾部，从而存在被淘汰的风险。 因此就可以使用 LFU 来解决这个问题，它为">
+<meta property="og:description" content="什么是BigKey和HotKey？ 本文是对阿里开发者公众号发布的相关文章的小总结。将会从定义、产生原因、如何发现、带来的问题、如何解决这五方面去进行总结。  1. BigKey和HotKey的定义对于这两者的定义，似乎并没有一个固定的标准，基本上每个资料的定义都不一样，然而，这些判定标准都有共同点：  对于 BigKey 来说，通常以数据大小和成员数量作为评判标准；比如String类型的key的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://noaharno.top/TinyLFU/TinyLFU/image-84.png">
-<meta property="article:published_time" content="2023-04-06T15:50:57.000Z">
-<meta property="article:modified_time" content="2023-04-06T17:16:26.643Z">
+<meta property="article:published_time" content="2023-04-07T02:35:40.000Z">
+<meta property="article:modified_time" content="2023-04-07T02:37:04.459Z">
 <meta property="article:author" content="NoahArno">
-<meta property="article:tag" content="数据库">
-<meta property="article:tag" content="PaperReading">
+<meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://noaharno.top/TinyLFU/TinyLFU/image-84.png">
   
   
   
-  <title>TinyLFU：A Highly Efficient Cache Admission Policy - NoahArno</title>
+  <title>什么是BigKey和HotKey - NoahArno</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -200,7 +197,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle">TinyLFU：A Highly Efficient Cache Admission Policy</span>
+            <span id="subtitle">什么是BigKey和HotKey</span>
           
         </div>
 
@@ -211,8 +208,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-04-06 23:50" pubdate>
-          2023年4月6日 晚上
+        <time datetime="2023-04-07 10:35" pubdate>
+          2023年4月7日 上午
         </time>
       </span>
     
@@ -223,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.1k 字
+          1.7k 字
         
       </span>
     
@@ -234,7 +231,7 @@
         
         
         
-          27 分钟
+          15 分钟
         
       </span>
     
@@ -274,6 +271,83 @@
 <div class="category-list">
   
   
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Redis"
+        id="heading-e111446745a1825b862f8727ae63bce4" role="tab" data-toggle="collapse" href="#collapse-e111446745a1825b862f8727ae63bce4"
+        aria-expanded="true"
+      >
+        Redis
+        <span class="list-group-count">(2)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-e111446745a1825b862f8727ae63bce4"
+           role="tabpanel" aria-labelledby="heading-e111446745a1825b862f8727ae63bce4">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="数据库"
+        id="heading-68051bf4aa2743b030984b694628ee9c" role="tab" data-toggle="collapse" href="#collapse-68051bf4aa2743b030984b694628ee9c"
+        aria-expanded="true"
+      >
+        数据库
+        <span class="list-group-count">(2)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-68051bf4aa2743b030984b694628ee9c"
+           role="tabpanel" aria-labelledby="heading-68051bf4aa2743b030984b694628ee9c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="" title="什么是BigKey和HotKey"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">什么是BigKey和HotKey</span>
+        </a>
+      
+    
+      
+      
+        <a href="../%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis/" title="深入理解Redis"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">深入理解Redis</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
 </div>
 
 
@@ -287,53 +361,51 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">TinyLFU：A Highly Efficient Cache Admission Policy</h1>
+            <h1 style="display: none">什么是BigKey和HotKey</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="1-LRU-和-LFU-的缺陷"><a href="#1-LRU-和-LFU-的缺陷" class="headerlink" title="1. LRU 和 LFU 的缺陷"></a>1. LRU 和 LFU 的缺陷</h2><p>作为我们常用的缓存淘汰策略，LRU 和 LFU 一直被大家所熟知，但是它们其实也存在一些缺陷。</p>
-<p>以 LRU 为例，当一个数据被访问的时候，就会将该数据给移动到最前端，这就存在一个问题，那就是如果有那么一瞬间访问了很多的数据，而这些数据其实只会访问一次，这就导致链表中的那些热点数据被迫移动到链表尾部，从而存在被淘汰的风险。</p>
-<p>因此就可以使用 LFU 来解决这个问题，它为每一个元素都保存了它的被访问次数，访问次数高的将不容易被淘汰，如果访问次数相同就可以按照 LRU 的规则，比较谁是最新访问的。</p>
-<p>总结来说：</p>
-<p>LRU 优点：实现简单，能满足大部分的需求；缺点：对热点数据的命中率不如 LFU</p>
-<p>LFU 优点：对热点数据的命中率更高；缺点：① 难以应对突发的稀疏流量。② 可能存在旧数据长期不被淘汰。③ 由于需要记录被访问次数，造成空间浪费。</p>
-<p>正是由于 LRU 和 LFU 存在或多或少的问题，因此就需要一种新的机制来代替它们。</p>
-<h2 id="2-Window-TinyLFU"><a href="#2-Window-TinyLFU" class="headerlink" title="2. Window-TinyLFU"></a>2. Window-TinyLFU</h2><p>TinyLFU 采用了 Count-Min Sketch 算法来统计数据的访问频率。在该算法中，我们认为一个缓存被访问 15 次就已经算是很高的频率了，因此只需要 4bits 就可以记录一个数据的访问频率。同时，为了解决 cmSktch 算法中出现的假阳性问题，可以给同一个数据多次计算访问次数，然后在查找的时候，就找到这几个不同的位置，然后统计它们的最小值作为结果。</p>
-<p>在实现方面，假设我们的 LFU 容量大小为 n，就可以初始化一个 4 行 n 列的二维数组。对于一个 key 而言，使用四种哈希函数，分别将其分布到二维数组的每一行中，然后找到对应的位置，将其数量进行自增。在查找的时候，同样使用四种哈希函数，然后找到该 key 在二维数组中的每一行的访问次数值，然后取四个值中的最小值。</p>
-<p>同时为了解决第二点的问题，在使用过程中，可以维护一个总访问计数器，如果该计数器达到了访问上限，就可以将 cmSketch 中的二维数组中的值全部减半操作，这就解决了缓存保鲜的问题。</p>
-<p>接下来为了解决第一个问题：难以应对突发的稀疏流量。Window-TinyLFU 的策略中，采用了两个 LRU。其中前端的小 LRU 叫做 Window LRU，它的容量只占用百分之一，它的目的就是用来存放短期的突发访问数据。而用于存放主要元素的 LRU 被称为 Cache LRU，它占内存的百分之九十九。其中它分为两个区域：Protected 和 Probation。其中 Protected 区域（我们将其称为 A1 段）占 Cache LRU 的 80%，而另一个区域 A2 段占 Cache LRU 的 20%。</p>
-<p><img src="image-84.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>具体上，对于所有的数据都会存入 Window LRU，当 Window 缓存满了，记录淘汰的数据 data1，然后判断 SLRU 中有没有满，如果 SLRU 没有满，将 data1 给插入 SLRU 中的 A2 段。如果满了，就从 A1 中淘汰掉一个数据 data2。此时就需要通过 cmSketch 来判断两者的价值，输的一方将被彻底淘汰，赢的一方则插入到 A2 中。</p>
-<p>而在 A2 中的数据，如果被再次访问到了，就需要升级到 A1，并将 A1 中淘汰的数据给放入 A2 中。</p>
-<p>最后一个问题，为了过滤掉一些低频访问的数据，防止它们污染缓存，可以使用 DoorKeeper 机制，它是一个 BloomFilter。如果一个元素，在 Doorkeeper 中，则直接插入 TinyLFU 的主结构，否则先插入 Doorkeeper 。对于数据查询，会将 Doorkeeper 中的那一个计数值也加到计数值上去。这样 DoorKeeper 就可以将低频数据拦截住，降低了计数器数量。</p>
-<h2 id="3-Redis-中的-LRU-和-LFU"><a href="#3-Redis-中的-LRU-和-LFU" class="headerlink" title="3. Redis 中的 LRU 和 LFU"></a>3. Redis 中的 LRU 和 LFU</h2><p>在 Redis 中的内存淘汰策略中，就使用到了 LRU 和 LFU。</p>
-<p>Redis 实现的 LRU 是一种近似的 LRU 算法，它在进行淘汰的时候，会采用随机采样的方式，也就是随机抽取 5 个值，然后比较它们的最近的访问时间戳（被记录在 redisObject 的 lru 字段上），淘汰掉最久没有使用的数据。</p>
-<p>对于这样的方式，一是不用为所有的数据维护一个大链表，节省空间。二是无需考虑在访问数据的时候将访问项给移动到链表头部，节省时间开销。</p>
-<p>对于 LFU 算法，Redis 将 redisObject 中的 lru 字段拆分成两部分，其实 16 bits 用来记录访问该 key 的时间戳，另外的 8 bits 用于存储 logc，也就是 Logistic Counter，它记录的是 key 的访问频次，值越小越容易被淘汰，初始值为 5。</p>
-<p>当 Redis 访问一个 key 的时候，首先会对 logc 进行衰减，衰减的值跟前后访问时间的差距有关系，如果上一次访问的时间与这一次访问的时间差距很大，那么衰减的值就越大，这样实现的 LFU 算法是根据<strong>访问频率</strong>来淘汰数据的，而不只是访问次数。访问频率需要考虑 key 的访问是多长时间段内发生的。key 的先前访问距离当前时间越长，那么这个 key 的访问频率相应地也就会降低，这样被淘汰的概率也会更大。</p>
-<p>对 logc 做完衰减操作后，就开始对 logc 进行增加操作，增加操作并不是单纯的 + 1，而是根据概率增加，如果 logc 越大的 key，它的 logc 就越难再增加。</p>
-<h2 id="4-MySQL-Buffer-Pool-中的-LRU"><a href="#4-MySQL-Buffer-Pool-中的-LRU" class="headerlink" title="4.  MySQL Buffer Pool 中的 LRU"></a>4.  MySQL Buffer Pool 中的 LRU</h2><p>为了解决预读失效和 BufferPool 污染问题，MySQL 改进了 LRU 算法。</p>
+                <h1 id="什么是BigKey和HotKey？"><a href="#什么是BigKey和HotKey？" class="headerlink" title="什么是BigKey和HotKey？"></a>什么是BigKey和HotKey？</h1><blockquote>
+<p>本文是对阿里开发者公众号发布的相关文章的小总结。将会从定义、产生原因、如何发现、带来的问题、如何解决这五方面去进行总结。</p>
+</blockquote>
+<h2 id="1-BigKey和HotKey的定义"><a href="#1-BigKey和HotKey的定义" class="headerlink" title="1. BigKey和HotKey的定义"></a>1. BigKey和HotKey的定义</h2><p>对于这两者的定义，似乎并没有一个固定的标准，基本上每个资料的定义都不一样，然而，这些判定标准都有共同点：</p>
 <ul>
-<li>预读失效：MySQL 在加载数据页的时候，会将其相邻的数据页一起加载进来并放在链表最头部，这就是 MySQL 的预读机制，但是如果当预读页一直不会被访问，却占据链表的头部，而被淘汰的数据页可能是频繁访问的页，这样就降低了缓存命中率。</li>
+<li>对于 BigKey 来说，通常以数据大小和成员数量作为评判标准；比如String类型的key的大小超过了一定大小、List类型的key的列表数量超过了一定数量。</li>
+<li>对于HotKey来说，通常以请求频率和数量来进行评判。当某个key的访问频率远超于其他的key的时候，就可以认为该key是HotKey。比如某个Redis实例的每秒访问量为一万，其中key-a的访问量就达到了七千，很显然该key就是一个hotkey。或者也可以从带宽占用率和CPU使用率的角度去进行考量。</li>
 </ul>
-<p>为了解决预读失效，MySQL 将 LRU 划分成两个区域：old 和 young 区。其中 young 区在链表的前半部分，比例为 63：37。对于预读的页只会加入到 old 区域的头部，只有当页被真正访问的时候才会插入到 young 区域的头部。</p>
+<p>同时需要注意的就是，对于两者的相关定义，还是需要根据Redis的实际使用场景和业务场景进行评判。</p>
+<h2 id="2-产生原因"><a href="#2-产生原因" class="headerlink" title="2. 产生原因"></a>2. 产生原因</h2><p>一般而言，是由于初期的设计不规范、Redis的不正确使用等造成的：</p>
 <ul>
-<li>Buffer Pool 污染：当一个 SQL 语句扫描了大量的数据的时候，可能会将 BufferPool 中的所有的页都给替换出去，导致大量热点数据被淘汰。</li>
+<li>将Redis用在并不适合其能力的场景。</li>
+<li>规划和设计不足，导致没有对Key的成员进行合理的拆分。</li>
+<li>没有对无效的数据进行定期清理，比如使用List作为消息队列的时候，消息消费后没有及时清理或者消费端出现故障等等。</li>
+<li>意料之外的事件导致请求增多。</li>
 </ul>
-<p>对于这些全表扫描的语句，很多的缓冲页其实只会被访问一次，如果就因为只访问一次而进入到了 young 区域，就会导致热点数据被替换。因此就需要提高数据进入到 young 区域的门槛，也就是增加一个停留在 young 区域的时间判断。</p>
-<p>具体是这样做的，在对某个处在 old 区域的缓存页进行第一次访问时，就在它对应的控制块中记录下来这个访问时间：</p>
+<h2 id="3-带来的问题"><a href="#3-带来的问题" class="headerlink" title="3. 带来的问题"></a>3. 带来的问题</h2><h3 id="3-1-BigKey带来的问题"><a href="#3-1-BigKey带来的问题" class="headerlink" title="3.1 BigKey带来的问题"></a>3.1 BigKey带来的问题</h3><ul>
+<li>从客户端，也就是使用者的角度来看，BigKey的存在会导致使用者使用Redis的时候，明显的感觉到Redis变慢，一个是因为BigKey在网络传输的时候所占用的带宽比较高，进而引起服务器上的其余的服务，或者Redis本身。一个是因为对BigKey的操作，无论是删除还是修改，都容易造成Redis主线程阻塞。</li>
+<li>从持久化的角度考虑：在AOF日志重写和RDB过程中，会存在父进程和子进程之间的写时复制，若修改了一个BigKey，就会造化内存的复制，这也是为什么Redis在AOF重写或RDB过程中，对于哈希表的负载因子为1的时候也不会去进行rehash的重要原因。</li>
+<li>从集群角度来看，也就是Redis Cluster，BigKey会导致内存分布不均匀，因为数据迁移的最小粒度是key。</li>
+</ul>
+<h3 id="3-2-HotKey带来的问题"><a href="#3-2-HotKey带来的问题" class="headerlink" title="3.2 HotKey带来的问题"></a>3.2 HotKey带来的问题</h3><ul>
+<li>从集群角度来看，请求分布不均，可能导致某个Redis实例的压力过大，而其余的实例较为空闲。同时某个Redis实例可能由于压力过大而导致崩溃，进而造成缓存击穿，从而影响到MySQL或其它的一些下流组件，进而造成系统的全面崩溃。</li>
+<li>同时，如果一个Key的请求过多，占用了大部分的带宽或CPU，则会影响其余的请求。</li>
+</ul>
+<h2 id="4-如何发现"><a href="#4-如何发现" class="headerlink" title="4. 如何发现"></a>4. 如何发现</h2><p><strong>BigKey</strong></p>
 <ul>
-<li>如果后续的访问时间与第一次访问的时间<strong>在某个时间间隔内</strong>，那么<strong>该缓存页就不会被从 old 区域移动到 young 区域的头部</strong>；</li>
-<li>如果后续的访问时间与第一次访问的时间<strong>不在某个时间间隔内</strong>，那么<strong>该缓存页移动到 young 区域的头部</strong>；</li>
+<li>使用Redis客户端的 –bigkeys命令去查看，但是只会返回每种类型中最大的那个bigkey，同时对于集合类型来说，只会根据集合中的元素个数进行比较，而不是实际的大小。</li>
+<li>使用SCAN 对数据库扫描，然后使用 TYPE 分析该 key 的类型，对于 String 类型，使用 STRLEN 去查看字符串的长度；对于集合类型，使用 MEMORY USAGE 命令去查看一个键值对占用的内存空间。</li>
 </ul>
-<p>而该间隔时间默认是 1000 ms，也就是说，<strong>只有同时满足「被访问」与「在 old 区域停留时间超过 1 秒」两个条件，才会被插入到 young 区域头部</strong>，这样就解决了 Buffer Pool 污染的问题 。</p>
-<p>另外，MySQL 针对 young 区域其实做了一个优化，为了防止 young 区域节点频繁移动到头部。young 区域前面 1&#x2F;4 被访问不会移动到链表头部，只有后面的 3&#x2F;4被访问了才会。</p>
-<h2 id="5-Reference"><a href="#5-Reference" class="headerlink" title="5. Reference"></a>5. Reference</h2><p>论文原文：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1512.00727.pdf">https://arxiv.org/pdf/1512.00727.pdf</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1tP4y1n7gD/?spm_id_from=333.999.0.0&vd_source=c9f2ba203b0cd7ce73a2f3d0a7b49f8b">硬核课堂：实现更高效的缓存 解读TinyLFU算法_哔哩哔哩 bilibili</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/dgryski/go-tinylfu/blob/master/tinylfu.go">go-tinylfu&#x2F;tinylfu.go at master · dgryski&#x2F;go-tinylfu (github.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/redis/module/strategy.html#%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E7%AD%96%E7%95%A5">Redis 过期删除策略和内存淘汰策略有什么区别？ | 小林coding (xiaolincoding.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/mysql/buffer_pool/buffer_pool.html#%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E7%BC%93%E5%AD%98%E5%91%BD%E4%B8%AD%E7%8E%87">揭开 Buffer Pool 的面纱 | 小林coding (xiaolincoding.com)</a></p>
+<p><strong>HotKey</strong></p>
+<ul>
+<li>将 Redis 的内存淘汰策略设置为 LFU，然后使用 Redis 客户端的 hotkeys 命令进行发现，也就是返回所有 key 的被访问次数。</li>
+<li>在业务层进行定位，但是会导致业务层的代码更为复杂，也会降低一定的性能。</li>
+<li>使用开源的工具。</li>
+</ul>
+<h2 id="5-如何处理"><a href="#5-如何处理" class="headerlink" title="5. 如何处理"></a>5. 如何处理</h2><p>对于 BigKey 来说，可以将其进行合理的拆分；在删除方面，可以使用 Redis 4.0 提供的异步删除的方式，或者每次删除一点点。也可以去使用监控系统监控 Redis 的内存使用率或增长率等等。</p>
+<p>对于 HotKey 来说，可以将 HotKey 进行复制并迁移到其他的节点中，但是对于数据一致性来说有需要进行额外的处理措施；如果是读多写少的数据，可以进行读写分离。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/FPYE1B839_8Yk1-YSiW-1Q">一文详解Redis中BigKey、HotKey的发现与处理 (qq.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/redis/base/redis_interview.html#redis-%E7%9A%84%E5%A4%A7-key-%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86">Redis 常见面试题–redis的大key如何处理 | 小林coding (xiaolincoding.com)</a></p>
 
                 
               </div>
@@ -342,13 +414,39 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="../../categories/Redis/" class="category-chain-item">Redis</a>
+  
+  
+    <span>></span>
+    
+  <a href="../../categories/Redis/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="../../tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
-      
-        <a href="../../tags/PaperReading/">#PaperReading</a>
+        <a href="../../tags/Redis/">#Redis</a>
       
     </div>
   
@@ -360,8 +458,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>TinyLFU：A Highly Efficient Cache Admission Policy</div>
-      <div>https://noaharno.top/TinyLFU/TinyLFU/</div>
+      <div>什么是BigKey和HotKey</div>
+      <div>https://noaharno.top/Redis/什么是BigKey和HotKey/</div>
     </div>
     <div class="license-meta">
       
@@ -373,7 +471,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年4月6日</div>
+          <div>2023年4月7日</div>
         </div>
       
       
@@ -405,9 +503,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="../../Redis/%E4%BB%80%E4%B9%88%E6%98%AFBigKey%E5%92%8CHotKey/" title="什么是BigKey和HotKey">
+                      <a href="../../Disruptor/Disruptor%EF%BC%9A%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97/" title="Disruptor：高性能无锁队列">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">什么是BigKey和HotKey</span>
+                        <span class="hidden-mobile">Disruptor：高性能无锁队列</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -415,8 +513,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="../../HotRing/HotRing/" title="HotRing: A Hotspot-Aware In-Memory Key-Value Store">
-                        <span class="hidden-mobile">HotRing: A Hotspot-Aware In-Memory Key-Value Store</span>
+                      <a href="../../TinyLFU/TinyLFU/" title="TinyLFU：A Highly Efficient Cache Admission Policy">
+                        <span class="hidden-mobile">TinyLFU：A Highly Efficient Cache Admission Policy</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
